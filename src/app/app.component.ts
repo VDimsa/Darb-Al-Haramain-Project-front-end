@@ -8,5 +8,5 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'Darb-Al-Haramain-Project-front-end';
+  title = 'درب الحرمين';
 }

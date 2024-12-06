@@ -1,0 +1,17 @@
+<div class="image-container" *ngIf="data?.mapImage">
+  <img 
+    id="draggable-image"
+    [src]="data?.mapImage" 
+    [alt]="data?.name" 
+    class="map-image" 
+    (mousedown)="onDragStart($event)" 
+    (mousemove)="onDrag($event)" 
+    (mouseup)="onDragEnd()" 
+    (mouseleave)="onDragEnd()"/>
+
+  <ul class="list-group" style="position: absolute; top: 0; left: 0; background: #000000;">
+    <li class="list-group-item" (click)="clearData()">
+      <i class="fa-solid fa-circle-chevron-left"></i>
+    </li>
+  </ul>
+</div>
