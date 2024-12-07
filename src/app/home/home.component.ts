@@ -3,8 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ProjectsDashboardComponent } from "../projects-dashboard/projects-dashboard.component";
-import { Project } from '../shared/project.model';
+import { ProjectsDashboardComponent } from "../shared/projects-dashboard/projects-dashboard.component";
+import { Project } from '../shared/projects-dashboard/project.model';
 
 @Component({
   selector: 'app-home',
