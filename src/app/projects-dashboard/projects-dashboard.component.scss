@@ -5,19 +5,25 @@
     top: 0;
     left: 0;
     overflow: hidden;
-  }
+}
   
-  .map-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    cursor: grab;
-    user-select: none;
-    transform-origin: center center;
-    transition: transform 0.2s ease; 
-  }
-  
-  .image-container::-webkit-scrollbar {
-    display: none;
-  }
-  
+.map-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: grab;
+  user-select: none;
+  transform-origin: center center;
+  transition: transform 0.2s ease; 
+}
+
+.image-container::-webkit-scrollbar {
+  display: none;
+}
+
+.side-bar {
+  position: absolute; 
+  background: #014034;
+  left: 0; 
+  top: 0; 
+}

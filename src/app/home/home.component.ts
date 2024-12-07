@@ -23,7 +23,7 @@ export class HomeComponent {
     {
       id: 1,
       name: 'مشروع درب الحرمين',
-      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
+      mapImage: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733557106/inv4kki12ltoa7fqoupo.webp',
       points: [
         { id: 1, type: 'school', position: { x: 20, y: 30 } },
         { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
@@ -34,7 +34,7 @@ export class HomeComponent {
     {
       id: 2,
       name: 'مشروع درب الحرمين',
-      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
+      mapImage: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733557106/inv4kki12ltoa7fqoupo.webp',
       points: [
         { id: 1, type: 'school', position: { x: 20, y: 30 } },
         { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
@@ -64,6 +64,72 @@ export class HomeComponent {
         { id: 4, type: 'school', position: { x: 40, y: 80 } },
       ],
     },
+    {
+      id: 5,
+      name: 'مشروع درب الحرمين',
+      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
+      points: [
+        { id: 1, type: 'school', position: { x: 20, y: 30 } },
+        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
+        { id: 3, type: 'building', position: { x: 70, y: 40 } },
+        { id: 4, type: 'school', position: { x: 40, y: 80 } },
+      ],
+    },
+    {
+      id: 6,
+      name: 'مشروع درب الحرمين',
+      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
+      points: [
+        { id: 1, type: 'school', position: { x: 20, y: 30 } },
+        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
+        { id: 3, type: 'building', position: { x: 70, y: 40 } },
+        { id: 4, type: 'school', position: { x: 40, y: 80 } },
+      ],
+    },
+    {
+      id: 7,
+      name: 'مشروع درب الحرمين',
+      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
+      points: [
+        { id: 1, type: 'school', position: { x: 20, y: 30 } },
+        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
+        { id: 3, type: 'building', position: { x: 70, y: 40 } },
+        { id: 4, type: 'school', position: { x: 40, y: 80 } },
+      ],
+    },
+    {
+      id: 8,
+      name: 'مشروع درب الحرمين',
+      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
+      points: [
+        { id: 1, type: 'school', position: { x: 20, y: 30 } },
+        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
+        { id: 3, type: 'building', position: { x: 70, y: 40 } },
+        { id: 4, type: 'school', position: { x: 40, y: 80 } },
+      ],
+    },
+    {
+      id: 9,
+      name: 'مشروع درب الحرمين',
+      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
+      points: [
+        { id: 1, type: 'school', position: { x: 20, y: 30 } },
+        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
+        { id: 3, type: 'building', position: { x: 70, y: 40 } },
+        { id: 4, type: 'school', position: { x: 40, y: 80 } },
+      ],
+    },
+    {
+      id: 10,
+      name: 'مشروع درب الحرمين',
+      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
+      points: [
+        { id: 1, type: 'school', position: { x: 20, y: 30 } },
+        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
+        { id: 3, type: 'building', position: { x: 70, y: 40 } },
+        { id: 4, type: 'school', position: { x: 40, y: 80 } },
+      ],
+    },
   ];
 
   projectData: Project | null = null;
@@ -75,9 +141,9 @@ export class HomeComponent {
   constructor(private sanitizer: DomSanitizer) {}
 
   ngOnInit() {
-    this.projectData = this.projects[0] || null;
-    this.selectedProject = this.projectData;
-    //this.filteredProjects = this.projects;
+    //this.projectData = this.projects[0] || null;
+    //this.selectedProject = this.projectData;
+    this.filteredProjects = this.projects;
   }
 
   getIconName(type: string): string {

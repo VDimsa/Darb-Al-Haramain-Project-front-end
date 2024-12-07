@@ -50,8 +50,8 @@ export class ProjectsDashboardComponent {
     const maxX = Math.max(0, window.innerWidth - imgElement.width * this.scale);
     const maxY = Math.max(0, window.innerHeight - imgElement.height * this.scale);
 
-    this.transformX = Math.min(Math.max(this.transformX, -imgElement.width * this.scale + window.innerWidth), 0);
-    this.transformY = Math.min(Math.max(this.transformY, -imgElement.height * this.scale + window.innerHeight), 0);
+    //this.transformX = Math.min(Math.max(this.transformX, -imgElement.width * this.scale + window.innerWidth), 0);
+    //this.transformY = Math.min(Math.max(this.transformY, -imgElement.height * this.scale + window.innerHeight), 0);
 
     imgElement.style.transform = `translate(${this.transformX}px, ${this.transformY}px) scale(${this.scale})`;
   }

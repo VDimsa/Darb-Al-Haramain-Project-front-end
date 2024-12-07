@@ -1,6 +1,8 @@
 <ion-content>
   <div class="container d-flex flex-column"  *ngIf="!selectedProject">
 
+    <img src="https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico" alt="logo" 
+      style=" width: 100px; align-self: center; margin: 100px 0 40px; ">
     <div class="input-group mb-3">
       <button class="btn btn-outline-secondary" type="button" (input)="onSearchChange()">تفريغ</button>
       <button class="btn btn-outline-secondary" type="button" (input)="backToSearch()">بحث</button>
@@ -9,7 +11,7 @@
     </div>
     
     <div>
-      <ul *ngIf="filteredProjects.length" class="list-group">
+      <ul *ngIf="filteredProjects.length" class="list-group" style=" max-height: 300px; overflow: auto; ">
         <li *ngFor="let project of filteredProjects" (click)="selectProject(project)" class="list-group-item">
           {{ project.name }}
         </li>

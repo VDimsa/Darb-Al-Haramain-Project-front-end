@@ -1,0 +1,102 @@
+// Primary Colors
+$main-color: #014034;
+$golden-gradient-start: #F2DE77;
+$golden-gradient-middle: #A65C1C;
+$golden-gradient-end: #BF9341;
+
+// Neutral Colors
+$white: #FFFFFF;
+$light-gray: #F7F7F7;
+$gray: #CCCCCC;
+$dark-gray: #333333;
+$black: #000000;
+
+// Gradients
+$golden-gradient: linear-gradient(to bottom, $golden-gradient-start, $golden-gradient-middle, $golden-gradient-end);
+$golden-gradient-left: linear-gradient(to left, $golden-gradient-start, $golden-gradient-middle, $golden-gradient-end);
+$main-to-gold-gradient: linear-gradient(to bottom, $main-color, $golden-gradient-middle);
+
+// Shadows
+$box-shadow-light: 0 4px 6px rgba($black, 0.1);
+$box-shadow-dark: 0 4px 6px rgba($black, 0.2);
+
+// Typography
+$text-color: $golden-gradient-middle;
+$text-color-light: $light-gray;
+$text-color-highlight: $golden-gradient-start;
+
+// Border
+$border-color: $gray;
+$border-color-highlight: $golden-gradient-middle;
+
+/* Custom Scrollbar Theme */
+::-webkit-scrollbar {
+    width: 6px; 
+    height: 6px; 
+    background: transparent;
+}
+  
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+::-webkit-scrollbar-thumb {
+  background: $golden-gradient; 
+  border: 1.5px solid $light-gray;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: $golden-gradient; 
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+  
+// Usage Example
+body {
+  background-color: $main-color;
+  color: $text-color;
+  scrollbar-width: thin;
+  scrollbar-color: $golden-gradient $light-gray;
+}
+
+html, body {
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    display: block;
+    direction: rtl;
+}
+
+p {
+    margin: 0;
+}
+  
+.input-group.mb-3 *, ul.list-group {
+    border-radius: 0 !important;
+}
+
+button, input, li {
+    color: #6c757d !important;
+    border-color: $border-color !important;
+    background: transparent !important;
+}
+
+button:hover, li:hover {
+    color: #fff !important;
+    background: $golden-gradient-left !important;
+    border-color: $border-color !important;
+}
+
+button:focus, input:focus, li:focus {
+    box-shadow: none !important;
+}
+
+button:not(:disabled):not(.disabled), li:not(:disabled):not(.disabled) {
+    cursor: pointer;
+}
+
+.list-group {
+    padding: 0;
+}
