@@ -1,0 +1,126 @@
+.preloader {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 1);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    z-index: 9999;
+  
+    svg {
+      width: 50px;
+      animation: flipAnimation 3s infinite linear, strokeFlow 4s ease-in-out infinite alternate;
+    }
+  }
+  
+  .cls-1 {
+    fill: url(#linear-gradient);
+  }
+  
+  .cls-1,
+  .cls-2,
+  .cls-3,
+  .cls-4,
+  .cls-5,
+  .cls-6,
+  .cls-7 {
+    stroke-width: 0px;
+  }
+  
+  .cls-8 {
+    clip-path: url(#clippath-2);
+  }
+  
+  .cls-2 {
+    fill: url(#linear-gradient-5);
+  }
+  
+  .cls-3 {
+    fill: #00423a;
+  }
+  
+  .cls-9 {
+    clip-path: url(#clippath-1);
+  }
+  
+  .cls-10 {
+    clip-path: url(#clippath-4);
+  }
+  
+  .cls-4 {
+    clip-rule: evenodd;
+    fill: none;
+  }
+  
+  .cls-5 {
+    fill: url(#linear-gradient-2);
+  }
+  
+  .cls-6 {
+    fill: url(#linear-gradient-3);
+  }
+  
+  .cls-11 {
+    clip-path: url(#clippath);
+  }
+  
+  .cls-12 {
+    clip-path: url(#clippath-3);
+  }
+  
+  .cls-7 {
+    fill: url(#linear-gradient-4);
+  }
+  
+  .preloader svg {
+    stroke: #c8a212;
+    stroke-width: 2px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+  
+  .cls-1,
+  .cls-2,
+  .cls-5,
+  .cls-6,
+  .cls-7 {
+    animation: luxuryPulse 3s ease-in-out infinite alternate;
+  }
+  
+  @keyframes luxuryPulse {
+    0% {
+      fill-opacity: 1;
+    }
+    100% {
+      fill-opacity: 0.3;
+    }
+  }
+  
+  @keyframes strokeFlow {
+    0% {
+      stroke-dashoffset: 1000;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+  
+  @keyframes flipAnimation {
+    0% {
+      transform: rotateX(0deg) rotateY(0deg);
+    }
+    50% {
+        transform: rotateX(0) rotateY(180deg);
+    }
+    100% {
+        transform: rotateX(0deg) rotateY(0deg);
+    }
+  }
+  

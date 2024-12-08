@@ -4,6 +4,10 @@ export interface Project {
   id: number;
   name: string;
   mapImage: string;
+  autoScroll?: {
+    x: number; 
+    y: number; 
+  }
   points: Point[];
 }
 

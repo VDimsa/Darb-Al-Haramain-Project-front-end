@@ -8,7 +8,6 @@
 }
   
 .map-image {
-  cursor: grab;
   width: fit-content;
   height: fit-content;
   max-width: 2000px;
@@ -47,6 +46,7 @@
   align-content: center;
   opacity: 0.9;
   zoom: 0.8;
+  pointer-events: all;
 
   &.isProject {
     background: white;
@@ -94,4 +94,5 @@
   height: fit-content;
   min-width: fit-content;
   min-height: fit-content;
+  pointer-events: none;
 }

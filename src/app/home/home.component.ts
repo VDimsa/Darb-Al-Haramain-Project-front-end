@@ -24,6 +24,7 @@ export class HomeComponent {
     {
       id: 1,
       name: 'مشروع درب الحرمين',
+      autoScroll: { x: 100, y: 20},
       mapImage: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733557106/inv4kki12ltoa7fqoupo.webp',
       points: [
         {
@@ -85,9 +86,9 @@ export class HomeComponent {
   constructor(private sanitizer: DomSanitizer) {}
 
   ngOnInit() {
-    //this.projectData = this.projects[0] || null;
-    //this.selectedProject = this.projectData;
-    this.filteredProjects = this.projects;
+    this.projectData = this.projects[0] || null;
+    this.selectedProject = this.projectData;
+    //this.filteredProjects = this.projects;
   }
 
   getIconName(type: string): string {

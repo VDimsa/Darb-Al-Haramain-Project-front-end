@@ -1,11 +1,15 @@
 <div class="image-container" *ngIf="data?.mapImage">
 
-  <div class="scroll-container">
+  <app-preload *ngIf="data?.mapImage && showPreloader"></app-preload>
+
+  <div class="scroll-container" #scrollContainer>
     <div class="map-container">
       <!-- Map Image -->
       <img 
         [src]="data?.mapImage" 
         [alt]="data?.name" 
+        (load)="onImageLoad()"
+        (error)="onImageError()"
         class="map-image"/>
   
       <!-- Points overlay -->
