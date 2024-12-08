@@ -31,6 +31,10 @@
   background: #014034;
   left: 0; 
   top: 0; 
+  
+  button {
+    border-width: 0 0 1px 0 !important;
+  }
 }
 
 .point {
@@ -86,6 +90,11 @@
   width: auto;
   aspect-ratio: 3;
   overflow: scroll;
+  scrollbar-width: none;
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none;
 }
 
 .map-container {
