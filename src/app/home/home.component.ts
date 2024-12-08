@@ -25,109 +25,26 @@ export class HomeComponent {
       name: 'مشروع درب الحرمين',
       mapImage: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733557106/inv4kki12ltoa7fqoupo.webp',
       points: [
-        { id: 1, type: 'school', position: { x: 20, y: 30 } },
-        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
-        { id: 3, type: 'building', position: { x: 70, y: 40 } },
-        { id: 4, type: 'school', position: { x: 40, y: 80 } },
-      ],
-    },
-    {
-      id: 2,
-      name: 'مشروع درب الحرمين',
-      mapImage: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733557106/inv4kki12ltoa7fqoupo.webp',
-      points: [
-        { id: 1, type: 'school', position: { x: 20, y: 30 } },
-        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
-        { id: 3, type: 'building', position: { x: 70, y: 40 } },
-        { id: 4, type: 'school', position: { x: 40, y: 80 } },
-      ],
-    },
-    {
-      id: 3,
-      name: 'مشروع درب الحرمين الحرمين',
-      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
-      points: [
-        { id: 1, type: 'school', position: { x: 20, y: 30 } },
-        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
-        { id: 3, type: 'building', position: { x: 70, y: 40 } },
-        { id: 4, type: 'school', position: { x: 40, y: 80 } },
-      ],
-    },
-    {
-      id: 4,
-      name: 'مشروع درب الحرمين',
-      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
-      points: [
-        { id: 1, type: 'school', position: { x: 20, y: 30 } },
-        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
-        { id: 3, type: 'building', position: { x: 70, y: 40 } },
-        { id: 4, type: 'school', position: { x: 40, y: 80 } },
-      ],
-    },
-    {
-      id: 5,
-      name: 'مشروع درب الحرمين',
-      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
-      points: [
-        { id: 1, type: 'school', position: { x: 20, y: 30 } },
-        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
-        { id: 3, type: 'building', position: { x: 70, y: 40 } },
-        { id: 4, type: 'school', position: { x: 40, y: 80 } },
-      ],
-    },
-    {
-      id: 6,
-      name: 'مشروع درب الحرمين',
-      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
-      points: [
-        { id: 1, type: 'school', position: { x: 20, y: 30 } },
-        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
-        { id: 3, type: 'building', position: { x: 70, y: 40 } },
-        { id: 4, type: 'school', position: { x: 40, y: 80 } },
-      ],
-    },
-    {
-      id: 7,
-      name: 'مشروع درب الحرمين',
-      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
-      points: [
-        { id: 1, type: 'school', position: { x: 20, y: 30 } },
-        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
-        { id: 3, type: 'building', position: { x: 70, y: 40 } },
-        { id: 4, type: 'school', position: { x: 40, y: 80 } },
-      ],
-    },
-    {
-      id: 8,
-      name: 'مشروع درب الحرمين',
-      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
-      points: [
-        { id: 1, type: 'school', position: { x: 20, y: 30 } },
-        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
-        { id: 3, type: 'building', position: { x: 70, y: 40 } },
-        { id: 4, type: 'school', position: { x: 40, y: 80 } },
-      ],
-    },
-    {
-      id: 9,
-      name: 'مشروع درب الحرمين',
-      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
-      points: [
-        { id: 1, type: 'school', position: { x: 20, y: 30 } },
-        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
-        { id: 3, type: 'building', position: { x: 70, y: 40 } },
-        { id: 4, type: 'school', position: { x: 40, y: 80 } },
-      ],
-    },
-    {
-      id: 10,
-      name: 'مشروع درب الحرمين',
-      mapImage: 'assets/image/projects/Darb-Al-Haramain-Project.webp',
-      points: [
-        { id: 1, type: 'school', position: { x: 20, y: 30 } },
-        { id: 2, type: 'hospital', position: { x: 50, y: 60 } },
-        { id: 3, type: 'building', position: { x: 70, y: 40 } },
-        { id: 4, type: 'school', position: { x: 40, y: 80 } },
+        {
+          id: 1, type: 'school', position: { x: 20, y: 30 },
+          name: '',
+          isProejct: false
+        },
+        {
+          id: 2, type: 'hospital', position: { x: 50, y: 60 },
+          name: '',
+          isProejct: false
+        },
+        {
+          id: 3, type: 'building', position: { x: 70, y: 40 },
+          name: '',
+          isProejct: false
+        },
+        {
+          id: 4, type: 'school', position: { x: 40, y: 80 },
+          name: '',
+          isProejct: false
+        },
       ],
     },
   ];

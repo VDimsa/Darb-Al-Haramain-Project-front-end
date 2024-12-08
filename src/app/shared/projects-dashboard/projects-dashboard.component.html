@@ -1,4 +1,5 @@
 <div class="image-container" *ngIf="data?.mapImage">
+  <!-- Map Image -->
   <img 
     id="draggable-image"
     [src]="data?.mapImage" 
@@ -9,6 +10,17 @@
     (mouseup)="onDragEnd()" 
     (mouseleave)="onDragEnd()"/>
 
+  <!-- Points overlay -->
+  <div 
+    *ngFor="let point of data?.points" 
+    [style.left.%]="point.position.x" 
+    [style.top.%]="point.position.y" 
+    class="point"
+    [ngClass]="{'isProject': point.isProejct}">
+    <i [class]="getPointClass(point.type)"></i>
+  </div>
+
+  <!-- Sidebar -->
   <ul class="list-group side-bar">
     <li class="list-group-item" (click)="clearData()">
       <i class="fa-solid fa-circle-chevron-left"></i>

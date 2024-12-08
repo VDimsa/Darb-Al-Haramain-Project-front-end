@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { pointTypes, PointType } from './project.model';
 
 @Component({
   selector: 'app-projects-dashboard',
@@ -20,6 +21,11 @@ export class ProjectsDashboardComponent {
   private scale = 1;
   private transformX = 0;
   private transformY = 0;
+
+  getPointClass(type: string): string {
+    const pointType = pointTypes.find((pt: PointType) => pt.type === type);
+    return pointType ? pointType.class : '';
+  }
 
   onDragStart(event: MouseEvent) {
     this.isDragging = true;
@@ -49,9 +55,6 @@ export class ProjectsDashboardComponent {
     const imgElement = document.getElementById('draggable-image') as HTMLImageElement;
     const maxX = Math.max(0, window.innerWidth - imgElement.width * this.scale);
     const maxY = Math.max(0, window.innerHeight - imgElement.height * this.scale);
-
-    //this.transformX = Math.min(Math.max(this.transformX, -imgElement.width * this.scale + window.innerWidth), 0);
-    //this.transformY = Math.min(Math.max(this.transformY, -imgElement.height * this.scale + window.innerHeight), 0);
 
     imgElement.style.transform = `translate(${this.transformX}px, ${this.transformY}px) scale(${this.scale})`;
   }
