@@ -86,8 +86,8 @@ export class HomeComponent {
   constructor(private sanitizer: DomSanitizer) {}
 
   ngOnInit() {
-    this.projectData = this.projects[0] || null;
-    this.selectedProject = this.projectData;
+    //this.projectData = this.projects[0] || null;
+    //this.selectedProject = this.projectData;
     //this.filteredProjects = this.projects;
   }
 
