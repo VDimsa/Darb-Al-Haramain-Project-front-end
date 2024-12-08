@@ -1,0 +1,35 @@
+@use '../../assets/theme/theme.scss' as theme;
+
+:host {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+}
+
+.dashboard {
+    width: 80vw;
+    height: 80vh;
+    margin: auto;
+    align-content: center;
+
+    * span {
+      color: #fff !important;
+    }
+
+    .mat-tab-group {
+      background-color: theme.$main-color;
+      color: white;
+    }
+  
+    .tabs-dark-theme {
+      background-color: theme.$main-color;
+    }
+  
+    .tab-content {
+      padding: 20px;
+      color: white;
+      background-color: theme.$main-color;
+      min-height: 200px;
+    }
+  }
+  

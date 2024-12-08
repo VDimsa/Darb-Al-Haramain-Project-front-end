@@ -1,5 +1,3 @@
-import { Url } from "url";
-
 export interface Project {
   id: number;
   name: string;
@@ -7,26 +5,21 @@ export interface Project {
   autoScroll?: {
     x: number; 
     y: number; 
-  }
+  };
   points: Point[];
 }
 
 export interface Point {
   id: number;
   name: string;
-  type: string;
-  isProejct: boolean;
+  type: PointTypeEnum; 
+  isProject: boolean;  
+  paths?: PathToPoints[]; 
   logo?: URL;
-  position: {
+  position: { 
     x: number; 
     y: number; 
   };
-}
-
-export interface PointType {
-  id: number;
-  type: string;
-  class: string;
 }
 
 export const pointTypes: PointType[] = [
@@ -55,4 +48,37 @@ export const pointTypes: PointType[] = [
     type: "hospital",
     class: "fa-solid fa-circle-h",
   },
+  {
+    id: 6,
+    type: "project",
+    class: "",
+  },
 ];
+
+
+export enum PointTypeEnum {
+  MOSQUE = 'mosque',
+  SCHOOL = 'school',
+  RESTAURANT = 'restaurant',
+  MALL = 'mall',
+  HOSPITAL = 'hospital',
+  PROJECT = 'project',
+}
+
+export interface PathToPoints {
+  point: Point;  
+  path: Path[];
+  time?: string;
+}
+
+export interface Path {
+  id: number;
+  x: number; 
+  y: number; 
+}
+
+export interface PointType {
+  id: number;
+  type: string; 
+  class: string; 
+}

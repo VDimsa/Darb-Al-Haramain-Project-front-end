@@ -20,6 +20,6 @@
   </div>
 
   <ion-card *ngIf="selectedProject">
-    <app-projects-dashboard *ngIf="selectedProject.id" [data]="selectedProject" (dataCleared)="backToSearch()"></app-projects-dashboard>
+    <app-projects-dashboard *ngIf="selectedProject.id" [project]="selectedProject" (dataCleared)="backToSearch()"></app-projects-dashboard>
   </ion-card>
 </ion-content>

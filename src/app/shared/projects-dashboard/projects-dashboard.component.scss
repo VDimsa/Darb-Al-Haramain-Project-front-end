@@ -15,6 +15,8 @@
   object-fit: cover;
   transform-origin: center center;
   transition: transform 0.2s ease; 
+  position: relative;
+  z-index: -2;
 }
 
 .points-dashboard {
@@ -104,4 +106,14 @@
   min-width: fit-content;
   min-height: fit-content;
   pointer-events: none;
+}
+
+.path-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
 }
