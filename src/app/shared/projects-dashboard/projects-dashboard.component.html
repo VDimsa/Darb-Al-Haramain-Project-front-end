@@ -1,23 +1,26 @@
 <div class="image-container" *ngIf="data?.mapImage">
-  <!-- Map Image -->
-  <img 
-    id="draggable-image"
-    [src]="data?.mapImage" 
-    [alt]="data?.name" 
-    class="map-image" 
-    (mousedown)="onDragStart($event)" 
-    (mousemove)="onDrag($event)" 
-    (mouseup)="onDragEnd()" 
-    (mouseleave)="onDragEnd()"/>
 
-  <!-- Points overlay -->
-  <div 
-    *ngFor="let point of data?.points" 
-    [style.left.%]="point.position.x" 
-    [style.top.%]="point.position.y" 
-    class="point"
-    [ngClass]="{'isProject': point.isProejct}">
-    <i [class]="getPointClass(point.type)"></i>
+  <div class="scroll-container">
+    <div class="map-container">
+      <!-- Map Image -->
+      <img 
+        [src]="data?.mapImage" 
+        [alt]="data?.name" 
+        class="map-image"/>
+  
+      <!-- Points overlay -->
+       <div class="points-dashboard">
+        <div 
+          *ngFor="let point of data?.points" 
+          [style.left.%]="point.position.x" 
+          [style.top.%]="point.position.y" 
+          class="point"
+          [ngClass]="{'isProject': point.isProejct}">
+          <i *ngIf="!point.isProejct" [class]="getPointClass(point.type)"></i>
+          <img *ngIf="point.isProejct" [src]="point.logo" alt="Project Logo">
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Sidebar -->

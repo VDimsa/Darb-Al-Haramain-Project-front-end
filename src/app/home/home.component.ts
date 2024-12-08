@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ProjectsDashboardComponent } from "../shared/projects-dashboard/projects-dashboard.component";
 import { Project } from '../shared/projects-dashboard/project.model';
+import { url } from 'inspector';
 
 @Component({
   selector: 'app-home',
@@ -26,22 +27,48 @@ export class HomeComponent {
       mapImage: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733557106/inv4kki12ltoa7fqoupo.webp',
       points: [
         {
-          id: 1, type: 'school', position: { x: 20, y: 30 },
+          id: 1, type: 'project', position: { x: 39, y: 48 },
+          name: '',
+          logo: new URL("https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico"),
+          isProejct: true
+        },
+        {
+          id: 2, type: 'hospital', position: { x: 60, y: 32 },
           name: '',
           isProejct: false
         },
         {
-          id: 2, type: 'hospital', position: { x: 50, y: 60 },
+          id: 3, type: 'hospital', position: { x: 69, y: 61 },
           name: '',
           isProejct: false
         },
         {
-          id: 3, type: 'building', position: { x: 70, y: 40 },
+          id: 4, type: 'hospital', position: { x: 28, y: 40 },
           name: '',
           isProejct: false
         },
         {
-          id: 4, type: 'school', position: { x: 40, y: 80 },
+          id: 5, type: 'mall', position: { x: 54.3, y: 30 },
+          name: '',
+          isProejct: false
+        },
+        {
+          id: 6, type: 'mall', position: { x: 63, y: 29 },
+          name: '',
+          isProejct: false
+        },
+        {
+          id: 7, type: 'mall', position: { x: 29, y: 52 },
+          name: '',
+          isProejct: false
+        },
+        {
+          id: 8, type: 'restaurant', position: { x: 42, y: 37 },
+          name: '',
+          isProejct: false
+        },
+        {
+          id: 9, type: 'school', position: { x: 75, y: 51 },
           name: '',
           isProejct: false
         },

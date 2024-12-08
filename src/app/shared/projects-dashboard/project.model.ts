@@ -1,3 +1,5 @@
+import { Url } from "url";
+
 export interface Project {
   id: number;
   name: string;
@@ -10,6 +12,7 @@ export interface Point {
   name: string;
   type: string;
   isProejct: boolean;
+  logo?: URL;
   position: {
     x: number; 
     y: number; 

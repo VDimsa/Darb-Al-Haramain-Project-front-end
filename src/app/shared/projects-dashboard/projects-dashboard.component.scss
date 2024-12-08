@@ -8,13 +8,19 @@
 }
   
 .map-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
   cursor: grab;
+  width: fit-content;
+  height: fit-content;
+  max-width: 2000px;
   user-select: none;
+  object-fit: cover;
   transform-origin: center center;
   transition: transform 0.2s ease; 
+}
+
+.points-dashboard {
+  width: 100%;
+  height: 100%;
 }
 
 .image-container::-webkit-scrollbar {
@@ -39,12 +45,20 @@
   height: 45px;
   border-radius: 50%;
   align-content: center;
+  opacity: 0.9;
+  zoom: 0.8;
 
   &.isProject {
     background: white;
     zoom: 1.3;
     width: 40px;
     height: 40px;
+    border-radius: 0;
+    padding: 5px;
+
+    img {
+      width: 100%;
+    }
 
     i {
       color: #014034;
@@ -56,4 +70,28 @@
     color: white;
     pointer-events: none;
   }
+}
+
+.point:hover {
+  opacity: 1;
+  zoom: 0.9;
+
+  &.isProject {
+    zoom: 1.4;
+  }
+}
+
+.scroll-container {
+  height: 100%;
+  width: auto;
+  aspect-ratio: 3;
+  overflow: scroll;
+}
+
+.map-container {
+  position: relative;
+  width: fit-content;
+  height: fit-content;
+  min-width: fit-content;
+  min-height: fit-content;
 }
