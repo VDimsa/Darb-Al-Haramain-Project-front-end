@@ -1,0 +1,65 @@
+@use '../../../assets/theme/theme.scss' as theme;
+
+.nav-container {
+  background-color: theme.$main-color;
+  width: 100%;
+  justify-items: right;
+
+  .navbar {
+    margin: 0;
+    padding: 0;
+
+    ul {
+      padding: 0;
+    }
+
+    li {
+      padding: 10px;
+
+      a {
+        height: 100%;
+        display: block;
+        align-content: center;
+      }
+
+      .logo {
+        animation: flipAnimation 10s infinite linear;
+      }
+    }
+
+    li:hover {
+      background: rgb(theme.$golden-gradient-middle, 0.4) !important;
+
+      a {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  * {
+    color: theme.$light-gray;
+  }
+
+  form {
+    * {
+      border-radius: 0;
+    }
+  }
+}
+
+
+@keyframes flipAnimation {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  80% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  90% {
+      transform: rotateX(0) rotateY(180deg);
+  }
+  100% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  
+}

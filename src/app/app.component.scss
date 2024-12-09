@@ -1,9 +1,11 @@
+@use '../assets/theme/theme.scss' as theme;
+
 :host {
   display: block;
   height: 100vh;
 }
 
-::after {
+:host::after {
   content: '';
   position: absolute;
   top: 0;

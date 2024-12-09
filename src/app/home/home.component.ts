@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ProjectsDashboardComponent } from "../shared/projects-dashboard/projects-dashboard.component";
 import { Project } from '../shared/projects-dashboard/project.model';
 import { PointTypeEnum } from '../shared/projects-dashboard/project.model';
 import { staticProjects } from '../../assets/staticPaths';
+import { NavmenuComponent } from "../shared/navmenu/navmenu.component";
 
 @Component({
   selector: 'app-home',
@@ -14,11 +14,11 @@ import { staticProjects } from '../../assets/staticPaths';
   styleUrls: ['./home.component.scss'],
   standalone: true,
   imports: [
-    IonicModule,
     CommonModule,
     FormsModule,
-    ProjectsDashboardComponent
-  ]
+    ProjectsDashboardComponent,
+    NavmenuComponent
+]
 })
 export class HomeComponent {
   projects: Project[] = staticProjects;

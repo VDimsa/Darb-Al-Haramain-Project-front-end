@@ -1,5 +1,6 @@
-<ion-content>
-  <div class="container d-flex flex-column"  *ngIf="!selectedProject">
+<div>
+  <app-navmenu></app-navmenu>
+  <div class="container d-flex flex-column search-container"  *ngIf="!selectedProject">
 
     <img src="https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico" alt="logo" 
       style=" width: 100px; align-self: center; margin: 100px 0 40px; ">
@@ -19,7 +20,7 @@
     </div>
   </div>
 
-  <ion-card *ngIf="selectedProject">
+  <div *ngIf="selectedProject">
     <app-projects-dashboard *ngIf="selectedProject.id" [project]="selectedProject" (dataCleared)="backToSearch()"></app-projects-dashboard>
-  </ion-card>
-</ion-content>
+  </div>
+</div>

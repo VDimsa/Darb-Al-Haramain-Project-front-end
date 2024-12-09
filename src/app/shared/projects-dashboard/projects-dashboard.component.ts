@@ -32,23 +32,33 @@ export class ProjectsDashboardComponent {
 
   selectedPath: { d: string }[] = []; 
 
+  ngOnInit() {
+    this.selectFirstProjectPoint();
+  }
+
   ngAfterViewInit() {
     this.autoScroll();
+  }
+
+  selectFirstProjectPoint() {
+    if (this.project && this.project.points) {
+      const firstProjectPoint = this.project.points.find(point => point.isProject);
+      if (firstProjectPoint) {
+        this.onPointClick(firstProjectPoint);
+      }
+    }
   }
 
   onPointClick(point: any) {
     if (point.isProject) {
       this.selectedPath = [];
       this.selectedProjectPoint = point; // Assign the selected project
-      console.log('Project selected:', point);
     } else {
       this.selectedPath = [];
       this.selectedPoint = point; // Assign the selected point
-      console.log('Point selected:', point);
     }
   
     if (this.selectedProjectPoint && this.selectedPoint) {
-      console.log('Both point and project have been selected!');
       this.drawPath();
     }
   }
@@ -75,10 +85,7 @@ export class ProjectsDashboardComponent {
     .map((p, index) => `${index === 0 ? 'M' : 'L'} ${p.x * 20},${p.y * 10.83}`)
     .join(' ');
   
-    console.log('Generated Path Data: ', pathData); // Add this log to see what is generated
-  
     this.selectedPath = [{ d: pathData }];
-    console.log('Path selected:', this.selectedPath);
   }
     
   autoScroll() {

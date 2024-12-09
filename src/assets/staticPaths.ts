@@ -4,7 +4,7 @@ export const staticProjects: Project[] = [
   {
     id: 1,
     name: 'مشروع درب الحرمين',
-    autoScroll: { x: 100, y: 20},
+    autoScroll: { x: 15, y: 18},
     mapImage: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733557106/inv4kki12ltoa7fqoupo.webp',
     points: [
       {

@@ -2,21 +2,16 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
+    width: 100vw;
 }
   
 .container {
   display: flex;
   flex: 1;
   overflow: hidden;
-
   flex-direction: column;
 
-  @media (min-width: 768px) {
-    flex-direction: row;
+  .search-container {
+    max-width: 500px;
   }
-}
-
-ion-searchbar {
-  width: 100%;
-  margin: 10px 0;
 }
