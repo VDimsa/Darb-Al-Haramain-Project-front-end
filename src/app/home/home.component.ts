@@ -74,6 +74,6 @@ export class HomeComponent {
   backToSearch() {
     this.selectedProject = null;
     this.searchTerm = '';
-    this.filteredProjects = this.projects;
+    this.filteredProjects = [];
   }
 }

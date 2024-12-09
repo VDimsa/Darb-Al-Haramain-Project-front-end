@@ -7,11 +7,18 @@
     <mat-tab label="إضافة مشروع">
       <div class="tab-content">Tab 1 Content</div>
     </mat-tab>
-    <mat-tab label="Tab 2">
-      <div class="tab-content">Tab 2 Content</div>
-    </mat-tab>
-    <mat-tab label="Tab 3">
-      <div class="tab-content">Tab 3 Content</div>
+    <mat-tab label="حسابى">
+      <div class="tab-content">
+        <div *ngIf="userInfo">
+          <h3>معلومات المستخدم</h3>
+          <p><strong>الاسم:</strong> {{ userInfo.username }}</p>
+          <p><strong>البريد الإلكتروني:</strong> {{ userInfo.email }}</p>
+          <button class="btn btn-outline-secondary" type="button" (click)="logout()">logout</button>
+        </div>
+        <div *ngIf="!userInfo">
+          <p>جارٍ تحميل بيانات المستخدم...</p>
+        </div>
+      </div>
     </mat-tab>
   </mat-tab-group>
 </div>

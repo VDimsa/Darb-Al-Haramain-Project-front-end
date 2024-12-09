@@ -83,6 +83,10 @@ button, input, li {
     background: transparent !important;
 }
 
+li {
+    cursor: pointer;
+}
+
 input::placeholder {
     color: $dark-gray !important;
 }

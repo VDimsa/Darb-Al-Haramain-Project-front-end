@@ -1,15 +1,22 @@
 import { Component, Inject, PLATFORM_ID, NgZone, AfterViewInit } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-navmenu',
-  imports: [RouterLink],
+  imports: [
+    RouterLink,
+    CommonModule
+  ],
   templateUrl: './navmenu.component.html',
   styleUrls: ['./navmenu.component.scss'],
 })
 export class NavmenuComponent implements AfterViewInit {
-  constructor(@Inject(PLATFORM_ID) private platformId: any, private ngZone: NgZone) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: any, 
+    private ngZone: NgZone,
+    private router: Router,
+  ) {}
 
   ngAfterViewInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -31,5 +38,12 @@ export class NavmenuComponent implements AfterViewInit {
         console.error('Bootstrap import error:', error);
       });
     }
+  }
+  // Check if the user is logged in by checking if a token exists in localStorage
+  isLoggedIn(): boolean {
+    if (isPlatformBrowser(this.platformId)) {
+      return !!localStorage.getItem('token');
+    }
+    return false;
   }
 }
