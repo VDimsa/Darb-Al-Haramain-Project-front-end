@@ -1,0 +1,34 @@
+@use '../../assets/theme/theme.scss' as theme;
+
+:host {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  align-content: center;
+}
+  
+.card {
+  color: theme.$light-gray;
+  background: transparent;
+
+  * {
+    border-radius: 0;
+  }
+}
+
+.invalid-feedback {
+  display: block;
+}
+
+.is-invalid {
+  border-color: #dc3545;
+}
+
+.alert {
+  font-size: 1rem;
+  text-align: center;
+}
+
+.spinner-border-sm {
+  margin-right: 5px;
+}

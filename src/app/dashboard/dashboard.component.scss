@@ -1,35 +1,59 @@
 @use '../../assets/theme/theme.scss' as theme;
 
 :host {
-    width: 100vw;
-    height: 100vh;
-    display: block;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  align-content: center;
 }
 
 .dashboard {
-    width: 80vw;
-    height: 80vh;
-    margin: auto;
-    align-content: center;
-
-    * span {
-      color: #fff !important;
-    }
-
-    .mat-tab-group {
-      background-color: theme.$main-color;
-      color: white;
-    }
+  width: 80vw;
+  height: 80vh;
+  margin: auto;
+  align-content: center;
+  box-shadow: 0px 0 20px 0px rgba(0, 0, 0, 0.4);
+}
   
-    .tabs-dark-theme {
-      background-color: theme.$main-color;
-    }
-  
-    .tab-content {
-      padding: 20px;
-      color: white;
-      background-color: theme.$main-color;
-      min-height: 200px;
-    }
+::ng-deep .tabs-dark-theme .mdc-tab__text-label {
+  color: white !important;
+  font-family: "Noto Sans Arabic", sans-serif; 
+  font-optical-sizing: auto; 
+  font-style: normal;
+}
+
+::ng-deep .tabs-dark-theme .mdc-tab--active .mdc-tab__text-label {
+  color: theme.$golden-gradient-start !important;
+}
+
+::ng-deep .mat-mdc-tab-group {
+  height: 100% !important;
+  background-color: theme.$main-color;
+}
+
+::ng-deep .mat-mdc-tab-body-wrapper {
+  height: 100% !important;
+  align-items: center;
+}
+
+::ng-deep .mat-mdc-tab-body {
+  min-height: 100%;
+  align-content: center;
+}
+
+::ng-deep .mat-mdc-tab-body-content {
+  min-height: 100% !important;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+}
+
+::ng-deep .tab-content {
+  min-height: 100% !important;
+  align-content: center;  
+
+  button {
+    border-radius: 0;
   }
-  
+}
