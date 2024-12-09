@@ -1,18 +1,17 @@
-<mat-card *ngIf="currentProject">
+<div *ngIf="currentProject">
     <app-projects-dashboard *ngIf="currentProject.id" [project]="currentProject"></app-projects-dashboard>
-</mat-card>
+</div>
   
 <div class="dashboard">
-    <mat-tab-group class="tabs-dark-theme">
-      <mat-tab label="Tab 1">
-        <div class="tab-content">Tab 1 Content</div>
-      </mat-tab>
-      <mat-tab label="Tab 2">
-        <div class="tab-content">Tab 2 Content</div>
-      </mat-tab>
-      <mat-tab label="Tab 3">
-        <div class="tab-content">Tab 3 Content</div>
-      </mat-tab>
-    </mat-tab-group>
-  </div>
-  
+  <p-tabView>
+    <p-tabPanel header="Tab 1">
+      <div class="tab-content">Tab 1 Content</div>
+    </p-tabPanel>
+    <p-tabPanel header="Tab 2">
+      <div class="tab-content">Tab 2 Content</div>
+    </p-tabPanel>
+    <p-tabPanel header="Tab 3">
+      <div class="tab-content">Tab 3 Content</div>
+    </p-tabPanel>
+  </p-tabView>
+</div>
