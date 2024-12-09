@@ -6,7 +6,6 @@ import { ProjectsDashboardComponent } from "../shared/projects-dashboard/project
 import { Project } from '../shared/projects-dashboard/project.model';
 import { PointTypeEnum } from '../shared/projects-dashboard/project.model';
 import { staticProjects } from '../../assets/staticPaths';
-import { NavmenuComponent } from "../shared/navmenu/navmenu.component";
 
 @Component({
   selector: 'app-home',
@@ -17,7 +16,6 @@ import { NavmenuComponent } from "../shared/navmenu/navmenu.component";
     CommonModule,
     FormsModule,
     ProjectsDashboardComponent,
-    NavmenuComponent
 ]
 })
 export class HomeComponent {
@@ -31,8 +29,8 @@ export class HomeComponent {
   constructor(private sanitizer: DomSanitizer) {}
 
   ngOnInit() {
-    this.projectData = this.projects[0] || null;
-    this.selectedProject = this.projectData;
+    //this.projectData = this.projects[0] || null;
+    //this.selectedProject = this.projectData;
     //this.filteredProjects = this.projects;
   }
 

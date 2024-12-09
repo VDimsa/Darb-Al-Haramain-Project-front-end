@@ -22,6 +22,12 @@
         align-content: center;
       }
 
+      &.home {
+        border: 1px solid theme.$dark-gray;
+        border-width: 0 1px 0 1px;
+        margin: 0 22px;
+      }
+
       .logo {
         animation: flipAnimation 10s infinite linear;
       }

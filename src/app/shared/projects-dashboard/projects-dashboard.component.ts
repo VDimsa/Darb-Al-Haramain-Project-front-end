@@ -32,12 +32,8 @@ export class ProjectsDashboardComponent {
 
   selectedPath: { d: string }[] = []; 
 
-  ngOnInit() {
-    this.selectFirstProjectPoint();
-  }
-
   ngAfterViewInit() {
-    this.autoScroll();
+    this.selectFirstProjectPoint();
   }
 
   selectFirstProjectPoint() {
@@ -104,6 +100,7 @@ export class ProjectsDashboardComponent {
   }
   
   onImageLoad() {
+    this.autoScroll();
     setTimeout(() => {
       this.showPreloader = false;
     }, 2000);

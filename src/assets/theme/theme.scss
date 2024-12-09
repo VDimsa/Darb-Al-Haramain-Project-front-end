@@ -8,7 +8,7 @@ $golden-gradient-end: #BF9341;
 $white: #FFFFFF;
 $light-gray: #F7F7F7;
 $gray: #CCCCCC;
-$dark-gray: #333333;
+$dark-gray: #767676;
 $black: #000000;
 
 // Gradients
@@ -78,13 +78,17 @@ p {
 }
 
 button, input, li {
-    color: #6c757d !important;
+    color: $gray !important;
     border-color: $border-color !important;
     background: transparent !important;
 }
 
+input::placeholder {
+    color: $dark-gray !important;
+}
+
 button:hover, li:hover {
-    color: #fff !important;
+    color: $gray !important;
     background: $golden-gradient-left !important;
     border-color: $border-color !important;
 }
