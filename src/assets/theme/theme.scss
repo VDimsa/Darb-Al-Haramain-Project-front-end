@@ -97,10 +97,6 @@ button:focus, input:focus, li:focus {
     box-shadow: none !important;
 }
 
-button:not(:disabled):not(.disabled), li:not(:disabled):not(.disabled) {
-    cursor: pointer;
-}
-
 .list-group {
     padding: 0;
 }
