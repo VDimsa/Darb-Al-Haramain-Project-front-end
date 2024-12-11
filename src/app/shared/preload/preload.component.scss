@@ -124,3 +124,10 @@
     }
   }
   
+  .click-through {
+    pointer-events: none;
+
+    * {
+      pointer-events: none;
+    }
+  }

@@ -29,7 +29,7 @@ export const routes: Routes = [
   {
     path: 'ar/dashboard',
     component: DashboardComponent,
-    //canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
 
   { path: '', redirectTo: '/ar', pathMatch: 'full' },

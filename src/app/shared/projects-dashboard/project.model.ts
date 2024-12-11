@@ -1,7 +1,7 @@
 export interface Project {
-  id: number;
+  id: number | null;
   name: string;
-  mapImage: string;
+  mapImage: string | File | null;
   autoScroll?: {
     x: number; 
     y: number; 
@@ -15,7 +15,7 @@ export interface Point {
   type: PointTypeEnum; 
   isProject: boolean;  
   paths?: PathToPoints[]; 
-  logo?: URL;
+  logo?: string | File | null;
   position: { 
     x: number; 
     y: number; 

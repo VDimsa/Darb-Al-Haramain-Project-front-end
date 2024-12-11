@@ -1,28 +1,34 @@
 <div class="image-container" *ngIf="project?.mapImage">
-
-  <app-preload *ngIf="project?.mapImage && showPreloader"></app-preload>
-
   <div class="scroll-container" #scrollContainer>
     <div class="map-container">
       <!-- Map Image -->
       <img 
-        [src]="project?.mapImage" 
+        [src]="getMapImageSource(project?.mapImage)" 
         [alt]="project?.name" 
         (load)="onImageLoad()"
         (error)="onImageError()"
         class="map-image"/>
-  
+      
       <!-- Points overlay -->
-       <div class="points-dashboard">
-        <div 
-          *ngFor="let point of project?.points" 
-          [style.left.%]="point.position.x" 
-          [style.top.%]="point.position.y" 
-          class="point"
-          [ngClass]="{'isProject': point.isProject}"
-          (click)="onPointClick(point)">
-          <i *ngIf="!point.isProject" [class]="getPointClass(point.type)" [id]="point.id"></i>
-          <img *ngIf="point.isProject" [src]="point.logo" alt="Project Logo">
+      <div style="
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%; 
+        height: 100%;
+        overflow: hidden;
+        ">
+        <div class="points-dashboard">
+          <div 
+            *ngFor="let point of project?.points" 
+            [style.left.%]="point.position.x" 
+            [style.top.%]="point.position.y" 
+            class="point"
+            [ngClass]="{'isProject': point.isProject}"
+            (click)="onPointClick(point)">
+            <i *ngIf="!point.isProject" [class]="getPointClass(point.type)" [id]="point.id"></i>
+            <img *ngIf="point.isProject" [src]="getMapImageSource(point.logo)" alt="Project Logo">
+          </div>
         </div>
       </div>
 

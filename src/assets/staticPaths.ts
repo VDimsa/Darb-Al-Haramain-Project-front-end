@@ -12,7 +12,7 @@ export const staticProjects: Project[] = [
         type: PointTypeEnum.PROJECT, 
         position: { x: 39, y: 48 },
         name: '',
-        logo: new URL("https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico"),
+        logo: "https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico",
         isProject: true,
         paths: [
           {

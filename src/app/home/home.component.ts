@@ -6,6 +6,7 @@ import { ProjectsDashboardComponent } from "../shared/projects-dashboard/project
 import { Project } from '../shared/projects-dashboard/project.model';
 import { PointTypeEnum } from '../shared/projects-dashboard/project.model';
 import { staticProjects } from '../../assets/staticPaths';
+import { PreloaderService } from '../shared/preload/preloader.service';
 
 @Component({
   selector: 'app-home',
@@ -26,14 +27,23 @@ export class HomeComponent {
   filteredProjects: Project[] = [];
   selectedProject: Project | null = null;
 
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor(
+    private sanitizer: DomSanitizer,
+    private preloaderService: PreloaderService,
+  ) {
+    this.preloaderService.show();
+  }
 
   ngOnInit() {
     //this.projectData = this.projects[0] || null;
     //this.selectedProject = this.projectData;
     //this.filteredProjects = this.projects;
-  }
 
+    setTimeout(() => {
+      this.preloaderService.hide();
+    }, 2000);
+  }
+  
   // Return the correct icon class based on the Point type
   getIconName(type: PointTypeEnum): string {
     switch (type) {
@@ -60,7 +70,7 @@ export class HomeComponent {
       this.filteredProjects = [];
     } else {
       this.filteredProjects = this.projects.filter(project =>
-        project.id.toString().includes(term) || project.name.toLowerCase().includes(term)
+        project.id!.toString().includes(term) || project.name.toLowerCase().includes(term)
       );
     }
   }

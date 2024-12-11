@@ -1,12 +1,66 @@
-<div *ngIf="currentProject">
-    <app-projects-dashboard *ngIf="currentProject.id" [project]="currentProject"></app-projects-dashboard>
+<div *ngIf="currentProject || !dashboardVisible">
+    <app-projects-dashboard *ngIf="currentProject" [project]="currentProject" (dataCleared)="backToDashboard()"></app-projects-dashboard>
 </div>
   
-<div class="dashboard">
+<div class="dashboard" *ngIf="!currentProject || dashboardVisible">
   <mat-tab-group class="tabs-dark-theme">
     <mat-tab label="إضافة مشروع">
-      <div class="tab-content">Tab 1 Content</div>
+      <div class="tab-content">
+        <form (ngSubmit)="onSubmit()" #projectForm="ngForm" class="new-project-form">
+          <div class="form-group" style="width: 100%;">
+            <label for="projectName">اسم المشروع</label>
+            <input 
+              type="text" 
+              id="projectName" 
+              class="form-control" 
+              name="name" 
+              [(ngModel)]="newProject.name" 
+              required 
+              placeholder="أدخل اسم المشروع" 
+            />
+          </div>
+          
+          <div class="form-group image">
+            <label for="logo">شعار المشروع</label>
+            <input 
+              type="file" 
+              id="logo" 
+              class="form-control" 
+              name="logo" 
+              (change)="onFileSelected($event, 'logo')" 
+              accept="image/*"
+            />
+            <div *ngIf="previewLogo">
+              <img [src]="previewLogo" alt="Project Logo Preview" class="preview-img" />
+            </div>
+          </div>
+        
+          <div class="form-group image">
+            <label for="mapImage">صورة الخريطة</label>
+            <input 
+              type="file" 
+              id="mapImage" 
+              class="form-control" 
+              name="mapImage" 
+              (change)="onFileSelected($event, 'mapImage')" 
+              accept="image/*"
+            />
+            <div *ngIf="previewMapImage">
+              <img [src]="previewMapImage" alt="Map Image Preview" class="preview-img" />
+            </div>
+          </div>
+        
+          <button 
+            type="submit" 
+            class="btn btn-primary" 
+            [disabled]="!newProject.name || !logo || !newProject.mapImage"
+          >
+            التالى
+          </button>
+        </form>
+      </div>
     </mat-tab>
+    
     <mat-tab label="حسابى">
       <div class="tab-content">
         <div *ngIf="userInfo">
@@ -16,7 +70,7 @@
           <button class="btn btn-outline-secondary" type="button" (click)="logout()">logout</button>
         </div>
         <div *ngIf="!userInfo">
-          <p>جارٍ تحميل بيانات المستخدم...</p>
+          <p>يتم نقل هذه البيانات الى صفحة "حسابى"...</p>
         </div>
       </div>
     </mat-tab>

@@ -1,14 +1,14 @@
 import { Component, ElementRef, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { pointTypes, PointType, Project, Point } from './project.model';
-import { PreloadComponent } from "../preload/preload.component";
+import { AppComponent } from '../../app.component';
+import { PreloaderService } from '../preload/preloader.service';
 
 @Component({
   selector: 'app-projects-dashboard',
   standalone: true,
   imports: [
     CommonModule,
-    PreloadComponent
 ],
   templateUrl: './projects-dashboard.component.html',
   styleUrls: ['./projects-dashboard.component.scss']
@@ -28,12 +28,26 @@ export class ProjectsDashboardComponent {
   private transformX = 0;
   private transformY = 0;
 
-  showPreloader = true;
+  private imageCache = new Map<File, string>();
 
   selectedPath: { d: string }[] = []; 
 
+  constructor(
+    private preloaderService: PreloaderService,
+  ) {
+    this.preloaderService.show();
+  }
+
   ngAfterViewInit() {
     this.selectFirstProjectPoint();
+
+    setTimeout(() => {
+      this.preloaderService.hide();
+    }, 2000);
+  }
+
+  ngOnDestroy() {
+    this.clearCachedURLs();
   }
 
   selectFirstProjectPoint() {
@@ -48,10 +62,10 @@ export class ProjectsDashboardComponent {
   onPointClick(point: any) {
     if (point.isProject) {
       this.selectedPath = [];
-      this.selectedProjectPoint = point; // Assign the selected project
+      this.selectedProjectPoint = point; 
     } else {
       this.selectedPath = [];
-      this.selectedPoint = point; // Assign the selected point
+      this.selectedPoint = point; 
     }
   
     if (this.selectedProjectPoint && this.selectedPoint) {
@@ -62,21 +76,21 @@ export class ProjectsDashboardComponent {
   drawPath() {
     if (!this.project || !this.selectedProjectPoint || !this.selectedPoint) return;
   
-    // Find the main project point which contains the paths
+    
     const projectPoint = this.project.points.find(p => p.isProject);
     if (!projectPoint || !projectPoint.paths) {
       console.error('Main project point or its paths not found.');
       return;
     }
   
-    // Find the path corresponding to the selected point
+    
     const pathToPoint = projectPoint.paths.find(p => p.point.id === this.selectedPoint!.id);
     if (!pathToPoint) {
       console.error('Path to the selected point not found.');
       return;
     }
   
-    // Create the 'd' attribute for the SVG path
+    
     const pathData = pathToPoint.path
     .map((p, index) => `${index === 0 ? 'M' : 'L'} ${p.x * 20},${p.y * 10.83}`)
     .join(' ');
@@ -89,11 +103,11 @@ export class ProjectsDashboardComponent {
       const { x, y } = this.project.autoScroll;
       const scrollElement = this.scrollContainer.nativeElement;
   
-      // Calculate the scroll positions in pixels
+      
       const scrollLeft = (x / 100) * scrollElement.scrollWidth;
       const scrollTop = (y / 100) * scrollElement.scrollHeight;
   
-      // Apply scroll positions
+      
       scrollElement.scrollLeft = -scrollLeft;
       scrollElement.scrollTop = scrollTop;
     }
@@ -101,21 +115,47 @@ export class ProjectsDashboardComponent {
   
   onImageLoad() {
     this.autoScroll();
-    setTimeout(() => {
-      this.showPreloader = false;
-    }, 2000);
   }
   
   onImageError() {
     
   }
   
+  getMapImageSource(mapImage: string | File | null | undefined): string | null {
+    if (!mapImage) {
+      return null; 
+    }
+    
+    if (typeof mapImage === 'string') {
+      return mapImage; 
+    }
+
+    if (mapImage instanceof File) {
+      if (!this.imageCache.has(mapImage)) {
+        const url = URL.createObjectURL(mapImage);
+        this.imageCache.set(mapImage, url);
+      }
+
+      const img = this.imageCache.get(mapImage) || null;
+      
+      return img;
+    }
+    
+    return null; 
+  }
+
   getPointClass(type: string): string {
     const pointType = pointTypes.find((pt: PointType) => pt.type === type);
     return pointType ? pointType.class : '';
   }
 
+  clearCachedURLs() {
+    this.imageCache.forEach((url) => URL.revokeObjectURL(url));
+    this.imageCache.clear();
+  }
+
   clearData() {
+    this.clearCachedURLs();
     this.project = null;
     this.selectedPath = [];
     this.dataCleared.emit();
