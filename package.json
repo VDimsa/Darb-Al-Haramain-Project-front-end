@@ -9,7 +9,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:Darb-Al-Haramain-Project-front-end": "node dist/darb-al-haramain-project-front-end/server/server.mjs",
-    "deploy:github": "ng build --configuration=production --output-path=dist/gh-pages --base-href=https://VDimsa.github.io/Darb-Al-Haramain-Project-front-end/ && npx angular-cli-ghpages --dir=dist/gh-pages/browser"
+    "deploy:github": "git merge main && ng build --configuration=production --output-path=dist/gh-pages --base-href=https://VDimsa.github.io/Darb-Al-Haramain-Project-front-end/ && npx angular-cli-ghpages --dir=dist/gh-pages/browser",
+    "deploy:github:main": "git checkout gh-pages && npm run deploy:github"
   },
   "private": true,
   "dependencies": {
