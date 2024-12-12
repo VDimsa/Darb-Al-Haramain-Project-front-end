@@ -1,6 +1,6 @@
 <div class="image-container" *ngIf="project?.mapImage">
-  <div class="scroll-container" #scrollContainer>
-    <div class="map-container">
+  <div #scrollContainer class="scroll-container" (wheel)="onMouseWheel($event)">
+  <div class="map-container">
       <!-- Map Image -->
       <img 
         [src]="getMapImageSource(project?.mapImage)" 

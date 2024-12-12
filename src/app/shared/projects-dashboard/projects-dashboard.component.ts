@@ -59,6 +59,22 @@ export class ProjectsDashboardComponent {
     }
   }
 
+  onMouseWheel(event: WheelEvent) {
+    if (event.ctrlKey) {
+      event.preventDefault(); // Prevent the default zoom behavior of the browser
+  
+      const zoomFactor = 0.1; // Define how much to zoom per scroll step
+      this.scale += event.deltaY > 0 ? -zoomFactor : zoomFactor;
+  
+      // Clamp the scale value to avoid excessive zoom in or out
+      this.scale = Math.max(0.5, Math.min(2, this.scale)); 
+  
+      // Apply the scaling transformation
+      const container = this.scrollContainer.nativeElement as HTMLElement;
+      container.style.zoom = `${this.scale}`;
+    }
+  }
+  
   onPointClick(point: any) {
     if (point.isProject) {
       this.selectedPath = [];
