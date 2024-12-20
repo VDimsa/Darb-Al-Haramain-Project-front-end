@@ -125,9 +125,9 @@ export class ProjectsDashboardComponent {
   onPointClick(point: Point, event?: MouseEvent) {
     if (event) event.stopPropagation()
     if (this.isAddingMode) {
-      this.handleAddModePointClick(point)
+      this.handleAddModePointClick(point, event)
     } else {
-      this.handleViewModePointClick(point)
+      this.handleViewModePointClick(point, event)
     }
   }
 
@@ -235,30 +235,40 @@ export class ProjectsDashboardComponent {
       .join(' ')
   }
 
-  onBorderClick(point: Point) {
+  onBorderClick(point: Point, event?: MouseEvent) {
     if (!this.isAddingMode) {
-      const selectedProjectMap = alharamenProjectMap.find(
-        (map) => map.projectId === this.activeProject?.id && map.pointId === point.id
-      );
-  
-      if (selectedProjectMap) {
-        this.currentMapImage = selectedProjectMap.mapImage;
-        this.showPartProjectMap = true;
-        this.selectedBorderPoint = {
-          ...point,
-          borders: selectedProjectMap.borders[0]?.Cordinates || [],
-        };
-      } else {
-        console.error('No map found for the selected project and point:', point);
-      }
+      this.handleNonAddModeBorderClick(point, event);
+    } else {
+      this.handleAddModeBorderClick(point, event);
     }
   }
   
+  private handleAddModeBorderClick(point: Point, event?: MouseEvent) {
+
+  }
+  
+  private handleNonAddModeBorderClick(point: Point, event?: MouseEvent) {
+    const selectedProjectMap = alharamenProjectMap.find(
+      (map) => map.projectId === this.activeProject?.id && map.pointId === point.id
+    );
+
+    if (selectedProjectMap) {
+      this.currentMapImage = selectedProjectMap.mapImage;
+      this.showPartProjectMap = true;
+      this.selectedBorderPoint = {
+        ...point,
+        borders: selectedProjectMap.borders[0]?.Cordinates || [],
+      };
+    } else {
+      console.error('No map found for the selected project and point:', point);
+    }
+  }
+
   private onStageChange(newStage?: number) {
     this.handleStageChange(newStage);
   }
   
-  private handleAddModePointClick(point: Point) {
+  private handleAddModePointClick(point: Point, event?: MouseEvent) {
 
     if (this.addStage <= 3) {
       if (this.newProject && this.newProject.points && this.addStage === 1 && point.isProject) {
@@ -290,9 +300,13 @@ export class ProjectsDashboardComponent {
 
       this.handleAddStage4PointClick(point)
     }
+
+    if (this.addStage === 5) {
+      this.handleAddStage5PointClick(point, event);
+    }
   }
 
-  private handleViewModePointClick(point: Point) {
+  private handleViewModePointClick(point: Point, event?: MouseEvent) {
     if (point.isProject) {
       this.selectedPath = []
       this.selectedProjectPoint = point
@@ -320,6 +334,7 @@ export class ProjectsDashboardComponent {
     } else if (this.addStage === 4) {
       this.handleAddStage4ContainerClick(xPercent, yPercent, event)
     } else if (this.addStage === 5) {
+      this.handleAddStage5ContainerClick(xPercent, yPercent, event)
     }
   }
 
@@ -399,6 +414,26 @@ export class ProjectsDashboardComponent {
         .join(' ')
       this.selectedPath = pathData ? [{ d: pathData }] : []
       this.pathDrawn = true
+    }
+  }
+
+  private handleAddStage5PointClick(point: Point, event?: MouseEvent) {
+    if (point.isProject) {
+      if (this.selectedProjectPoint !== point) {
+        this.selectedProjectPoint = point;
+        console.log('Selected project point for Stage 5:', this.selectedProjectPoint);
+      } else {
+        this.selectedProjectPoint.borders = [];
+      }
+    } else {
+      console.warn('Only project points can be selected in Stage 5.');
+    }
+  }
+
+  private handleAddStage5ContainerClick(xPercent: number, yPercent: number, event: MouseEvent) {
+    if (this.selectedProjectPoint) {
+      this.selectedProjectPoint.borders = this.selectedProjectPoint.borders || []
+      this.selectedProjectPoint.borders.push({ x: xPercent, y: yPercent })
     }
   }
 
@@ -491,23 +526,20 @@ export class ProjectsDashboardComponent {
     // Toggle visibility based on stage
     const toggleVisibility = (points: Point[] | undefined) => {
       points?.forEach((point) => {
-        point.visible = this.addStage === 5 ? point.isProject : true; // Show only project points in stage 5
+        if (this.addStage === 5) {
+          point.visible = point.isProject; // Show only project points
+        } else if (this.addStage === 6) {
+          point.visible = false; // Hide all points
+        } else {
+          point.visible = true; // Show all points for other stages
+        }
       });
     };
-  
+      
     toggleVisibility(this.newProject?.points);
     toggleVisibility(this.currentProject?.points);
   
     console.log('Updated points visibility for stage:', newStage);
-  }
-
-  onStage5PointClick(point: Point) {
-    if (point.isProject) {
-      this.selectedProjectPoint = point;
-      console.log('Selected project point for Stage 5:', this.selectedProjectPoint);
-    } else {
-      console.warn('Only project points can be selected in Stage 5.');
-    }
   }
 
   onDrawBorder(event: MouseEvent) {

@@ -24,7 +24,6 @@
             *ngFor="let point of activeProject?.points"
             [style.left.%]="point.position.x"
             [style.top.%]="point.position.y"
-            [hidden]="!point.visible"
             class="point"
             [ngClass]="{
               'isMega': point.importance === 1,
@@ -53,7 +52,13 @@
       </svg>
 
       <!-- SVG for borders -->
-      <svg class="borders-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+      <svg 
+      class="borders-svg" 
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+      [style.z-index]="isAddingMode && addStage === 5 ? '-1 !important' : 'auto'"
+      [ngClass]="{
+        'nonVisible': isAddingMode && addStage !== 5 && addStage !== 6,
+      }">
         <ng-container *ngIf="!showPartProjectMap">
           <ng-container *ngFor="let point of activeProject?.points">
             <polygon
