@@ -103,7 +103,7 @@ export class DashboardComponent {
   }
 
   next() {
-    if(this.currentStage < 5)
+    if(this.currentStage < 10)
     this.currentStage += 1;
     
     console.log('Current stage is: ', this.currentStage)
@@ -117,9 +117,11 @@ export class DashboardComponent {
     this.currentPointType = type;
   }
   triggerFileInput(point: any): void {
-    const fileInput = document.querySelector(`.hidden-input`);
-    if (fileInput) {
-      (fileInput as HTMLInputElement).click();
+    if(this.currentStage === 2) {
+      const fileInput = document.querySelector(`.hidden-input`);
+      if (fileInput) {
+        (fileInput as HTMLInputElement).click();
+      }
     }
   }
   

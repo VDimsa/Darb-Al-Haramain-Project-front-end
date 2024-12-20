@@ -1,5 +1,5 @@
 <div class="image-container" *ngIf="currentMapImage">
-  <div #scrollContainer class="scroll-container" (wheel)="onMouseWheel($event)" (click)="onContainerClick($event)">
+  <div #scrollContainer class="scroll-container" (wheel)="onMouseWheel($event)"   (click)="addStage === 5 ? onDrawBorder($event) : onContainerClick($event)">
     <div class="map-container">
       <!-- Map Image -->
       <img #projectMap
@@ -24,6 +24,7 @@
             *ngFor="let point of activeProject?.points"
             [style.left.%]="point.position.x"
             [style.top.%]="point.position.y"
+            [hidden]="!point.visible"
             class="point"
             [ngClass]="{
               'isMega': point.importance === 1,

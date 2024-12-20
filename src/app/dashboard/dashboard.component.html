@@ -94,7 +94,7 @@
         <img 
           [src]="point.logo" 
           [alt]="point.name" 
-          class="clickable" 
+          [class]="{clickable: currentStage === 2}" 
           (click)="triggerFileInput(point)" 
         />
         <input 
@@ -138,7 +138,7 @@
     <div class="stage-2 row" *ngIf="currentStage === 2">
       <i class="fa-solid fa-hand-pointer"></i>
       <p>
-        يرجى النقر على الخريطة في المواقع المحددة لإضافة العلامات المهمة، ثم قم بتغير الاسم و اللوجو من القائمة.
+        يرجى النقر على الخريطة في المواقع المحددة لإضافة العلامات المهمة، ثم قم بتغير الاسم و الشعار من القائمة.
       </p>
     </div>
     <div class="stage-3 row" *ngIf="currentStage === 3">
@@ -150,6 +150,12 @@
           (click)="selectType(point.type)">
         </i>
       </div>
+    </div>
+    <div class="stage-4 row" *ngIf="currentStage === 4">
+      <i class="fa-solid fa-hand-pointer"></i>
+      <p>
+        من فضلك اختر المشروع والنقطة، ارسم الطريق، ثم اضغط على النقطة لحفظه أو على المشروع لإعادة التهيئة.
+      </p>
     </div>
 
     <button (click)="next()">

@@ -41,7 +41,8 @@ export interface Border {
   Cordinates: {
     x: number; 
     y: number; 
-  }[];
+  }[],
+  color?: string;
 }
 
 export const pointTypes: PointType[] = [

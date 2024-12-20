@@ -486,5 +486,62 @@ export class ProjectsDashboardComponent {
     this.selectedPoint = null;
     this.pathDrawn = false;
     this.newPath = null;
+    this.selectedPath = [];
+
+    // Toggle visibility based on stage
+    const toggleVisibility = (points: Point[] | undefined) => {
+      points?.forEach((point) => {
+        point.visible = this.addStage === 5 ? point.isProject : true; // Show only project points in stage 5
+      });
+    };
+  
+    toggleVisibility(this.newProject?.points);
+    toggleVisibility(this.currentProject?.points);
+  
+    console.log('Updated points visibility for stage:', newStage);
+  }
+
+  onStage5PointClick(point: Point) {
+    if (point.isProject) {
+      this.selectedProjectPoint = point;
+      console.log('Selected project point for Stage 5:', this.selectedProjectPoint);
+    } else {
+      console.warn('Only project points can be selected in Stage 5.');
+    }
+  }
+
+  onDrawBorder(event: MouseEvent) {
+    if (!this.selectedProjectPoint) {
+      console.warn('No project point selected for drawing borders.');
+      return;
+    }
+
+    const container = this.projectMap.nativeElement as HTMLElement;
+    const rect = container.getBoundingClientRect();
+    const offsetX = event.clientX - rect.left;
+    const offsetY = event.clientY - rect.top;
+    const xPercent = (offsetX / rect.width) * 100;
+    const yPercent = (offsetY / rect.height) * 100;
+
+    if (!this.selectedProjectPoint.borders) {
+      this.selectedProjectPoint.borders = [];
+    }
+    this.selectedProjectPoint.borders.push({ x: xPercent, y: yPercent });
+
+    console.log('Updated borders for selected point:', this.selectedProjectPoint.borders);
+  }
+
+  onUploadImage(event: Event) {
+    if (!this.selectedProjectPoint) {
+      console.warn('No project point selected for uploading an image.');
+      return;
+    }
+
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.selectedProjectPoint.projectMap = file;
+      console.log('Uploaded image for selected point:', this.selectedProjectPoint.projectMap);
+    }
   }
 }
