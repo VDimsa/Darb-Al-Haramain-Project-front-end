@@ -2,6 +2,7 @@ export interface Project {
   id: number | null;
   name: string;
   mapImage: string | File | null;
+  logo?: string | File | null;
   autoScroll?: {
     x: number; 
     y: number; 
@@ -14,12 +15,33 @@ export interface Point {
   name: string;
   type: PointTypeEnum; 
   isProject: boolean;  
+  projectMap?: string | File | null;
+  visible: boolean;
   paths?: PathToPoints[]; 
   logo?: string | File | null;
+  importance: number;
+  borders?: {
+    x: number; 
+    y: number; 
+  }[];
   position: { 
     x: number; 
     y: number; 
   };
+}
+
+export interface ProjectsMap {
+  projectId: number | null;
+  pointId: number | null;
+  mapImage: string | File | null;
+  borders: Border[];
+} 
+
+export interface Border {
+  Cordinates: {
+    x: number; 
+    y: number; 
+  }[];
 }
 
 export const pointTypes: PointType[] = [
@@ -55,7 +77,6 @@ export const pointTypes: PointType[] = [
   },
 ];
 
-
 export enum PointTypeEnum {
   MOSQUE = 'mosque',
   SCHOOL = 'school',
@@ -72,7 +93,7 @@ export interface PathToPoints {
 }
 
 export interface Path {
-  id: number;
+  id?: number;
   x: number; 
   y: number; 
 }

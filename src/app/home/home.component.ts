@@ -35,8 +35,8 @@ export class HomeComponent {
   }
 
   ngOnInit() {
-    //this.projectData = this.projects[0] || null;
-    //this.selectedProject = this.projectData;
+    this.projectData = this.projects[0] || null;
+    this.selectedProject = this.projectData;
     //this.filteredProjects = this.projects;
 
     setTimeout(() => {

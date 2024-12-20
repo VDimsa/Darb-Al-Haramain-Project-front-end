@@ -1,4 +1,4 @@
-import { Project, PointTypeEnum } from "../app/shared/projects-dashboard/project.model";
+import { Project, PointTypeEnum, ProjectsMap } from "../app/shared/projects-dashboard/project.model";
 
 export const staticProjects: Project[] = [
   {
@@ -9,16 +9,25 @@ export const staticProjects: Project[] = [
     points: [
       {
         id: 1,
-        type: PointTypeEnum.PROJECT, 
+        type: PointTypeEnum.PROJECT,
         position: { x: 39, y: 48 },
+        projectMap: '',
         name: '',
         logo: "https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico",
         isProject: true,
+        borders:[
+          {x: 10, y: 10},
+          {x: 10, y: 20},
+          {x: 20, y: 20},
+          {x: 20, y: 10},
+        ],
         paths: [
           {
             point: {
               id: 2, type: PointTypeEnum.HOSPITAL, position: { x: 60, y: 32 }, name: "",
-              isProject: false
+              isProject: false,
+              visible: true,
+              importance: 0
             },
             path: [
               { id: 1, x: 39, y: 48 },
@@ -31,7 +40,9 @@ export const staticProjects: Project[] = [
           {
             point: {
               id: 3, type: PointTypeEnum.HOSPITAL, position: { x: 69, y: 61 }, name: "",
-              isProject: false
+              isProject: false,
+              visible: true,
+              importance: 0
             },
             path: [
               { id: 1, x: 39, y: 48 },
@@ -44,7 +55,9 @@ export const staticProjects: Project[] = [
           {
             point: {
               id: 4, type: PointTypeEnum.HOSPITAL, position: { x: 28, y: 40 }, name: "",
-              isProject: false
+              isProject: false,
+              visible: true,
+              importance: 0
             },
             path: [
               { id: 1, x: 39, y: 48 },
@@ -56,7 +69,9 @@ export const staticProjects: Project[] = [
           {
             point: {
               id: 5, type: PointTypeEnum.MALL, position: { x: 54.3, y: 30 }, name: "",
-              isProject: false
+              isProject: false,
+              visible: true,
+              importance: 0
             },
             path: [
               { id: 1, x: 39, y: 48 },
@@ -68,7 +83,9 @@ export const staticProjects: Project[] = [
           {
             point: {
               id: 6, type: PointTypeEnum.MALL, position: { x: 63, y: 29 }, name: "",
-              isProject: false
+              isProject: false,
+              visible: true,
+              importance: 0
             },
             path: [
               { id: 1, x: 39, y: 48 },
@@ -80,7 +97,9 @@ export const staticProjects: Project[] = [
           {
             point: {
               id: 7, type: PointTypeEnum.MALL, position: { x: 29, y: 52 }, name: "",
-              isProject: false
+              isProject: false,
+              visible: true,
+              importance: 0
             },
             path: [
               { id: 1, x: 39, y: 48 },
@@ -92,7 +111,9 @@ export const staticProjects: Project[] = [
           {
             point: {
               id: 8, type: PointTypeEnum.RESTAURANT, position: { x: 42, y: 37 }, name: "",
-              isProject: false
+              isProject: false,
+              visible: true,
+              importance: 0
             },
             path: [
               { id: 1, x: 39, y: 48 },
@@ -104,7 +125,9 @@ export const staticProjects: Project[] = [
           {
             point: {
               id: 9, type: PointTypeEnum.SCHOOL, position: { x: 75, y: 51 }, name: "",
-              isProject: false
+              isProject: false,
+              visible: true,
+              importance: 0
             },
             path: [
               { id: 1, x: 39, y: 48 },
@@ -114,64 +137,101 @@ export const staticProjects: Project[] = [
               { id: 5, x: 75, y: 51 }
             ]
           }
-        ]
+        ],
+        visible: true,
+        importance: 2
       },
       {
         id: 2,
         type: PointTypeEnum.HOSPITAL,
         position: { x: 60, y: 32 },
         name: '',
-        isProject: false
+        logo: "https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico",
+        isProject: false,
+        visible: true,
+        importance: 1
       },
       {
         id: 3,
         type: PointTypeEnum.HOSPITAL,
         position: { x: 69, y: 61 },
         name: '',
-        isProject: false
+        logo: "https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico",
+        isProject: false,
+        visible: true,
+        importance: 1
       },
       {
         id: 4,
         type: PointTypeEnum.HOSPITAL,
         position: { x: 28, y: 40 },
         name: '',
-        isProject: false
+        isProject: false,
+        visible: true,
+        importance: 0
       },
       {
         id: 5,
         type: PointTypeEnum.MALL,
         position: { x: 54.3, y: 30 },
         name: '',
-        isProject: false
+        isProject: false,
+        visible: true,
+        importance: 0
       },
       {
         id: 6,
         type: PointTypeEnum.MALL,
         position: { x: 63, y: 29 },
         name: '',
-        isProject: false
+        isProject: false,
+        visible: true,
+        importance: 0
       },
       {
         id: 7,
         type: PointTypeEnum.MALL,
         position: { x: 29, y: 52 },
         name: '',
-        isProject: false
+        isProject: false,
+        visible: true,
+        importance: 0
       },
       {
         id: 8,
         type: PointTypeEnum.RESTAURANT,
         position: { x: 42, y: 37 },
         name: '',
-        isProject: false
+        isProject: false,
+        visible: true,
+        importance: 0
       },
       {
         id: 9,
         type: PointTypeEnum.SCHOOL,
         position: { x: 75, y: 51 },
         name: '',
-        isProject: false
+        isProject: false,
+        visible: true,
+        importance: 0
       },
     ],
   },
 ];
+
+
+export const alharamenProjectMap: ProjectsMap[] = [{
+  projectId: 1,
+  pointId: 1,
+  mapImage: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1734692691/tvpmiqqevedzbcpcd1bz.webp',
+  borders: [
+    {
+      Cordinates: [
+        { x: 10, y: 10 },
+        { x: 10, y: 20 },
+        { x: 20, y: 20 },
+        { x: 20, y: 10 }
+      ]
+    }
+  ]
+}]

@@ -28,6 +28,6 @@
   </div>
 
   <div *ngIf="selectedProject">
-    <app-projects-dashboard *ngIf="selectedProject.id" [project]="selectedProject" (dataCleared)="backToSearch()"></app-projects-dashboard>
+    <app-projects-dashboard *ngIf="selectedProject.id" [currentProject]="selectedProject" (dataCleared)="backToSearch()"></app-projects-dashboard>
   </div>
 </div>

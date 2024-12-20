@@ -1,5 +1,5 @@
 // Primary Colors
-$main-color: #014034;
+$main-color: #202A54;
 $golden-gradient-start: #F2DE77;
 $golden-gradient-middle: #A65C1C;
 $golden-gradient-end: #BF9341;
@@ -104,3 +104,91 @@ button:focus, input:focus, li:focus {
 .list-group {
     padding: 0;
 }
+
+input[type="checkbox"] {
+    background-color: transparent;
+    border-radius: 3px;
+    border: 1px solid $light-gray;
+    width: 16px;
+    height: 16px;
+    appearance: none;
+}
+  
+input[type="checkbox"]:checked {
+    background-color: $golden-gradient-middle  !important;
+}
+
+polygon {
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.logo {
+    animation: flipAnimation 10s infinite linear;
+}
+
+@keyframes flipAnimation {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  80% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  90% {
+      transform: rotateX(0) rotateY(180deg);
+  }
+  100% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+}
+
+@keyframes lightSlide {
+    95% {
+      background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%);
+      background-position: -200%;
+    }
+    100% {
+      background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%);
+      background-position: 200%;
+    }
+}
+
+@keyframes lightSlide {
+    95% {
+      transform: translateX(-150%);
+      opacity: 0.1;
+    }
+    97.5% {
+      opacity: 0.5;
+    }
+    100% {
+      transform: translateX(150%);
+      opacity: 0;
+    }
+  }
+  
+  .light-effect {
+    position: relative;
+    display: inline-block;
+    background: #555; /* Base color for the object */
+    color: white;
+    font-size: 24px;
+    padding: 20px;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .light-effect::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.2);
+    transform: translateX(-150%);
+    animation: lightSlide 15s linear infinite;
+    pointer-events: none;
+  }
+  

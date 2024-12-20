@@ -1,8 +1,8 @@
-<div *ngIf="currentProject || !dashboardVisible">
-    <app-projects-dashboard *ngIf="currentProject" [project]="currentProject" (dataCleared)="backToDashboard()"></app-projects-dashboard>
+<div *ngIf="currentProject && currentStage !== 0">
+    <app-projects-dashboard *ngIf="currentProject" [isAddingMode]="true" [addingPointType]="currentPointType" [showSidebar]="false" [newProject]="currentProject" [addStage]="currentStage"></app-projects-dashboard>
 </div>
   
-<div class="dashboard" *ngIf="!currentProject || dashboardVisible">
+<div class="dashboard stage-0" *ngIf="currentStage === 0">
   <mat-tab-group class="tabs-dark-theme">
     <mat-tab label="إضافة مشروع">
       <div class="tab-content">
@@ -14,7 +14,7 @@
               id="projectName" 
               class="form-control" 
               name="name" 
-              [(ngModel)]="newProject.name" 
+              [(ngModel)]="currentProject.name" 
               required 
               placeholder="أدخل اسم المشروع" 
             />
@@ -30,8 +30,8 @@
               (change)="onFileSelected($event, 'logo')" 
               accept="image/*"
             />
-            <div *ngIf="previewLogo">
-              <img [src]="previewLogo" alt="Project Logo Preview" class="preview-img" />
+            <div *ngIf="currentProject.logo">
+              <img [src]="currentProject.logo" alt="Project Logo Preview" class="preview-img" />
             </div>
           </div>
         
@@ -45,30 +45,23 @@
               (change)="onFileSelected($event, 'mapImage')" 
               accept="image/*"
             />
-            <div *ngIf="previewMapImage">
-              <img [src]="previewMapImage" alt="Map Image Preview" class="preview-img" />
+            <div *ngIf="currentProject.mapImage">
+              <img [src]="currentProject.mapImage" alt="Map Image Preview" class="preview-img" />
             </div>
           </div>
         
           <button 
             type="submit" 
             class="btn btn-primary" 
-            [disabled]="!newProject.name || !logo || !newProject.mapImage"
+            [disabled]="!currentProject.name || !currentProject.logo || !currentProject.mapImage"
           >
             التالى
           </button>
         </form>
       </div>
     </mat-tab>
-    
     <mat-tab label="حسابى">
       <div class="tab-content">
-        <div *ngIf="userInfo">
-          <h3>معلومات المستخدم</h3>
-          <p><strong>الاسم:</strong> {{ userInfo.username }}</p>
-          <p><strong>البريد الإلكتروني:</strong> {{ userInfo.email }}</p>
-          <button class="btn btn-outline-secondary" type="button" (click)="logout()">logout</button>
-        </div>
         <div *ngIf="!userInfo">
           <p>يتم نقل هذه البيانات الى صفحة "حسابى"...</p>
         </div>
@@ -76,4 +69,91 @@
     </mat-tab>
   </mat-tab-group>
 </div>
-  
+
+<div class="adding-stages" *ngIf="currentProject && currentStage !== 0">
+
+  <div *ngIf="projectViewer && currentProject && currentProject.name!.length > 0" class="projectViewer">
+    <div>
+      <img [src]="currentProject.logo" alt="Project Logo Preview" class="preview-img" />
+      <h1>{{currentProject.name}}</h1>
+    </div>
+
+    <h2>مشاريعى</h2>
+    <ng-container *ngFor="let point of currentProject?.points">
+      <div *ngIf="point.isProject === true">
+        <img [src]="point.logo" [alt]="point.name">
+        <p *ngIf="currentStage !== 1">{{point.paths?.length || 0}}</p>
+        <p *ngIf="currentStage !== 1">{{point.name}}</p>
+        <input *ngIf="currentStage === 1" type="text" [(ngModel)]="point.name" class="form-control" name="point"/>
+      </div>
+    </ng-container>
+    
+    <h2>علامات مميزة</h2>
+    <ng-container *ngFor="let point of currentProject?.points">
+      <div *ngIf="point.importance === 1">
+        <img 
+          [src]="point.logo" 
+          [alt]="point.name" 
+          class="clickable" 
+          (click)="triggerFileInput(point)" 
+        />
+        <input 
+          type="file" 
+          class="hidden-input" 
+          #fileInput 
+          (change)="onImageChange($event, point)" 
+          accept="image/*" 
+        />
+        <p *ngIf="currentStage !== 2">{{point.name}}</p>
+        <input *ngIf="currentStage === 2" type="text" [(ngModel)]="point.name" class="form-control" name="point"/>
+      </div>
+    </ng-container>
+    
+    <h2>علامات عامة</h2>
+    <ng-container *ngFor="let point of currentProject?.points">
+      <div *ngIf="point.importance === 0">
+        <i class="fa-solid" [ngClass]="getIcon(point.type)"></i>
+        <p *ngIf="currentStage !== 3">{{point.name}}</p>
+        <input *ngIf="currentStage === 3" type="text" [(ngModel)]="point.name" class="form-control" name="point"/>
+      </div>
+    </ng-container>
+    
+  </div>
+
+  <div class="bottom-stages">
+    <button (click)="back()">
+      <i class="fa-solid fa-circle-chevron-right"></i>
+    </button>
+    <button *ngIf="currentProject && currentProject.name!.length > 0" (click)="toggleProjectViewer()">
+      <i *ngIf="projectViewer" class="fa-solid fa-eye"></i>
+      <i *ngIf="!projectViewer" class="fa-solid fa-eye-low-vision"></i>
+    </button>
+
+    <div class="stage-1 row" *ngIf="currentStage === 1">
+      <i class="fa-solid fa-hand-pointer"></i>
+      <p>
+        يرجى النقر على الخريطة في المواقع المحددة لإضافة مشاريعك.
+      </p>
+    </div>
+    <div class="stage-2 row" *ngIf="currentStage === 2">
+      <i class="fa-solid fa-hand-pointer"></i>
+      <p>
+        يرجى النقر على الخريطة في المواقع المحددة لإضافة العلامات المهمة، ثم قم بتغير الاسم و اللوجو من القائمة.
+      </p>
+    </div>
+    <div class="stage-3 row" *ngIf="currentStage === 3">
+      <i class="fa-solid fa-hand-pointer"></i>
+      <div class="row" style="flex-direction: row;">
+        <i *ngFor="let point of pointTypes" 
+          [class]="'fa-solid ' + point.icon"
+          [ngClass]="{ 'active': currentPointType === point.type }"
+          (click)="selectType(point.type)">
+        </i>
+      </div>
+    </div>
+
+    <button (click)="next()">
+      <i class="fa-solid fa-circle-chevron-left"></i>
+    </button>
+  </div>
+</div>

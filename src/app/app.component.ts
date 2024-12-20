@@ -15,4 +15,16 @@ import { PreloaderService } from './shared/preload/preloader.service';
 })
 export class AppComponent {
   title = 'درب الحرمين';
+
+  constructor(
+    private preloaderService: PreloaderService,
+  ) {
+    this.preloaderService.show();
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.preloaderService.hide();
+    }, 2000);
+  }
 }

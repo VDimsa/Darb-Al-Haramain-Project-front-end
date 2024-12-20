@@ -1,53 +1,100 @@
-<div class="image-container" *ngIf="project?.mapImage">
-  <div #scrollContainer class="scroll-container" (wheel)="onMouseWheel($event)">
-  <div class="map-container">
+<div class="image-container" *ngIf="currentMapImage">
+  <div #scrollContainer class="scroll-container" (wheel)="onMouseWheel($event)" (click)="onContainerClick($event)">
+    <div class="map-container">
       <!-- Map Image -->
-      <img 
-        [src]="getMapImageSource(project?.mapImage)" 
-        [alt]="project?.name" 
+      <img #projectMap
+        [src]="currentMapImage"
+        [alt]="activeProject?.name"
         (load)="onImageLoad()"
         (error)="onImageError()"
-        class="map-image"/>
-      
+        [ngClass]="{'pointer': addStage === 1 || addStage === 2 || addStage === 5, 'map-image': true}" />
+
       <!-- Points overlay -->
-      <div style="
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 100%; 
-        height: 100%;
-        overflow: hidden;
-        ">
+      <div
+        style="
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 100%; 
+          height: 100%;
+          overflow: hidden;"
+        *ngIf="!showPartProjectMap">
         <div class="points-dashboard">
-          <div 
-            *ngFor="let point of project?.points" 
-            [style.left.%]="point.position.x" 
-            [style.top.%]="point.position.y" 
+          <div
+            *ngFor="let point of activeProject?.points"
+            [style.left.%]="point.position.x"
+            [style.top.%]="point.position.y"
             class="point"
-            [ngClass]="{'isProject': point.isProject}"
-            (click)="onPointClick(point)">
-            <i *ngIf="!point.isProject" [class]="getPointClass(point.type)" [id]="point.id"></i>
-            <img *ngIf="point.isProject" [src]="getMapImageSource(point.logo)" alt="Project Logo">
+            [ngClass]="{
+              'isMega': point.importance === 1,
+              'nonVisible': !point.visible,
+              'isProject': point.isProject,
+              'light-effect': point.importance === 1
+            }"
+            (click)="onPointClick(point, $event)">
+            <i *ngIf="!point.isProject && point.importance === 0" [class]="getPointClass(point.type)" [id]="point.id"></i>
+            <img *ngIf="point.isProject || point.importance === 1" [src]="getMapImageSource(point.logo)" alt="Project Logo"
+              [ngClass]="{
+                'logo': point.isProject
+              }" />
           </div>
         </div>
       </div>
 
       <!-- SVG for paths -->
-      <svg *ngIf="selectedPath" class="path-svg">
+      <svg *ngIf="selectedPath && !showPartProjectMap" class="path-svg">
         <path *ngFor="let path of selectedPath"
               [attr.d]="path.d"
               fill="none"
               stroke="blue"
-              stroke-width="2"/>
+              stroke-width="2" />
       </svg>
 
+      <!-- SVG for borders -->
+      <svg class="borders-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+        <ng-container *ngIf="!showPartProjectMap">
+          <ng-container *ngFor="let point of activeProject?.points">
+            <polygon
+              *ngIf="point.borders && point.isProject"
+              [attr.points]="getBorderPoints(point.borders)"
+              fill="rgba(0, 0, 255, 0.2)"
+              stroke="blue"
+              stroke-width="2"
+              (click)="onBorderClick(point)" />
+          </ng-container>
+        </ng-container>
+
+        <ng-container *ngIf="showPartProjectMap && selectedBorderPoint && selectedBorderPoint.borders">
+          <polygon
+            [attr.points]="getBorderPoints(selectedBorderPoint.borders)"
+            fill="rgba(0, 0, 255, 0.2)"
+            stroke="blue"
+            stroke-width="2" />
+        </ng-container>
+      </svg>
     </div>
   </div>
 
   <!-- Sidebar -->
-  <ul class="list-group side-bar">
+  <ul *ngIf="showSidebar" class="list-group side-bar">
     <li class="list-group-item" (click)="clearData()">
       <i class="fa-solid fa-circle-chevron-left"></i>
     </li>
+    <li class="list-group-item" (click)="toggleFilters()">
+      <i class="fa-solid fa-filter"></i>
+    </li>
   </ul>
+
+  <!-- Filters -->
+  <div class="filters" *ngIf="!isAddingMode && showFilters && !showPartProjectMap">
+    <h4>فلاتر</h4>
+    <ul class="list-group">
+      <li class="list-group-item" *ngFor="let filter of filterOptions">
+        <label>
+          <input type="checkbox" checked="true" (change)="onFilterChange(filter.type, $event)" />
+          {{ filter.label }}
+        </label>
+      </li>
+    </ul>
+  </div>
 </div>

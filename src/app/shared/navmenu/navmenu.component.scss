@@ -27,10 +27,6 @@
         border-width: 0 1px 0 1px;
         margin: 0 22px;
       }
-
-      .logo {
-        animation: flipAnimation 10s infinite linear;
-      }
     }
 
     li:hover {
@@ -51,21 +47,4 @@
       border-radius: 0;
     }
   }
-}
-
-
-@keyframes flipAnimation {
-  0% {
-    transform: rotateX(0deg) rotateY(0deg);
-  }
-  80% {
-    transform: rotateX(0deg) rotateY(0deg);
-  }
-  90% {
-      transform: rotateX(0) rotateY(180deg);
-  }
-  100% {
-    transform: rotateX(0deg) rotateY(0deg);
-  }
-  
 }
