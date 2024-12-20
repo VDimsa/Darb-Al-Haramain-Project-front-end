@@ -29,7 +29,8 @@
               'isMega': point.importance === 1,
               'nonVisible': !point.visible,
               'isProject': point.isProject,
-              'light-effect': point.importance === 1
+              'light-effect': point.importance === 1,
+              'selected-effect': selectedPoint === point || selectedProjectPoint === point,
             }"
             (click)="onPointClick(point, $event)">
             <i *ngIf="!point.isProject && point.importance === 0" [class]="getPointClass(point.type)" [id]="point.id"></i>
