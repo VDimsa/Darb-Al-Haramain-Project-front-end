@@ -15,7 +15,7 @@ export interface Point {
   name: string;
   type: PointTypeEnum; 
   isProject: boolean;  
-  projectMap?: string | File | null;
+  pointMap?: string | File | null;
   visible: boolean;
   paths?: PathToPoints[]; 
   logo?: string | File | null;

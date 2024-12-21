@@ -1,5 +1,16 @@
 <div *ngIf="currentProject && currentStage !== 0">
-    <app-projects-dashboard *ngIf="currentProject" [isAddingMode]="true" [addingPointType]="currentPointType" [showSidebar]="false" [newProject]="currentProject" [addStage]="currentStage"></app-projects-dashboard>
+    <app-projects-dashboard 
+    *ngIf="currentProject" 
+    [isAddingMode]="true" 
+    [newPointBoarder]="newPointBoarder" 
+    [selectedBorderPoint]="selectedBorderPoint" 
+    [showNewMapImage]="showNewMapImage" 
+    [addingPointType]="currentPointType" 
+    [showSidebar]="false" 
+    [newProject]="currentProject" 
+    [addStage]="currentStage"
+    (selectedBorderPointChange)="selectedBorderPoint = $event"
+    ></app-projects-dashboard>
 </div>
   
 <div class="dashboard stage-0" *ngIf="currentStage === 0">
@@ -120,6 +131,34 @@
     
   </div>
 
+  <div class="stage-6 row" *ngIf="currentStage === 6 && selectedBorderPoint">
+    <div *ngIf="selectedBorderPoint" class="border-upload-container">
+      <h1>النقطة المختارة: {{ selectedBorderPoint.name || 'بدون اسم' }}</h1>
+  
+      <div class="form-group">
+        <label for="borderImageUpload">تحميل صورة الخريطة</label>
+        <input 
+          type="file" 
+          id="borderImageUpload" 
+          class="form-control" 
+          accept="image/*" 
+          (change)="onBorderImageUpload($event)" 
+        />
+      </div>
+  
+      <div *ngIf="selectedBorderPoint.pointMap" class="image-preview">
+        <img [src]="selectedBorderPoint.pointMap" alt="Border Map Preview" class="preview-img" />
+      </div>
+  
+      <button 
+        class="btn btn-primary mt-2" 
+        [disabled]="!selectedBorderPoint.pointMap" 
+        (click)="onActionButtonClick()">
+        تنفيذ
+      </button>
+    </div>
+  </div>
+  
   <div class="bottom-stages">
     <button (click)="back()">
       <i class="fa-solid fa-circle-chevron-right"></i>
@@ -157,6 +196,17 @@
         من فضلك اختر المشروع والنقطة، ارسم الطريق، ثم اضغط على النقطة لحفظه أو على المشروع لإعادة التهيئة.
       </p>
     </div>
+    <div class="stage-5 row" *ngIf="currentStage === 5">
+      <i class="fa-solid fa-hand-pointer"></i>
+      <p>
+        أختر اى مشروع، ثم إبدا برسم الحدود، يمكنك الضغط على المشروع مرة اخرى لإعادة التهيئة.
+      </p>
+    </div>
+    <div class="stage-6 row" *ngIf="currentStage === 6">
+      <i class="fa-solid fa-hand-pointer"></i>
+      <p>يرجى اختيار الحدود ثم تحميل صورة الخريطة للنقطة.</p>
+    </div>
+        
 
     <button (click)="next()">
       <i class="fa-solid fa-circle-chevron-left"></i>

@@ -17,11 +17,15 @@ import { alharamenProjectMap } from '../../../assets/staticPaths'
 export class ProjectsDashboardComponent {
   @Input() currentProject: Project | null = null
   @Input() newProject: Partial<Project> | null = null
+  @Input() newPointBoarder: Partial<Point> | null = null
   @Input() isAddingMode = false
+  @Input() showNewMapImage: boolean = false
+  @Input() selectedBorderPoint: Point | null = null
   @Input() addingPointType: PointTypeEnum | null = null
   @Input() showSidebar = true
   @Input() addStage = 0
   @Output() dataCleared = new EventEmitter<void>()
+  @Output() selectedBorderPointChange = new EventEmitter<Point | null>();
   @ViewChild('scrollContainer') scrollContainer!: ElementRef
   @ViewChild('projectMap') projectMap!: ElementRef
 
@@ -46,11 +50,10 @@ export class ProjectsDashboardComponent {
   pathDrawn = false
 
   currentMapImage: string | File | null = null
-  selectedBorderPoint: Point | null = null
   showPartProjectMap = false
 
   constructor(
-    private preloaderService: PreloaderService,
+    private preloaderService: PreloaderService
   ) {
     this.preloaderService.show()
   }
@@ -71,8 +74,10 @@ export class ProjectsDashboardComponent {
       (filters, option) => ({ ...filters, [option.type]: true }),
       {}
     )
+    
+    this.selectFirstProjectPoint();
   }
-
+  
   ngOnChanges(changes: SimpleChanges) {
     if (changes['addStage']) {
       this.onStageChange();
@@ -80,10 +85,8 @@ export class ProjectsDashboardComponent {
   }
 
   ngAfterViewInit() {
-    this.selectFirstProjectPoint()
-
     setTimeout(() => {
-      this.preloaderService.hide()
+      this.preloaderService.hide();
     }, 2000)
   }
 
@@ -236,15 +239,20 @@ export class ProjectsDashboardComponent {
   }
 
   onBorderClick(point: Point, event?: MouseEvent) {
-    if (!this.isAddingMode) {
-      this.handleNonAddModeBorderClick(point, event);
-    } else {
+    if (this.isAddingMode) {
       this.handleAddModeBorderClick(point, event);
+    } else {
+      this.handleNonAddModeBorderClick(point, event);
     }
+
+    // Emit the updated border point
+    this.selectedBorderPointChange.emit(this.selectedBorderPoint);
   }
   
   private handleAddModeBorderClick(point: Point, event?: MouseEvent) {
-
+    if(this.addStage === 6) {
+      this.selectedBorderPoint = point;
+    }
   }
   
   private handleNonAddModeBorderClick(point: Point, event?: MouseEvent) {
@@ -424,6 +432,7 @@ export class ProjectsDashboardComponent {
         console.log('Selected project point for Stage 5:', this.selectedProjectPoint);
       } else {
         this.selectedProjectPoint.borders = [];
+        this.selectedProjectPoint.pointMap = null;
       }
     } else {
       console.warn('Only project points can be selected in Stage 5.');
@@ -518,20 +527,21 @@ export class ProjectsDashboardComponent {
     
   private handleStageChange(newStage?: number) {
     this.selectedProjectPoint = null;
+    this.selectedBorderPoint = null;
     this.selectedPoint = null;
     this.pathDrawn = false;
     this.newPath = null;
     this.selectedPath = [];
 
-    // Toggle visibility based on stage
+    
     const toggleVisibility = (points: Point[] | undefined) => {
       points?.forEach((point) => {
         if (this.addStage === 5) {
-          point.visible = point.isProject; // Show only project points
+          point.visible = point.isProject; 
         } else if (this.addStage === 6) {
-          point.visible = false; // Hide all points
+          point.visible = false; 
         } else {
-          point.visible = true; // Show all points for other stages
+          point.visible = true; 
         }
       });
     };
@@ -562,18 +572,5 @@ export class ProjectsDashboardComponent {
 
     console.log('Updated borders for selected point:', this.selectedProjectPoint.borders);
   }
-
-  onUploadImage(event: Event) {
-    if (!this.selectedProjectPoint) {
-      console.warn('No project point selected for uploading an image.');
-      return;
-    }
-
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      this.selectedProjectPoint.projectMap = file;
-      console.log('Uploaded image for selected point:', this.selectedProjectPoint.projectMap);
-    }
-  }
+  
 }

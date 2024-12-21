@@ -28,7 +28,6 @@ export class HomeComponent {
   selectedProject: Project | null = null;
 
   constructor(
-    private sanitizer: DomSanitizer,
     private preloaderService: PreloaderService,
   ) {
     this.preloaderService.show();

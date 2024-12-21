@@ -11,7 +11,7 @@ export const staticProjects: Project[] = [
         id: 1,
         type: PointTypeEnum.PROJECT,
         position: { x: 39, y: 48 },
-        projectMap: '',
+        pointMap: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1734692691/tvpmiqqevedzbcpcd1bz.webp',
         name: '',
         logo: "https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico",
         isProject: true,

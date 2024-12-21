@@ -3,7 +3,7 @@
     <div class="map-container">
       <!-- Map Image -->
       <img #projectMap
-        [src]="currentMapImage"
+        [src]="showNewMapImage && newPointBoarder && newPointBoarder.pointMap ? newPointBoarder.pointMap : currentMapImage"
         [alt]="activeProject?.name"
         (load)="onImageLoad()"
         (error)="onImageError()"

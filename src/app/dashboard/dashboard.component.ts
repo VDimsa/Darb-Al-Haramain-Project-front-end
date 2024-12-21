@@ -1,6 +1,6 @@
-import { Component, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, SimpleChanges } from '@angular/core';
 import { ProjectsDashboardComponent } from "../shared/projects-dashboard/projects-dashboard.component";
-import { PointTypeEnum, Project } from '../shared/projects-dashboard/project.model';
+import { Point, PointTypeEnum, Project } from '../shared/projects-dashboard/project.model';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FormsModule } from '@angular/forms';
@@ -29,6 +29,11 @@ export class DashboardComponent {
   currentStage: number = 0;
   projectViewer: boolean = false;
 
+  selectedBorderPoint: Point | null = null; 
+  uploadedBorderImage: string | null = null; 
+  newPointBoarder: Partial<Point>|null = null;
+  showNewMapImage: boolean = false;
+  
   currentPointType: PointTypeEnum = PointTypeEnum.MALL;
   pointTypes = [
     { type: PointTypeEnum.MALL, icon: 'fa-cart-shopping' },
@@ -37,6 +42,12 @@ export class DashboardComponent {
     { type: PointTypeEnum.RESTAURANT, icon: 'fa-utensils' },
     { type: PointTypeEnum.HOSPITAL, icon: 'fa-circle-h' },
   ];
+  
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['selectedBorderPoint'] && !changes['selectedBorderPoint'].firstChange) {
+      this.onSelectedBorderPointChange(changes['selectedBorderPoint'].currentValue);
+    }
+  }
   
   getIcon(type: string): string {
     const icons: { [key: string]: string } = {
@@ -87,7 +98,11 @@ export class DashboardComponent {
     return null; 
   }
   
-
+  onSelectedBorderPointChange(newBorderPoint: Point | null): void {
+    this.selectedBorderPoint = newBorderPoint;
+    console.log('Updated selected border point:', this.selectedBorderPoint);
+  }
+  
   onSubmit(): void {
     if (this.currentProject.name && this.currentProject.logo && this.currentProject.mapImage) {
       this.currentStage += 1;
@@ -116,6 +131,7 @@ export class DashboardComponent {
   selectType(type: PointTypeEnum) {
     this.currentPointType = type;
   }
+  
   triggerFileInput(point: any): void {
     if(this.currentStage === 2) {
       const fileInput = document.querySelector(`.hidden-input`);
@@ -136,5 +152,24 @@ export class DashboardComponent {
       reader.readAsDataURL(file);
     }
   }
+
+  onBorderImageUpload(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.selectedBorderPoint!.pointMap = reader.result as string; 
+        console.log('Uploaded border image:', this.selectedBorderPoint!.pointMap);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
   
+  onActionButtonClick(): void {
+    if (this.uploadedBorderImage) {
+      console.log('Action button clicked for border:', this.selectedBorderPoint);
+      
+    }
+  }
 }
