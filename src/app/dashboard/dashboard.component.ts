@@ -1,6 +1,6 @@
 import { Component, Inject, PLATFORM_ID, SimpleChanges } from '@angular/core';
 import { ProjectsDashboardComponent } from "../shared/projects-dashboard/projects-dashboard.component";
-import { Point, PointTypeEnum, Project } from '../shared/projects-dashboard/project.model';
+import { Point, PointTypeEnum, Project, ProjectsMap, ProjectsMapData } from '../shared/projects-dashboard/project.model';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FormsModule } from '@angular/forms';
@@ -114,6 +114,11 @@ export class DashboardComponent {
     if(this.currentStage > 0)
     this.currentStage -= 1;
 
+    if(this.currentStage === 8)
+      this.currentStage = 6;
+
+    console.log('Current project data are: ', this.currentProject)
+    console.log('Border data are: ', this.selectedBorderPoint)
     console.log('Current stage is: ', this.currentStage)
   }
 
@@ -121,6 +126,8 @@ export class DashboardComponent {
     if(this.currentStage < 10)
     this.currentStage += 1;
     
+    console.log('Current project data are: ', this.currentProject)
+    console.log('Border data are: ', this.selectedBorderPoint)
     console.log('Current stage is: ', this.currentStage)
   }
 
@@ -167,9 +174,29 @@ export class DashboardComponent {
   }
   
   onActionButtonClick(): void {
-    if (this.uploadedBorderImage) {
+    if (this.selectedBorderPoint?.pointMap) {
       console.log('Action button clicked for border:', this.selectedBorderPoint);
-      
+  
+      // Move to stage 7
+      this.currentStage = 7;
     }
   }
+    
+  removeBorder(index: number): void {
+    
+  }
+  
+  newBorder(): void {
+    
+  }
+
+  getMapImageSource(mapImage: string | File | null | undefined): string | null {
+    if (!mapImage) return null;
+    if (typeof mapImage === 'string') return mapImage;
+    if (mapImage instanceof File) {
+      return URL.createObjectURL(mapImage);
+    }
+    return null;
+  }
+  
 }

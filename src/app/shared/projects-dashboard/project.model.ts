@@ -34,8 +34,13 @@ export interface ProjectsMap {
   projectId: number | null;
   pointId: number | null;
   mapImage: string | File | null;
-  borders: Border[];
+  data?: ProjectsMapData[];
 } 
+
+export interface ProjectsMapData {
+  borders: Border[];
+  data: any;
+}
 
 export interface Border {
   Cordinates: {

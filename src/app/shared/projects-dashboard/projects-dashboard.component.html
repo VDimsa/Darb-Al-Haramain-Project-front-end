@@ -18,7 +18,8 @@
           width: 100%; 
           height: 100%;
           overflow: hidden;"
-        *ngIf="!showPartProjectMap">
+      [style.z-index]="!isAddingMode ? '2 !important' : 'auto'"
+      *ngIf="!showPartProjectMap">
         <div class="points-dashboard">
           <div
             *ngFor="let point of activeProject?.points"
@@ -43,12 +44,15 @@
       </div>
 
       <!-- SVG for paths -->
-      <svg *ngIf="selectedPath && !showPartProjectMap" class="path-svg">
+      <svg *ngIf="selectedPath && !showPartProjectMap" 
+      [style.z-index]="!isAddingMode ? '1 !important' : 'auto'"
+      class="path-svg">
         <path *ngFor="let path of selectedPath"
               [attr.d]="path.d"
               fill="none"
-              stroke="blue"
-              stroke-width="2" />
+              stroke="white"
+              stroke-width="2"
+              class="animated-path" />
       </svg>
 
       <!-- SVG for borders -->

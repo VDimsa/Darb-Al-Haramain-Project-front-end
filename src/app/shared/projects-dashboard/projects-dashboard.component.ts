@@ -265,7 +265,7 @@ export class ProjectsDashboardComponent {
       this.showPartProjectMap = true;
       this.selectedBorderPoint = {
         ...point,
-        borders: selectedProjectMap.borders[0]?.Cordinates || [],
+        borders: selectedProjectMap.data![0]?.borders[0]?.Cordinates || [],
       };
     } else {
       console.error('No map found for the selected project and point:', point);
@@ -527,12 +527,18 @@ export class ProjectsDashboardComponent {
     
   private handleStageChange(newStage?: number) {
     this.selectedProjectPoint = null;
-    this.selectedBorderPoint = null;
     this.selectedPoint = null;
     this.pathDrawn = false;
     this.newPath = null;
     this.selectedPath = [];
 
+    if (this.addStage === 7) {
+      this.showPartProjectMap = true;
+      this.currentMapImage = this.selectedBorderPoint?.pointMap || null;
+    } else {
+      this.showPartProjectMap = false;
+      this.currentMapImage = this.activeProject?.mapImage || null;
+    }
     
     const toggleVisibility = (points: Point[] | undefined) => {
       points?.forEach((point) => {
@@ -553,24 +559,41 @@ export class ProjectsDashboardComponent {
   }
 
   onDrawBorder(event: MouseEvent) {
-    if (!this.selectedProjectPoint) {
-      console.warn('No project point selected for drawing borders.');
-      return;
+
+    if (this.addStage === 7 && this.selectedBorderPoint) {
+      const container = this.projectMap.nativeElement as HTMLElement;
+      const rect = container.getBoundingClientRect();
+      const offsetX = event.clientX - rect.left;
+      const offsetY = event.clientY - rect.top;
+      const xPercent = (offsetX / rect.width) * 100;
+      const yPercent = (offsetY / rect.height) * 100;
+
+      this.selectedBorderPoint.borders = this.selectedBorderPoint.borders || [];
+      this.selectedBorderPoint.borders.push({ x: xPercent, y: yPercent });
+
+      console.log('Added new border point:', { x: xPercent, y: yPercent });
+    } 
+    else {
+      if (!this.selectedProjectPoint) {
+        console.warn('No project point selected for drawing borders.');
+        return;
+      }
+  
+      const container = this.projectMap.nativeElement as HTMLElement;
+      const rect = container.getBoundingClientRect();
+      const offsetX = event.clientX - rect.left;
+      const offsetY = event.clientY - rect.top;
+      const xPercent = (offsetX / rect.width) * 100;
+      const yPercent = (offsetY / rect.height) * 100;
+  
+      if (!this.selectedProjectPoint.borders) {
+        this.selectedProjectPoint.borders = [];
+      }
+      this.selectedProjectPoint.borders.push({ x: xPercent, y: yPercent });
+  
+      console.log('Updated borders for selected point:', this.selectedProjectPoint.borders);
     }
 
-    const container = this.projectMap.nativeElement as HTMLElement;
-    const rect = container.getBoundingClientRect();
-    const offsetX = event.clientX - rect.left;
-    const offsetY = event.clientY - rect.top;
-    const xPercent = (offsetX / rect.width) * 100;
-    const yPercent = (offsetY / rect.height) * 100;
-
-    if (!this.selectedProjectPoint.borders) {
-      this.selectedProjectPoint.borders = [];
-    }
-    this.selectedProjectPoint.borders.push({ x: xPercent, y: yPercent });
-
-    console.log('Updated borders for selected point:', this.selectedProjectPoint.borders);
   }
   
 }
