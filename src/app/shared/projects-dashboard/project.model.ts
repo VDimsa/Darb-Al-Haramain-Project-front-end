@@ -1,11 +1,12 @@
+// src\app\shared\projects-dashboard\project.model.ts
 export interface Project {
   id: number | null;
   name: string;
   mapImage: string | File | null;
   logo?: string | File | null;
   autoScroll?: {
-    x: number; 
-    y: number; 
+    x: number;
+    y: number;
   };
   points: Point[];
 }
@@ -13,20 +14,17 @@ export interface Project {
 export interface Point {
   id: number;
   name: string;
-  type: PointTypeEnum; 
-  isProject: boolean;  
+  type: PointTypeEnum;
+  isProject: boolean;
   pointMap?: string | File | null;
   visible: boolean;
-  paths?: PathToPoints[]; 
+  paths?: PathToPoints[];
   logo?: string | File | null;
   importance: number;
-  borders?: {
-    x: number; 
-    y: number; 
-  }[];
-  position: { 
-    x: number; 
-    y: number; 
+  borders?: Border[];
+  position: {
+    x: number;
+    y: number;
   };
 }
 
@@ -35,7 +33,7 @@ export interface ProjectsMap {
   pointId: number | null;
   mapImage: string | File | null;
   data?: ProjectsMapData[];
-} 
+}
 
 export interface ProjectsMapData {
   borders: Border[];
@@ -44,10 +42,14 @@ export interface ProjectsMapData {
 
 export interface Border {
   Cordinates: {
-    x: number; 
-    y: number; 
-  }[],
+    x: number;
+    y: number;
+  }[];
   color?: string;
+  data?: {
+    name: string;
+    [key: string]: any;
+  };
 }
 
 export const pointTypes: PointType[] = [
@@ -93,19 +95,19 @@ export enum PointTypeEnum {
 }
 
 export interface PathToPoints {
-  point: Point;  
+  point: Point;
   path: Path[];
   time?: string;
 }
 
 export interface Path {
   id?: number;
-  x: number; 
-  y: number; 
+  x: number;
+  y: number;
 }
 
 export interface PointType {
   id: number;
-  type: string; 
-  class: string; 
+  type: string;
+  class: string;
 }

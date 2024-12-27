@@ -1,6 +1,7 @@
+// src\app\shared\projects-dashboard\projects-dashboard.component.ts
 import { Component, ElementRef, ViewChild, Input, Output, EventEmitter, SimpleChanges } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { pointTypes, PointType, Project, Point, PointTypeEnum, Path } from './project.model'
+import { pointTypes, PointType, Project, Point, PointTypeEnum, Path, Border } from './project.model'
 import { PreloaderService } from '../preload/preloader.service'
 import path from 'node:path'
 import { alharamenProjectMap } from '../../../assets/staticPaths'
@@ -27,6 +28,7 @@ export class ProjectsDashboardComponent {
   @Output() dataCleared = new EventEmitter<void>()
   @Output() selectedBorderPointChange = new EventEmitter<Point | null>();
   @ViewChild('scrollContainer') scrollContainer!: ElementRef
+  @ViewChild('mapContainer') mapContainer!: ElementRef
   @ViewChild('projectMap') projectMap!: ElementRef
 
   selectedProjectPoint: Point | null = null
@@ -116,12 +118,51 @@ export class ProjectsDashboardComponent {
 
   onMouseWheel(event: WheelEvent) {
     if (event.ctrlKey) {
-      event.preventDefault()
-      const zoomFactor = 0.1
-      this.scale += event.deltaY > 0 ? -zoomFactor : zoomFactor
-      this.scale = Math.max(0.5, Math.min(2, this.scale))
-      const container = this.scrollContainer.nativeElement as HTMLElement
-      container.style.zoom = `${this.scale}`
+      event.preventDefault();
+  
+      const zoomFactor = 0.1;
+  
+      // 1. Calculate new scale.
+      let newScale = this.scale + (event.deltaY > 0 ? -zoomFactor : zoomFactor);
+  
+      // 2. Clamp between your desired min/max scale.
+      newScale = Math.max(0.5, Math.min(2, newScale));
+  
+      const container = this.mapContainer.nativeElement as HTMLElement;
+      const scrollContainer = this.scrollContainer.nativeElement as HTMLElement;
+  
+      // 3. Temporarily apply the new scale to measure the container's size.
+      container.style.zoom = `${newScale}`;
+  
+      // 4. Retrieve bounding boxes of each container.
+      //    getBoundingClientRect() will reflect the current layout (including zoom).
+      const containerRect = container.getBoundingClientRect();
+      const scrollRect = scrollContainer.getBoundingClientRect();
+  
+      // 5. Check if the container is now smaller than the scroll container
+      //    in either width or height.
+      if (containerRect.width < scrollRect.width || containerRect.height < scrollRect.height) {
+        // Compute how much we need to scale up so that
+        // containerRect >= scrollRect in both dimensions.
+  
+        const widthRatio = scrollRect.width / containerRect.width;
+        const heightRatio = scrollRect.height / containerRect.height;
+  
+        // Use the larger ratio so container matches/exceeds both dimensions.
+        const neededRatio = Math.max(widthRatio, heightRatio);
+  
+        // Adjust newScale accordingly.
+        newScale *= neededRatio;
+  
+        // Still keep it within the maximum allowed scale, e.g., 2 in this case.
+        newScale = Math.min(newScale, 2);
+  
+        // Reapply the corrected scale.
+        container.style.zoom = `${newScale}`;
+      }
+  
+      // 6. Store the final scale value.
+      this.scale = newScale;
     }
   }
 
@@ -231,11 +272,20 @@ export class ProjectsDashboardComponent {
     this.showFilters = !this.showFilters
   }
 
-  getBorderPoints(borders: { x: number; y: number }[] | undefined): string {
-    if (!borders || borders.length === 0) return ''
-    return borders
-      .map(border => `${border.x * 20},${border.y * 10.83}`)
-      .join(' ')
+  /**
+   * Before fix:
+   * getBorderPoints(borders: { x: number; y: number }[] | undefined): string {
+   *   if (!borders || borders.length === 0) return ''
+   *   return borders
+   *     .map(border => `${border.x * 20},${border.y * 10.83}`)
+   *     .join(' ')
+   * }
+   */
+  getBorderPoints(coordinates: { x: number; y: number }[] | undefined): string {
+    if (!coordinates || coordinates.length === 0) return '';
+    return coordinates
+      .map(coord => `${coord.x * 20},${coord.y * 10.83}`)
+      .join(' ');
   }
 
   onBorderClick(point: Point, event?: MouseEvent) {
@@ -263,9 +313,12 @@ export class ProjectsDashboardComponent {
     if (selectedProjectMap) {
       this.currentMapImage = selectedProjectMap.mapImage;
       this.showPartProjectMap = true;
+      // OLD: this.selectedBorderPoint = { ...point, borders: selectedProjectMap.data![0]?.borders[0]?.Cordinates || [] };
+      // Instead we must preserve the shape: Point => { borders: Border[] }, each Border must have Cordinates
+      // We'll create a new Border[] from the existing selectedProjectMap data:
       this.selectedBorderPoint = {
         ...point,
-        borders: selectedProjectMap.data![0]?.borders[0]?.Cordinates || [],
+        borders: selectedProjectMap.data![0]?.borders || []
       };
     } else {
       console.error('No map found for the selected project and point:', point);
@@ -359,6 +412,9 @@ export class ProjectsDashboardComponent {
         y: yPercent,
       },
       visible: true,
+      // For type safety, add an empty array for borders & paths if needed
+      borders: [],
+      paths: []
     }
 
     if (this.addStage === 2) {
@@ -431,8 +487,11 @@ export class ProjectsDashboardComponent {
         this.selectedProjectPoint = point;
         console.log('Selected project point for Stage 5:', this.selectedProjectPoint);
       } else {
-        this.selectedProjectPoint.borders = [];
-        this.selectedProjectPoint.pointMap = null;
+        if (this.selectedProjectPoint) {
+          // Clean up the existing borders (which are an array of Border objects)
+          this.selectedProjectPoint.borders = [];
+          this.selectedProjectPoint.pointMap = null;
+        }
       }
     } else {
       console.warn('Only project points can be selected in Stage 5.');
@@ -441,8 +500,17 @@ export class ProjectsDashboardComponent {
 
   private handleAddStage5ContainerClick(xPercent: number, yPercent: number, event: MouseEvent) {
     if (this.selectedProjectPoint) {
-      this.selectedProjectPoint.borders = this.selectedProjectPoint.borders || []
-      this.selectedProjectPoint.borders.push({ x: xPercent, y: yPercent })
+      // Instead of pushing {x, y} directly into `borders` (which is an array of Border),
+      // we need to push into the .Cordinates of a Border.
+      if (!this.selectedProjectPoint.borders?.length) {
+        // Create the first Border if none exists
+        this.selectedProjectPoint.borders = [{
+          Cordinates: []
+        }];
+      }
+      // Then push to the last border's Cordinates
+      this.selectedProjectPoint.borders[this.selectedProjectPoint.borders.length - 1]
+        .Cordinates.push({ x: xPercent, y: yPercent });
     }
   }
 
@@ -559,7 +627,6 @@ export class ProjectsDashboardComponent {
   }
 
   onDrawBorder(event: MouseEvent) {
-
     if (this.addStage === 7 && this.selectedBorderPoint) {
       const container = this.projectMap.nativeElement as HTMLElement;
       const rect = container.getBoundingClientRect();
@@ -568,8 +635,13 @@ export class ProjectsDashboardComponent {
       const xPercent = (offsetX / rect.width) * 100;
       const yPercent = (offsetY / rect.height) * 100;
 
-      this.selectedBorderPoint.borders = this.selectedBorderPoint.borders || [];
-      this.selectedBorderPoint.borders.push({ x: xPercent, y: yPercent });
+      // Instead of pushing directly to .borders, we push to the .Cordinates of a Border
+      if (!this.selectedBorderPoint.borders?.length) {
+        this.selectedBorderPoint.borders = [{
+          Cordinates: []
+        }];
+      }
+      this.selectedBorderPoint.borders[0].Cordinates.push({ x: xPercent, y: yPercent });
 
       console.log('Added new border point:', { x: xPercent, y: yPercent });
     } 
@@ -586,14 +658,17 @@ export class ProjectsDashboardComponent {
       const xPercent = (offsetX / rect.width) * 100;
       const yPercent = (offsetY / rect.height) * 100;
   
-      if (!this.selectedProjectPoint.borders) {
-        this.selectedProjectPoint.borders = [];
+      // OLD (invalid):
+      // this.selectedProjectPoint.borders.push({ x: xPercent, y: yPercent });
+      // FIX: push to the .Cordinates of an existing or new Border
+      if (!this.selectedProjectPoint.borders?.length) {
+        this.selectedProjectPoint.borders = [{
+          Cordinates: []
+        }];
       }
-      this.selectedProjectPoint.borders.push({ x: xPercent, y: yPercent });
-  
+      this.selectedProjectPoint.borders[0].Cordinates.push({ x: xPercent, y: yPercent });
+
       console.log('Updated borders for selected point:', this.selectedProjectPoint.borders);
     }
-
   }
-  
 }

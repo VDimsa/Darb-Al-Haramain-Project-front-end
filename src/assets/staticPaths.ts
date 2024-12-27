@@ -15,65 +15,29 @@ export const staticProjects: Project[] = [
         name: '',
         logo: "https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico",
         isProject: true,
-        borders:
-          [
-            {
-              "x": 42.65,
-              "y": 46.9794205448436
+        borders: [
+          {
+            Cordinates: [
+              { x: 42.65, y: 46.9794205448436 },
+              { x: 41.4, y: 48.36388283987828 },
+              { x: 39.5, y: 51.040509943612 },
+              { x: 37.45, y: 49.563750162241675 },
+              { x: 37.15, y: 49.563750162241675 },
+              { x: 37, y: 49.563750162241675 },
+              { x: 36.7, y: 49.102262730563446 },
+              { x: 36.6, y: 48.73307278522086 },
+              { x: 35.65, y: 46.79482557217231 },
+              { x: 40.25, y: 44.39509092744552 },
+              { x: 40.4, y: 45.31806579080198 },
+              { x: 40.55, y: 45.59495824980891 },
+              { x: 40.7, y: 45.9641481951515 },
+              { x: 41.05, y: 46.24104065415843 },
+            ],
+            data: {
+              name: 'Project Main Border',
             },
-            {
-              "x": 41.4,
-              "y": 48.36388283987828
-            },
-            {
-              "x": 39.5,
-              "y": 51.040509943612
-            },
-            {
-              "x": 37.45,
-              "y": 49.563750162241675
-            },
-            {
-              "x": 37.15,
-              "y": 49.563750162241675
-            },
-            {
-              "x": 37,
-              "y": 49.563750162241675
-            },
-            {
-              "x": 36.7,
-              "y": 49.102262730563446
-            },
-            {
-              "x": 36.6,
-              "y": 48.73307278522086
-            },
-            {
-              "x": 35.65,
-              "y": 46.79482557217231
-            },
-            {
-              "x": 40.25,
-              "y": 44.39509092744552
-            },
-            {
-              "x": 40.400000000000006,
-              "y": 45.31806579080198
-            },
-            {
-              "x": 40.550000000000004,
-              "y": 45.59495824980891
-            },
-            {
-              "x": 40.699999999999996,
-              "y": 45.9641481951515
-            },
-            {
-              "x": 41.05,
-              "y": 46.24104065415843
-            }
-          ],
+          },
+        ],
         paths: [
           {
             point: {
@@ -272,24 +236,49 @@ export const staticProjects: Project[] = [
   },
 ];
 
-export const alharamenProjectMap: ProjectsMap[] = [{
-  projectId: 1,
-  pointId: 1,
-  data: [{
-    data: {
-      code: '123',
-    },
-    borders: [
+export const alharamenProjectMap: ProjectsMap[] = [
+  {
+    projectId: 1,
+    pointId: 1,
+    mapImage: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1734692691/tvpmiqqevedzbcpcd1bz.webp',
+    data: [
       {
-        Cordinates: [
-          { x: 10, y: 10 },
-          { x: 10, y: 20 },
-          { x: 20, y: 20 },
-          { x: 20, y: 10 }
-        ]
-      }
-    ]
-  }],
-  mapImage: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1734692691/tvpmiqqevedzbcpcd1bz.webp',
-  
-}];
+        data: {
+          code: '123',
+        },
+        borders: [
+          {
+            Cordinates: [
+              { x: 10, y: 10 },
+              { x: 10, y: 20 },
+              { x: 20, y: 20 },
+              { x: 20, y: 10 },
+            ],
+            data: {
+              name: 'Compound A',
+              type: 'Residential',
+              floors: 10,
+              area: '5000 sqm',
+              occupancy: '80%',
+            },
+          },
+          {
+            Cordinates: [
+              { x: 30, y: 30 },
+              { x: 30, y: 40 },
+              { x: 40, y: 40 },
+              { x: 40, y: 30 },
+            ],
+            data: {
+              name: 'Compound B',
+              type: 'Commercial',
+              floors: 5,
+              area: '3000 sqm',
+              occupancy: '95%',
+            },
+          },
+        ],
+      },
+    ],
+  },
+];

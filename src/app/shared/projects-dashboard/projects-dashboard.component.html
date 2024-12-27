@@ -1,6 +1,9 @@
+<!-- src\app\shared\projects-dashboard\projects-dashboard.component.html -->
+
 <div class="image-container" *ngIf="currentMapImage">
-  <div #scrollContainer class="scroll-container" (wheel)="onMouseWheel($event)"   (click)="addStage === 5 ? onDrawBorder($event) : onContainerClick($event)">
-    <div class="map-container">
+  <div #scrollContainer class="scroll-container" (wheel)="onMouseWheel($event)"
+       (click)="addStage === 5 ? onDrawBorder($event) : onContainerClick($event)">
+    <div #mapContainer class="map-container">
       <!-- Map Image -->
       <img #projectMap
         [src]="showNewMapImage && newPointBoarder && newPointBoarder.pointMap ? newPointBoarder.pointMap : currentMapImage"
@@ -15,11 +18,11 @@
           position: absolute;
           top: 0;
           right: 0;
-          width: 100%; 
+          width: 100%;
           height: 100%;
           overflow: hidden;"
-      [style.z-index]="!isAddingMode ? '2 !important' : 'auto'"
-      *ngIf="!showPartProjectMap">
+        [style.z-index]="!isAddingMode ? '2 !important' : 'auto'"
+        *ngIf="!showPartProjectMap">
         <div class="points-dashboard">
           <div
             *ngFor="let point of activeProject?.points"
@@ -31,22 +34,26 @@
               'nonVisible': !point.visible,
               'isProject': point.isProject,
               'light-effect': point.importance === 1,
-              'selected-effect': selectedPoint === point || selectedProjectPoint === point,
+              'selected-effect': selectedPoint === point || selectedProjectPoint === point
             }"
             (click)="onPointClick(point, $event)">
-            <i *ngIf="!point.isProject && point.importance === 0" [class]="getPointClass(point.type)" [id]="point.id"></i>
-            <img *ngIf="point.isProject || point.importance === 1" [src]="getMapImageSource(point.logo)" alt="Project Logo"
-              [ngClass]="{
-                'logo': point.isProject
-              }" />
+            <i *ngIf="!point.isProject && point.importance === 0"
+               [class]="getPointClass(point.type)"
+               [id]="point.id"></i>
+            <img *ngIf="point.isProject || point.importance === 1"
+                 [src]="getMapImageSource(point.logo)"
+                 alt="Project Logo"
+                 [ngClass]="{
+                   'logo': point.isProject
+                 }" />
           </div>
         </div>
       </div>
 
       <!-- SVG for paths -->
-      <svg *ngIf="selectedPath && !showPartProjectMap" 
-      [style.z-index]="!isAddingMode ? '1 !important' : 'auto'"
-      class="path-svg">
+      <svg *ngIf="selectedPath && !showPartProjectMap"
+           [style.z-index]="!isAddingMode ? '1 !important' : 'auto'"
+           class="path-svg">
         <path *ngFor="let path of selectedPath"
               [attr.d]="path.d"
               fill="none"
@@ -56,31 +63,62 @@
       </svg>
 
       <!-- SVG for borders -->
-      <svg 
-      class="borders-svg" 
-      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
-      [style.z-index]="isAddingMode && addStage === 5 ? '-1 !important' : 'auto'"
-      [ngClass]="{
-        'nonVisible': isAddingMode && addStage !== 5 && addStage !== 6,
-      }">
+      <svg
+        class="borders-svg"
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+        [style.z-index]="isAddingMode && addStage === 5 ? '-1 !important' : 'auto'"
+        [ngClass]="{
+          'nonVisible': isAddingMode && addStage !== 5 && addStage !== 6
+        }">
+        
+        <!-- OLD approach: passing entire Border[] to getBorderPoints
+             This caused an error because `Border[]` != `{x,y}[]`
+             <polygon
+               *ngIf="point.borders && point.isProject"
+               [attr.points]="getBorderPoints(point.borders)"
+               fill="rgba(0, 0, 255, 0.2)"
+               stroke="blue"
+               stroke-width="2"
+               (click)="onBorderClick(point)" />
+        -->
+
         <ng-container *ngIf="!showPartProjectMap">
           <ng-container *ngFor="let point of activeProject?.points">
-            <polygon
-              *ngIf="point.borders && point.isProject"
-              [attr.points]="getBorderPoints(point.borders)"
-              fill="rgba(0, 0, 255, 0.2)"
-              stroke="blue"
-              stroke-width="2"
-              (click)="onBorderClick(point)" />
+            <!-- We only render borders for project points (if you want them for all, remove the `point.isProject`) -->
+            <ng-container *ngIf="point.borders && point.isProject">
+              <ng-container *ngFor="let border of point.borders">
+                <polygon
+                  *ngIf="border.Cordinates?.length"
+                  [attr.points]="getBorderPoints(border.Cordinates)"
+                  fill="rgba(0, 0, 255, 0.2)"
+                  stroke="blue"
+                  stroke-width="2"
+                  (click)="onBorderClick(point, $event)"
+                />
+              </ng-container>
+            </ng-container>
           </ng-container>
         </ng-container>
 
+        <!-- The same fix for selectedBorderPoint -->
+        <!-- OLD approach: 
+             <polygon
+               [attr.points]="getBorderPoints(selectedBorderPoint.borders)"
+               fill="rgba(0, 0, 255, 0.2)"
+               stroke="blue"
+               stroke-width="2" 
+             />
+        -->
         <ng-container *ngIf="showPartProjectMap && selectedBorderPoint && selectedBorderPoint.borders">
-          <polygon
-            [attr.points]="getBorderPoints(selectedBorderPoint.borders)"
-            fill="rgba(0, 0, 255, 0.2)"
-            stroke="blue"
-            stroke-width="2" />
+          <ng-container *ngFor="let border of selectedBorderPoint.borders">
+            <polygon
+              *ngIf="border.Cordinates?.length"
+              [attr.points]="getBorderPoints(border.Cordinates)"
+              fill="rgba(0, 0, 255, 0.2)"
+              stroke="blue"
+              stroke-width="2"
+            />
+          </ng-container>
         </ng-container>
       </svg>
     </div>
