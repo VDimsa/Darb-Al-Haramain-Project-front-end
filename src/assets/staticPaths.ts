@@ -254,6 +254,7 @@ export const alharamenProjectMap: ProjectsMap[] = [
               { x: 20, y: 20 },
               { x: 20, y: 10 },
             ],
+            color: 'red',
             data: {
               name: 'Compound A',
               type: 'Residential',
@@ -269,6 +270,7 @@ export const alharamenProjectMap: ProjectsMap[] = [
               { x: 40, y: 40 },
               { x: 40, y: 30 },
             ],
+            color: 'blue',
             data: {
               name: 'Compound B',
               type: 'Commercial',

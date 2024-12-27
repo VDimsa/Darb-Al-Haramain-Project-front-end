@@ -298,6 +298,10 @@ export class ProjectsDashboardComponent {
     // Emit the updated border point
     this.selectedBorderPointChange.emit(this.selectedBorderPoint);
   }
+
+  onPointBorderClick(border: Border, event?: MouseEvent) {
+    alert('Point border color is: ' + border.color);
+  }
   
   private handleAddModeBorderClick(point: Point, event?: MouseEvent) {
     if(this.addStage === 6) {

@@ -93,6 +93,8 @@
                   fill="rgba(0, 0, 255, 0.2)"
                   stroke="blue"
                   stroke-width="2"
+                  [style.stroke]="border.color || 'blue'"
+                  [style.fill]="border.color || 'blue'"
                   (click)="onBorderClick(point, $event)"
                 />
               </ng-container>
@@ -117,6 +119,9 @@
               fill="rgba(0, 0, 255, 0.2)"
               stroke="blue"
               stroke-width="2"
+              (click)="onPointBorderClick(border, $event)"
+              [style.stroke]="border.color || 'blue'"
+              [style.fill]="border.color || 'blue'"
             />
           </ng-container>
         </ng-container>
@@ -135,7 +140,7 @@
   </ul>
 
   <!-- Filters -->
-  <div class="filters" *ngIf="!isAddingMode && showFilters && !showPartProjectMap">
+  <div class="filters" *ngIf="!isAddingMode && !showNewMapImage && showFilters && !showPartProjectMap">
     <h4>فلاتر</h4>
     <ul class="list-group">
       <li class="list-group-item" *ngFor="let filter of filterOptions">
@@ -145,5 +150,11 @@
         </label>
       </li>
     </ul>
+  </div>
+
+  <!-- Filters for Point map -->
+  <div class="filters" *ngIf="!isAddingMode && showPartProjectMap && showFilters">
+    <h4>فلاتر</h4>
+    
   </div>
 </div>
