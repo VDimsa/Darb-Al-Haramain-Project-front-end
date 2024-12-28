@@ -64,6 +64,10 @@ export class ProjectsDashboardComponent {
   currentMapImage: string | File | null = null
   showPartProjectMap = false
 
+  // New properties for dynamic scaling
+  imageWidth: number = 1
+  imageHeight: number = 1
+
   constructor(
     private preloaderService: PreloaderService
   ) {
@@ -118,8 +122,8 @@ export class ProjectsDashboardComponent {
   }
 
   selectFirstProjectPoint() {
-    if (this.currentProject && this.currentProject.points) {
-      const firstProjectPoint = this.currentProject.points.find(point => point.isProject)
+    if (this.activeProject?.points) {
+      const firstProjectPoint = this.activeProject.points.find(point => point.isProject)
       if (firstProjectPoint) {
         this.onPointClick(firstProjectPoint)
       }
@@ -233,7 +237,7 @@ export class ProjectsDashboardComponent {
     const pathToPoint = projectPoint.paths.find(p => p.point.id === this.selectedPoint!.id)
     if (!pathToPoint) return
     const pathData = pathToPoint.path
-      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${p.x * 20},${p.y * 10.83}`)
+      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
       .join(' ')
     this.selectedPath = [{ d: pathData }]
   }
@@ -251,9 +255,15 @@ export class ProjectsDashboardComponent {
 
   onImageLoad() {
     this.autoScroll()
+    const img = this.projectMap.nativeElement as HTMLImageElement
+    this.imageWidth = img.naturalWidth
+    this.imageHeight = img.naturalHeight
+    // Update SVG viewBoxes if necessary
+    // This assumes SVGs are using viewBox for scaling
   }
 
   onImageError() {
+    console.error('Failed to load image.')
   }
 
   getMapImageSource(mapImage: string | File | null | undefined): string | null {
@@ -326,7 +336,7 @@ export class ProjectsDashboardComponent {
   getBorderPoints(coordinates: { x: number; y: number }[] | undefined): string {
     if (!coordinates || coordinates.length === 0) return '';
     return coordinates
-      .map(coord => `${coord.x * 20},${coord.y * 10.83}`)
+      .map(coord => `${(coord.x / 100) * this.imageWidth},${(coord.y / 100) * this.imageHeight}`)
       .join(' ');
   }
 
@@ -513,22 +523,6 @@ export class ProjectsDashboardComponent {
     }
   }
 
-  private handleAddStage4ContainerClick(xPercent: number, yPercent: number, event: MouseEvent) {
-    if (this.selectedProjectPoint && this.selectedPoint) {
-      if (!this.newPath) {
-        this.checkOrCreatePathForStage4()
-      } else {
-        this.addIntermediatePointToPath(xPercent, yPercent)
-      }
-
-      const pathData = this.newPath
-        ?.map((p, index) => `${index === 0 ? 'M' : 'L'} ${p.x * 20},${p.y * 10.83}`)
-        .join(' ')
-      this.selectedPath = pathData ? [{ d: pathData }] : []
-      this.pathDrawn = true
-    }
-  }
-
   private handleAddStage5PointClick(point: Point, event?: MouseEvent) {
     if (point.isProject) {
       if (this.selectedProjectPoint !== point) {
@@ -546,6 +540,22 @@ export class ProjectsDashboardComponent {
     }
   }
 
+  private handleAddStage4ContainerClick(xPercent: number, yPercent: number, event: MouseEvent) {
+    if (this.selectedProjectPoint && this.selectedPoint) {
+      if (!this.newPath) {
+        this.checkOrCreatePathForStage4()
+      } else {
+        this.addIntermediatePointToPath(xPercent, yPercent)
+      }
+
+      const pathData = this.newPath
+        ?.map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
+        .join(' ')
+      this.selectedPath = pathData ? [{ d: pathData }] : []
+      this.pathDrawn = true
+    }
+  }
+
   private handleAddStage5ContainerClick(xPercent: number, yPercent: number, event: MouseEvent) {
     if (this.selectedProjectPoint) {
       // Instead of pushing {x, y} directly into `borders` (which is an array of Border),
@@ -555,6 +565,10 @@ export class ProjectsDashboardComponent {
         this.selectedProjectPoint.borders = [{
           Cordinates: [],
           visible: true,
+          color: 'blue',
+          data: {
+            name: 'اسم الحد',
+          }
         }];
       }
       // Then push to the last border's Cordinates
@@ -582,7 +596,7 @@ export class ProjectsDashboardComponent {
         visible: true,
         color: 'blue',
         data: {
-          name: 'Name',
+          name: 'اسم الحد',
         }
       };
       this.projectsMap.data[0].borders.push(this.currentBorder);
@@ -611,7 +625,7 @@ export class ProjectsDashboardComponent {
   private useExistingPath(existing: Path[]) {
     this.newPath = existing.map(coord => ({ x: coord.x, y: coord.y }))
     const pathData = this.newPath
-      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${p.x * 20},${p.y * 10.83}`)
+      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
       .join(' ')
     this.selectedPath = [{ d: pathData }]
     this.pathDrawn = true
@@ -620,7 +634,7 @@ export class ProjectsDashboardComponent {
   private initializePath(projectPoint: Point, targetPoint: Point) {
     this.newPath = [projectPoint.position, targetPoint.position]
     const pathData = this.newPath
-      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${p.x * 20},${p.y * 10.83}`)
+      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
       .join(' ')
     this.selectedPath = [{ d: pathData }]
     this.pathDrawn = true
@@ -629,7 +643,7 @@ export class ProjectsDashboardComponent {
   private resetPath(projectPoint: Point, targetPoint: Point) {
     this.newPath = [projectPoint.position, targetPoint.position]
     const pathData = this.newPath
-      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${p.x * 20},${p.y * 10.83}`)
+      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
       .join(' ')
     this.selectedPath = [{ d: pathData }]
   }
@@ -734,6 +748,10 @@ export class ProjectsDashboardComponent {
         this.selectedBorderPoint.borders = [{
           Cordinates: [],
           visible: true,
+          color: 'blue',
+          data: {
+            name: 'اسم الحد',
+          }
         }];
       }
       this.selectedBorderPoint.borders[0].Cordinates.push({ x: xPercent, y: yPercent });
@@ -760,6 +778,10 @@ export class ProjectsDashboardComponent {
         this.selectedProjectPoint.borders = [{
           Cordinates: [],
           visible: true,
+          color: 'blue',
+          data: {
+            name: 'اسم الحد',
+          }
         }];
       }
       this.selectedProjectPoint.borders[0].Cordinates.push({ x: xPercent, y: yPercent });
