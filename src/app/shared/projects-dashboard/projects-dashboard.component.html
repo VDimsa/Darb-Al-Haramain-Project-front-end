@@ -22,7 +22,7 @@
         [style.z-index]="!isAddingMode ? '2 !important' : 'auto'"
         *ngIf="!showPartProjectMap">
         <div class="points-dashboard">
-          <div
+          <div #mapPoint
             *ngFor="let point of activeProject?.points"
             [style.left.%]="point.position.x"
             [style.top.%]="point.position.y"

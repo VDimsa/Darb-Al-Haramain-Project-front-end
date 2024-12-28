@@ -1,5 +1,5 @@
 // src\app\shared\projects-dashboard\projects-dashboard.component.ts
-import { Component, ElementRef, ViewChild, Input, Output, EventEmitter, SimpleChanges } from '@angular/core'
+import { Component, ElementRef, ViewChild, Input, Output, EventEmitter, SimpleChanges, ViewChildren, QueryList } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { pointTypes, PointType, Project, Point, PointTypeEnum, Path, Border, ProjectsMap } from './project.model'
 import { PreloaderService } from '../preload/preloader.service'
@@ -27,8 +27,9 @@ export class ProjectsDashboardComponent {
   @Output() dataCleared = new EventEmitter<void>()
   @Output() selectedBorderPointChange = new EventEmitter<Point | null>();
   @ViewChild('scrollContainer') scrollContainer!: ElementRef
-  @ViewChild('mapContainer') mapContainer!: ElementRef
+  @ViewChild('mapContainer') mapContainer!: ElementRef 
   @ViewChild('projectMap') projectMap!: ElementRef
+  @ViewChildren('mapPoint') mapPoints!: QueryList<ElementRef<HTMLDivElement>>;
     
   @Input() projectsMap: ProjectsMap = {
       projectId: null,
@@ -45,9 +46,11 @@ export class ProjectsDashboardComponent {
   private isDragging = false
   private offsetX = 0
   private offsetY = 0
-  private scale = 1
   private transformX = 0
   private transformY = 0
+
+  // Suppose you store two different scales:
+  private containerScale: number = 1;
 
   private currentBorder: Border | null = null;
   private imageCache = new Map<File, string>()
@@ -122,70 +125,77 @@ export class ProjectsDashboardComponent {
       }
     }
   }
-
+  
   onMouseWheel(event: WheelEvent) {
-    const scrollContainer = this.scrollContainer.nativeElement as HTMLElement;
-
-    if (event.ctrlKey) {
-      event.preventDefault();
-  
-      const zoomFactor = 0.1;
-  
-      // 1. Calculate new scale.
-      let newScale = this.scale + (event.deltaY > 0 ? -zoomFactor : zoomFactor);
-  
-      // 2. Clamp between your desired min/max scale.
-      newScale = Math.max(0.5, Math.min(2, newScale));
-  
-      const container = this.mapContainer.nativeElement as HTMLElement;
-  
-      // 3. Temporarily apply the new scale to measure the container's size.
-      container.style.zoom = `${newScale}`;
-  
-      // 4. Retrieve bounding boxes of each container.
-      //    getBoundingClientRect() will reflect the current layout (including zoom).
-      const containerRect = container.getBoundingClientRect();
-      const scrollRect = scrollContainer.getBoundingClientRect();
-  
-      // 5. Check if the container is now smaller than the scroll container
-      //    in either width or height.
-      if (containerRect.width < scrollRect.width || containerRect.height < scrollRect.height) {
-        // Compute how much we need to scale up so that
-        // containerRect >= scrollRect in both dimensions.
-  
-        const widthRatio = scrollRect.width / containerRect.width;
-        const heightRatio = scrollRect.height / containerRect.height;
-  
-        // Use the larger ratio so container matches/exceeds both dimensions.
-        const neededRatio = Math.max(widthRatio, heightRatio);
-  
-        // Adjust newScale accordingly.
-        newScale *= neededRatio;
-  
-        // Still keep it within the maximum allowed scale, e.g., 2 in this case.
-        newScale = Math.min(newScale, 2);
-  
-        // Reapply the corrected scale.
-        container.style.zoom = `${newScale}`;
-      }
-  
-      // 6. Store the final scale value.
-      this.scale = newScale;
+    // If you only want to zoom on Ctrl+Wheel:
+    if (!event.ctrlKey) {
+      return;
     }
-  
-    // Calculate scroll percentages.
-    const scrollLeftPercentage =
-      (scrollContainer.scrollLeft / (scrollContainer.scrollWidth - scrollContainer.clientWidth)) * 100;
-    const scrollTopPercentage =
-      (scrollContainer.scrollTop / (scrollContainer.scrollHeight - scrollContainer.clientHeight)) * 100;
 
-    // Log the percentages.
-    console.log("Updated Scroll Position Percentage:", {
+    event.preventDefault();
+
+    const scrollContainer = this.scrollContainer.nativeElement as HTMLElement;
+    const containerEl = this.mapContainer.nativeElement as HTMLElement;
+
+    // Decide how much to zoom in/out per wheel event
+    const zoomStep = 0.1;
+
+    // If event.deltaY > 0 => user is scrolling "down": we typically treat that as zoom out.
+    // If event.deltaY < 0 => user is scrolling "up": that is zoom in.
+    const isZoomOut = event.deltaY > 0;
+
+    // 1) Compute new container scale
+    let newContainerScale = this.containerScale + (isZoomOut ? -zoomStep : zoomStep);
+
+    // 2) Clamp both scales to your min/max (here 0.5 and 2)
+    newContainerScale = Math.max(0.5, Math.min(2, newContainerScale));
+
+    // 3) Temporarily apply these scales so we can measure container dimensions
+    containerEl.style.zoom = `${newContainerScale}`;
+
+    this.mapPoints.forEach((pointRef) => {
+      pointRef.nativeElement.style.zoom = `${1 / newContainerScale}`;
+    });
+    
+    // 4) Check bounding boxes — only the container is checked here
+    const containerRect = containerEl.getBoundingClientRect();
+    const scrollRect = scrollContainer.getBoundingClientRect();
+
+    // If container is smaller than the scroll area in width OR height,
+    // we scale the container up so that it is at least as large
+    // as the scroll container in both dimensions.
+    if (containerRect.width < scrollRect.width || containerRect.height < scrollRect.height) {
+      const widthRatio = scrollRect.width / containerRect.width;
+      const heightRatio = scrollRect.height / containerRect.height;
+      const neededRatio = Math.max(widthRatio, heightRatio);
+
+      // Correct the newContainerScale
+      newContainerScale *= neededRatio;
+      newContainerScale = Math.min(newContainerScale, 2);
+
+      // Apply again
+      containerEl.style.zoom = `${newContainerScale}`;
+    }
+
+    // 5) Update the stored scales
+    this.containerScale = newContainerScale;
+
+    // 6) (Optional) compute scroll percentages or do any other scroll logic
+    const scrollLeftPercentage = (
+      scrollContainer.scrollLeft /
+      (scrollContainer.scrollWidth - scrollContainer.clientWidth)
+    ) * 100;
+    const scrollTopPercentage = (
+      scrollContainer.scrollTop /
+      (scrollContainer.scrollHeight - scrollContainer.clientHeight)
+    ) * 100;
+
+    console.log('Updated Scroll Position Percentage:', {
       scrollLeftPercentage: scrollLeftPercentage.toFixed(2) + '%',
       scrollTopPercentage: scrollTopPercentage.toFixed(2) + '%',
     });
   }
-  
+
   onPointClick(point: Point, event?: MouseEvent) {
     if (event) event.stopPropagation()
     if (this.isAddingMode) {
