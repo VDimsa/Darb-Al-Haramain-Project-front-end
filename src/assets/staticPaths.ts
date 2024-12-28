@@ -1,3 +1,4 @@
+import { ApartmentStatus, Building, BuildingStatus } from "../app/shared/models/building.model";
 import { Project, PointTypeEnum, ProjectsMap } from "../app/shared/projects-dashboard/project.model";
 
 export const staticProjects: Project[] = [
@@ -568,5 +569,162 @@ export const alharamenProjectMap: ProjectsMap[] = [
         ],
       },
     ],
+  },
+];
+
+export const staticBuildings: Building[] = [
+  {
+    id: 1,
+    name: 'مبنى الأطباء',
+    status: BuildingStatus.ACTIVE,
+    compoundId: 1,
+    urlVideo: true,
+    url: 'https://res.cloudinary.com/dmyhr9fcz/video/upload/v1735395219/kmjmcboyukqbw4gjbjeg.mp4',
+    location: {
+      address: 'المدينة المنورة',
+      city: 'المدينة المنورة',
+      state: 'المدينة المنورة',
+      country: 'المملكة العربية السعودية',
+      latitude: 24.470901,
+      longitude: 39.612236,
+    },
+    floors: [
+      {
+        floorNumber: 1,
+        apartments: [
+          {
+            id: 1,
+            number: '101',
+            roomsCount: 3,
+            status: ApartmentStatus.AVAILABLE,
+            floorNumber: 1,
+            buildingId: 1,
+          },
+          {
+            id: 2,
+            number: '102',
+            roomsCount: 2,
+            status: ApartmentStatus.BOOKED,
+            floorNumber: 1,
+            buildingId: 1,
+          },
+          {
+            id: 3,
+            number: '103',
+            roomsCount: 4,
+            status: ApartmentStatus.SOLD,
+            floorNumber: 1,
+            buildingId: 1,
+          },
+        ],
+      },
+      {
+        floorNumber: 2,
+        apartments: [
+          {
+            id: 4,
+            number: '201',
+            roomsCount: 3,
+            status: ApartmentStatus.AVAILABLE,
+            floorNumber: 2,
+            buildingId: 1,
+          },
+          {
+            id: 5,
+            number: '202',
+            roomsCount: 2,
+            status: ApartmentStatus.BOOKED,
+            floorNumber: 2,
+            buildingId: 1,
+          },
+          {
+            id: 6,
+            number: '203',
+            roomsCount: 4,
+            status: ApartmentStatus.SOLD,
+            floorNumber: 2,
+            buildingId: 1,
+          },
+        ],
+      },
+    ],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: 2,
+    name: 'مبنى الصيادلة',
+    status: BuildingStatus.ACTIVE,
+    compoundId: 1,
+    location: {
+      address: 'المدينة المنورة',
+      city: 'المدينة المنورة',
+      state: 'المدينة المنورة',
+      country: 'المملكة العربية السعودية',
+      latitude: 24.470901,
+      longitude: 39.612236,
+    },
+    floors: [
+      {
+        floorNumber: 1,
+        apartments: [
+          {
+            id: 7,
+            number: '101',
+            roomsCount: 3,
+            status: ApartmentStatus.AVAILABLE,
+            floorNumber: 1,
+            buildingId: 2,
+          },
+          {
+            id: 8,
+            number: '102',
+            roomsCount: 2,
+            status: ApartmentStatus.BOOKED,
+            floorNumber: 1,
+            buildingId: 2,
+          },
+          {
+            id: 9,
+            number: '103',
+            roomsCount: 4,
+            status: ApartmentStatus.SOLD,
+            floorNumber: 1,
+            buildingId: 2,
+          },
+        ],
+      },
+      {
+        floorNumber: 2,
+        apartments: [
+          {
+            id: 10,
+            number: '201',
+            roomsCount: 3,
+            status: ApartmentStatus.AVAILABLE,
+            floorNumber: 2,
+            buildingId: 2,
+          },
+          {
+            id: 11,
+            number: '202',
+            roomsCount: 2,
+            status: ApartmentStatus.BOOKED,
+            floorNumber: 2,
+            buildingId: 2,
+          },
+          {
+            id: 12,
+            number: '203',
+            roomsCount: 4,
+            status: ApartmentStatus.SOLD,
+            floorNumber: 2,
+            buildingId: 2,
+          },
+        ],
+      },
+    ],
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
 ];

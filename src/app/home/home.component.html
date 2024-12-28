@@ -18,6 +18,27 @@
 
     </div>
     
+        <div class="input-group mb-3">
+      <button class="btn btn-outline-secondary" type="button" (click)="backToBuildingSearch()">تفريغ</button>
+      <input 
+        type="text" 
+        [(ngModel)]="buildingSearchTerm" 
+        (input)="onBuildingSearchChange()" 
+        class="form-control" 
+        placeholder="اسم او رقم المبنى" 
+        aria-label="Building Name or ID" 
+        aria-describedby="basic-addon1">
+    </div>
+    
+    <div>
+      <ul *ngIf="filteredBuildings.length" class="list-group" style=" max-height: 300px; overflow: auto; ">
+        <li *ngFor="let building of filteredBuildings" (click)="selectBuilding(building)" class="list-group-item">
+          {{ building.name }}
+        </li>
+      </ul>
+      <p *ngIf="!filteredBuildings.length && buildingSearchTerm" class="no-results">لا توجد نتائج مطابقة.</p>
+    </div>
+
     <div>
       <ul *ngIf="filteredProjects.length" class="list-group" style=" max-height: 300px; overflow: auto; ">
         <li *ngFor="let project of filteredProjects" (click)="selectProject(project)" class="list-group-item">
@@ -29,5 +50,13 @@
 
   <div *ngIf="selectedProject">
     <app-projects-dashboard *ngIf="selectedProject.id" [currentProject]="selectedProject" (dataCleared)="backToSearch()"></app-projects-dashboard>
+  </div>
+
+  <!-- Building Viewer Display -->
+  <div *ngIf="selectedBuilding">
+    <app-building-viewer 
+      [building]="selectedBuilding" 
+      (dataCleared)="backToBuildingSearch()">
+    </app-building-viewer>
   </div>
 </div>

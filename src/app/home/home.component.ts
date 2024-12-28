@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { DomSanitizer } from '@angular/platform-browser';
 import { ProjectsDashboardComponent } from "../shared/projects-dashboard/projects-dashboard.component";
 import { Project } from '../shared/projects-dashboard/project.model';
 import { PointTypeEnum } from '../shared/projects-dashboard/project.model';
 import { staticProjects } from '../../assets/staticPaths';
 import { PreloaderService } from '../shared/preload/preloader.service';
+import { Building, BuildingStatus, ApartmentStatus } from '../shared/models/building.model'; // Adjust the path as necessary
+import { staticBuildings } from '../../assets/staticPaths';
+import { BuildingViewerComponent } from "../shared/building-viewer/building-viewer/building-viewer.component"; // Import the BuildingViewerComponent
 
 @Component({
   selector: 'app-home',
@@ -17,15 +19,22 @@ import { PreloaderService } from '../shared/preload/preloader.service';
     CommonModule,
     FormsModule,
     ProjectsDashboardComponent,
+    BuildingViewerComponent
 ]
 })
 export class HomeComponent {
+  // Existing Project-related properties
   projects: Project[] = staticProjects;
-
   projectData: Project | null = null;
   searchTerm: string = '';
   filteredProjects: Project[] = [];
   selectedProject: Project | null = null;
+
+  // Added Building-related properties
+  buildings: Building[] = staticBuildings;
+  buildingSearchTerm: string = '';
+  filteredBuildings: Building[] = [];
+  selectedBuilding: Building | null = null;
 
   constructor(
     private preloaderService: PreloaderService,
@@ -34,8 +43,14 @@ export class HomeComponent {
   }
 
   ngOnInit() {
-    this.projectData = this.projects[0] || null;
-    this.selectedProject = this.projectData;
+    // Initialize without selecting any project or building
+    this.selectedProject = null;
+    this.selectedBuilding = null;
+    this.filteredProjects = [];
+    this.filteredBuildings = [];
+
+    //this.projectData = this.projects[0] || null;
+    //this.selectedProject = this.projectData;
     //this.filteredProjects = this.projects;
 
     setTimeout(() => {
@@ -84,5 +99,39 @@ export class HomeComponent {
     this.selectedProject = null;
     this.searchTerm = '';
     this.filteredProjects = [];
+  }
+
+  onBuildingSearchChange() {
+    const term = this.buildingSearchTerm.toLowerCase();
+
+    if (!term) {
+      this.filteredBuildings = [];
+    } else {
+      this.filteredBuildings = this.buildings.filter(building =>
+        building.id.toString().includes(term) || building.name.toLowerCase().includes(term)
+      );
+    }
+  }
+
+  /**
+   * Selects a building and displays the BuildingViewerComponent.
+   * Also resets any selected project.
+   * @param building The selected building.
+   */
+  selectBuilding(building: Building) {
+    this.selectedBuilding = building;
+    this.selectedProject = null; // Reset project selection
+    // Optionally, clear search terms and filtered lists
+    this.buildingSearchTerm = '';
+    this.filteredBuildings = [];
+  }
+
+  /**
+   * Resets the building selection and returns to the building search view.
+   */
+  backToBuildingSearch() {
+    this.selectedBuilding = null;
+    this.buildingSearchTerm = '';
+    this.filteredBuildings = [];
   }
 }
