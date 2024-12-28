@@ -96,7 +96,7 @@
         <ng-container *ngIf="showPartProjectMap && selectedBorderPoint && selectedBorderPoint.borders && addStage !== 7">
           <ng-container *ngFor="let border of selectedBorderPoint.borders">
             <polygon
-              *ngIf="border.Cordinates?.length && border.visible"
+              *ngIf="border.Cordinates?.length && border.visible && filteredBorders.includes(border)"
               [attr.points]="getBorderPoints(border.Cordinates)"
               fill="rgba(0, 0, 255, 0.2)"
               stroke="blue"
@@ -199,24 +199,121 @@
       </li>
     </ul>
   </div>
+
   <!-- Filters for Point map -->
-  <div class="filters" *ngIf="!isAddingMode && showPartProjectMap && showFilters">
+  <div class="filters" *ngIf="!isAddingMode && showPartProjectMap && showFilters" style="
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  ">
     <h4>فلاتر الحدود</h4>
-    <p>قم بإظهار أو إخفاء كل حد من الحدود أدناه:</p>
-  
-    <ul class="list-group">
-      <ng-container *ngFor="let border of selectedBorderPoint?.borders; index as i">
-        <li class="list-group-item">
+
+    <!-- Type Filters -->
+    <div class="filter-section">
+      <h5>النوع</h5>
+      <ul class="list-group">
+        <li class="list-group-item" *ngFor="let type of borderTypes">
           <label>
             <input
               type="checkbox"
-              [checked]="border.visible !== false"
-              (change)="toggleBorderVisibility(border, i, $event)"
+              [checked]="activeBorderFilters.types[type]"
+              (change)="onTypeFilterChange(type, $event)"
             />
-            {{ border.data?.name || ('منطقة ' + (i + 1)) }}
+            {{ getTypeLabel(type) }}
           </label>
         </li>
-      </ng-container>
-    </ul>
+      </ul>
+    </div>
+
+    <!-- Floors Filters -->
+    <div class="filter-section">
+      <h5>عدد الطوابق</h5>
+      <ul class="list-group">
+        <li class="list-group-item" *ngFor="let floor of uniqueFloors">
+          <label>
+            <input
+              type="checkbox"
+              [checked]="activeBorderFilters.floors.includes(floor)"
+              (change)="onFloorFilterChange(floor, $event)"
+            />
+            {{ floor }}
+          </label>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Area Filter -->
+    <div class="filter-section">
+      <h5>المساحة (م²)</h5>
+      <div class="slider-container">
+        <label>
+          الحد الأدنى: {{ activeBorderFilters.area.min }} م²
+          <input
+            type="range"
+            min="{{ areaRange.min }}"
+            max="{{ areaRange.max }}"
+            [(ngModel)]="activeBorderFilters.area.min"
+            (input)="onAreaFilterChange()"
+          />
+        </label>
+        <label>
+          الحد الأقصى: {{ activeBorderFilters.area.max }} م²
+          <input
+            type="range"
+            min="{{ areaRange.min }}"
+            max="{{ areaRange.max }}"
+            [(ngModel)]="activeBorderFilters.area.max"
+            (input)="onAreaFilterChange()"
+          />
+        </label>
+      </div>
+    </div>
+
+    <!-- Occupancy% Filter -->
+    <div class="filter-section">
+      <h5>نسبة الإشغال (%)</h5>
+      <div class="slider-container">
+        <label>
+          الحد الأدنى: {{ activeBorderFilters.occupancy.min }}%
+          <input
+            type="range"
+            min="{{ occupancyRange.min }}"
+            max="{{ occupancyRange.max }}"
+            [(ngModel)]="activeBorderFilters.occupancy.min"
+            (input)="onOccupancyFilterChange()"
+          />
+        </label>
+        <label>
+          الحد الأقصى: {{ activeBorderFilters.occupancy.max }}%
+          <input
+            type="range"
+            min="{{ occupancyRange.min }}"
+            max="{{ occupancyRange.max }}"
+            [(ngModel)]="activeBorderFilters.occupancy.max"
+            (input)="onOccupancyFilterChange()"
+          />
+        </label>
+      </div>
+    </div>
+
+    <!-- Apply Filters Button -->
+    <button class="btn btn-primary mt-3" (click)="applyAdvancedFilters()">
+      تطبيق الفلاتر
+    </button>
+
+    <!-- Reset Filters Button -->
+    <button class="btn btn-secondary mt-3 ml-2" (click)="resetFilters()">
+      إعادة تعيين الفلاتر
+    </button>
+
+    <!-- Filtered Borders List -->
+    <div class="filtered-borders mt-4">
+      <h5>الحدود المتوافقة:</h5>
+      <ul class="list-group">
+        <li class="list-group-item" *ngFor="let border of filteredBorders; index as i">
+          <strong>الحد {{ i + 1 }}:</strong> {{ border.data?.name || 'منطقة ' + (i + 1) }}
+        </li>
+      </ul>
+    </div>
   </div>
 </div>

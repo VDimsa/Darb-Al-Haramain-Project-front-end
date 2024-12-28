@@ -4,12 +4,14 @@ import { CommonModule } from '@angular/common'
 import { pointTypes, PointType, Project, Point, PointTypeEnum, Path, Border, ProjectsMap } from './project.model'
 import { PreloaderService } from '../preload/preloader.service'
 import { alharamenProjectMap } from '../../../assets/staticPaths'
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-projects-dashboard',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
   ],
   templateUrl: './projects-dashboard.component.html',
   styleUrls: ['./projects-dashboard.component.scss']
@@ -53,7 +55,22 @@ export class ProjectsDashboardComponent {
   private containerScale: number = 1;
 
   private currentBorder: Border | null = null;
-  private imageCache = new Map<File, string>()
+  private imageCache = new Map<File, string>();
+
+  // Advanced Filter Properties
+  borderTypes: string[] = ['سكني', 'تجاري', 'تسوق', 'ترفيه', 'خدمات', 'مكاتب', 'مستشفيات', 'مدارس', 'مساجد', 'مطاعم', 'مولات', 'مواقف'];
+  uniqueFloors: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  areaRange = { min: 0, max: 10000 };
+  occupancyRange = { min: 0, max: 100 };
+  
+  activeBorderFilters = {
+    types: {} as { [key: string]: boolean },
+    floors: [] as number[],
+    area: { min: 0, max: 10000 },
+    occupancy: { min: 0, max: 100 }
+  };
+
+  filteredBorders: Border[] = [];
 
   filterOptions: { type: string; label: string }[] = []
   activeFilters: { [key: string]: boolean } = {}
@@ -91,12 +108,19 @@ export class ProjectsDashboardComponent {
       {}
     )
 
+    this.initializeAdvancedFilters();
     this.selectFirstProjectPoint();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['addStage']) {
       this.onStageChange();
+    }
+
+    // Re-initialize filters if selectedBorderPoint changes
+    if (changes['selectedBorderPoint'] && this.selectedBorderPoint) {
+      this.initializeAdvancedFilters();
+      this.applyAdvancedFilters();
     }
   }
 
@@ -788,5 +812,195 @@ export class ProjectsDashboardComponent {
 
       console.log('Updated borders for selected point:', this.selectedProjectPoint.borders);
     }
+  }
+
+
+
+  // --- Advanced Filter Methods ---
+
+  /**
+   * Initializes the advanced filters based on the selectedBorderPoint's borders.
+   */
+  private initializeAdvancedFilters() {
+    if (!this.selectedBorderPoint || !this.selectedBorderPoint.borders) {
+      return;
+    }
+
+    // Extract unique types
+    this.borderTypes = Array.from(
+      new Set(this.selectedBorderPoint.borders.map(border => border.data?.type).filter(type => type))
+    ) as string[];
+
+    // Initialize type filters
+    this.borderTypes.forEach(type => {
+      this.activeBorderFilters.types[type] = true;
+    });
+
+    // Extract unique floors
+    this.uniqueFloors = Array.from(
+      new Set(this.selectedBorderPoint.borders.map(border => border.data?.floors).filter(floors => floors != null))
+    ) as number[];
+
+    // Initialize floors filters (select all by default)
+    this.activeBorderFilters.floors = [...this.uniqueFloors];
+
+    // Determine area range
+    const areas = this.selectedBorderPoint.borders
+      .map(border => parseInt(border.data?.area?.replace(/\D/g, '') || '0', 10))
+      .filter(area => !isNaN(area));
+    this.areaRange.min = Math.min(...areas, 0);
+    this.areaRange.max = Math.max(...areas, 10000);
+    this.activeBorderFilters.area.min = this.areaRange.min;
+    this.activeBorderFilters.area.max = this.areaRange.max;
+
+    // Determine occupancy range
+    const occupancies = this.selectedBorderPoint.borders
+      .map(border => parseInt((border.data?.occupancy ?? '0').replace(/%/g, ''), 10))
+      .filter(occupancy => !isNaN(occupancy));
+    this.occupancyRange.min = Math.min(...occupancies, 0);
+    this.occupancyRange.max = Math.max(...occupancies, 100);
+    this.activeBorderFilters.occupancy.min = this.occupancyRange.min;
+    this.activeBorderFilters.occupancy.max = this.occupancyRange.max;
+
+    // Initially, all borders are shown
+    this.filteredBorders = [...this.selectedBorderPoint.borders];
+  }
+
+  /**
+   * Handles changes in the type filter checkboxes.
+   * @param type The type of border.
+   * @param event The change event.
+   */
+  onTypeFilterChange(type: string, event: Event) {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    this.activeBorderFilters.types[type] = isChecked;
+  }
+
+  /**
+   * Handles changes in the floors filter checkboxes.
+   * @param floor The number of floors.
+   * @param event The change event.
+   */
+  onFloorFilterChange(floor: number, event: Event) {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    if (isChecked) {
+      this.activeBorderFilters.floors.push(floor);
+    } else {
+      this.activeBorderFilters.floors = this.activeBorderFilters.floors.filter(f => f !== floor);
+    }
+  }
+
+  /**
+   * Handles changes in the area range sliders.
+   */
+  onAreaFilterChange() {
+    // Ensure min is not greater than max
+    if (this.activeBorderFilters.area.min > this.activeBorderFilters.area.max) {
+      this.activeBorderFilters.area.min = this.activeBorderFilters.area.max;
+    }
+  }
+
+  /**
+   * Handles changes in the occupancy range sliders.
+   */
+  onOccupancyFilterChange() {
+    // Ensure min is not greater than max
+    if (this.activeBorderFilters.occupancy.min > this.activeBorderFilters.occupancy.max) {
+      this.activeBorderFilters.occupancy.min = this.activeBorderFilters.occupancy.max;
+    }
+  }
+
+  /**
+   * Applies the advanced filters to the borders.
+   */
+  applyAdvancedFilters() {
+    if (!this.selectedBorderPoint || !this.selectedBorderPoint.borders) {
+      this.filteredBorders = [];
+      return;
+    }
+
+    this.filteredBorders = this.selectedBorderPoint.borders.filter(border => {
+      // Filter by type
+      const borderType = border.data?.type;
+      if (borderType && !this.activeBorderFilters.types[borderType]) {
+        return false;
+      }
+
+      // Filter by floors
+      const borderFloors = border.data?.floors;
+      if (borderFloors != null && !this.activeBorderFilters.floors.includes(borderFloors)) {
+        return false;
+      }
+
+      // Filter by area
+      const borderAreaStr = border.data?.area;
+      const borderArea = borderAreaStr ? parseInt(borderAreaStr.replace(/\D/g, ''), 10) : 0;
+      if (
+        borderArea < this.activeBorderFilters.area.min ||
+        borderArea > this.activeBorderFilters.area.max
+      ) {
+        return false;
+      }
+
+      // Filter by occupancy
+      const borderOccupancyStr = border.data?.occupancy;
+      const borderOccupancy = borderOccupancyStr
+        ? parseInt(borderOccupancyStr.replace(/%/g, ''), 10)
+        : 0;
+      if (
+        borderOccupancy < this.activeBorderFilters.occupancy.min ||
+        borderOccupancy > this.activeBorderFilters.occupancy.max
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
+    console.log('Filtered Borders:', this.filteredBorders);
+  }
+
+  /**
+   * Resets all advanced filters to their default states.
+   */
+  resetFilters() {
+    if (!this.selectedBorderPoint || !this.selectedBorderPoint.borders) {
+      return;
+    }
+
+    // Reset type filters
+    this.borderTypes.forEach(type => {
+      this.activeBorderFilters.types[type] = true;
+    });
+
+    // Reset floors filters
+    this.activeBorderFilters.floors = [...this.uniqueFloors];
+
+    // Reset area filters
+    this.activeBorderFilters.area.min = this.areaRange.min;
+    this.activeBorderFilters.area.max = this.areaRange.max;
+
+    // Reset occupancy filters
+    this.activeBorderFilters.occupancy.min = this.occupancyRange.min;
+    this.activeBorderFilters.occupancy.max = this.occupancyRange.max;
+
+    // Show all borders
+    this.filteredBorders = [...this.selectedBorderPoint.borders];
+  }
+
+  /**
+   * Retrieves the label for a given border type.
+   * @param type The type of border.
+   * @returns The localized label for the type.
+   */
+  getTypeLabel(type: string): string {
+    const labels: { [key: string]: string } = {
+      'سكني': 'سكني',
+      'تجاري': 'تجاري',
+      'عيادات': 'عيادات',
+      'تسوق': 'تسوق'
+      // Add more types as needed
+    };
+    return labels[type] || type;
   }
 }

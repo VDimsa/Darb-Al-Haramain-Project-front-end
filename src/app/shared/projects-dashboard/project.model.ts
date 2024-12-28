@@ -47,10 +47,15 @@ export interface Border {
   }[];
   color?: string;
   visible: boolean;
-  data?: {
-    name: string;
-    [key: string]: any;
-  };
+  data?: BorderData;
+}
+
+export interface BorderData {
+  name?: string;
+  type?: string;       // e.g., 'سكني', 'تجاري'
+  floors?: number;
+  area?: string;       // e.g., '5000 م²'
+  occupancy?: string;  // e.g., '80%'
 }
 
 export const pointTypes: PointType[] = [
