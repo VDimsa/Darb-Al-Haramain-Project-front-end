@@ -1,6 +1,6 @@
 import { Component, Inject, PLATFORM_ID, SimpleChanges } from '@angular/core';
 import { ProjectsDashboardComponent } from "../shared/projects-dashboard/projects-dashboard.component";
-import { Point, PointTypeEnum, Project, ProjectsMap, ProjectsMapData } from '../shared/projects-dashboard/project.model';
+import { Border, Point, PointTypeEnum, Project, ProjectsMap, ProjectsMapData } from '../shared/projects-dashboard/project.model';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FormsModule } from '@angular/forms';
@@ -33,7 +33,15 @@ export class DashboardComponent {
   uploadedBorderImage: string | null = null; 
   newPointBoarder: Partial<Point>|null = null;
   showNewMapImage: boolean = false;
+
   
+  projectsMap: ProjectsMap = {
+    projectId: null,
+    pointId: null,
+    mapImage: null,
+    data: []
+  };
+
   currentPointType: PointTypeEnum = PointTypeEnum.MALL;
   pointTypes = [
     { type: PointTypeEnum.MALL, icon: 'fa-cart-shopping' },
@@ -167,6 +175,9 @@ export class DashboardComponent {
       const reader = new FileReader();
       reader.onload = () => {
         this.selectedBorderPoint!.pointMap = reader.result as string; 
+        this.projectsMap.mapImage = reader.result as string; 
+        this.projectsMap.projectId = this.currentProject.id || 0; 
+        this.projectsMap.pointId = this.selectedBorderPoint!.id; 
         console.log('Uploaded border image:', this.selectedBorderPoint!.pointMap);
       };
       reader.readAsDataURL(file);
@@ -181,15 +192,7 @@ export class DashboardComponent {
       this.currentStage = 7;
     }
   }
-    
-  removeBorder(index: number): void {
-    
-  }
   
-  newBorder(): void {
-    
-  }
-
   getMapImageSource(mapImage: string | File | null | undefined): string | null {
     if (!mapImage) return null;
     if (typeof mapImage === 'string') return mapImage;

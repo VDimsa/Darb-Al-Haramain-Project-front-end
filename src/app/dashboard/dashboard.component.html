@@ -8,6 +8,7 @@
     [addingPointType]="currentPointType" 
     [showSidebar]="false" 
     [newProject]="currentProject" 
+    [projectsMap]="projectsMap" 
     [addStage]="currentStage"
     (selectedBorderPointChange)="selectedBorderPoint = $event"
     ></app-projects-dashboard>
@@ -159,35 +160,6 @@
     </div>
   </div>
   
-  <!-- Stage 7: Display Selected ProjectsMap -->
-  <div class="stage-7" *ngIf="currentStage === 7 && selectedBorderPoint">
-    <h2>الحدود الخاصة بالنقطة المختارة</h2>
-
-    <!-- Display the Project Map -->
-    <div *ngIf="selectedBorderPoint.pointMap" class="project-map">
-      <h4>خريطة المشروع:</h4>
-      <img [src]="getMapImageSource(selectedBorderPoint.pointMap)" alt="Project Map Preview" class="preview-img" />
-    </div>
-
-    <!-- Show Selected Border Point ID -->
-    <div>
-      <h4>معرف الحدود:</h4>
-      <p>{{ selectedBorderPoint.id }}</p>
-    </div>
-
-    <!-- List the Current Borders -->
-    <div>
-      <h4>القائمة الحالية للحدود:</h4>
-      
-    </div>
-
-    <!-- Add New Border -->
-    <div class="add-border">
-      <h4>إضافة حدود جديدة:</h4>
-      <button class="btn btn-sm btn-primary" (click)="newBorder()">جديد</button>
-    </div>
-  </div>
-
   <div class="bottom-stages">
     <button (click)="back()">
       <i class="fa-solid fa-circle-chevron-right"></i>

@@ -1,9 +1,8 @@
 // src\app\shared\projects-dashboard\projects-dashboard.component.ts
 import { Component, ElementRef, ViewChild, Input, Output, EventEmitter, SimpleChanges } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { pointTypes, PointType, Project, Point, PointTypeEnum, Path, Border } from './project.model'
+import { pointTypes, PointType, Project, Point, PointTypeEnum, Path, Border, ProjectsMap } from './project.model'
 import { PreloaderService } from '../preload/preloader.service'
-import path from 'node:path'
 import { alharamenProjectMap } from '../../../assets/staticPaths'
 
 @Component({
@@ -30,6 +29,13 @@ export class ProjectsDashboardComponent {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef
   @ViewChild('mapContainer') mapContainer!: ElementRef
   @ViewChild('projectMap') projectMap!: ElementRef
+    
+  @Input() projectsMap: ProjectsMap = {
+      projectId: null,
+      pointId: null,
+      mapImage: null,
+      data: []
+    };
 
   selectedProjectPoint: Point | null = null
   selectedPoint: Point | null = null
@@ -43,6 +49,7 @@ export class ProjectsDashboardComponent {
   private transformX = 0
   private transformY = 0
 
+  private currentBorder: Border | null = null;
   private imageCache = new Map<File, string>()
 
   filterOptions: { type: string; label: string }[] = []
@@ -117,6 +124,8 @@ export class ProjectsDashboardComponent {
   }
 
   onMouseWheel(event: WheelEvent) {
+    const scrollContainer = this.scrollContainer.nativeElement as HTMLElement;
+
     if (event.ctrlKey) {
       event.preventDefault();
   
@@ -129,7 +138,6 @@ export class ProjectsDashboardComponent {
       newScale = Math.max(0.5, Math.min(2, newScale));
   
       const container = this.mapContainer.nativeElement as HTMLElement;
-      const scrollContainer = this.scrollContainer.nativeElement as HTMLElement;
   
       // 3. Temporarily apply the new scale to measure the container's size.
       container.style.zoom = `${newScale}`;
@@ -164,8 +172,20 @@ export class ProjectsDashboardComponent {
       // 6. Store the final scale value.
       this.scale = newScale;
     }
-  }
+  
+    // Calculate scroll percentages.
+    const scrollLeftPercentage =
+      (scrollContainer.scrollLeft / (scrollContainer.scrollWidth - scrollContainer.clientWidth)) * 100;
+    const scrollTopPercentage =
+      (scrollContainer.scrollTop / (scrollContainer.scrollHeight - scrollContainer.clientHeight)) * 100;
 
+    // Log the percentages.
+    console.log("Updated Scroll Position Percentage:", {
+      scrollLeftPercentage: scrollLeftPercentage.toFixed(2) + '%',
+      scrollTopPercentage: scrollTopPercentage.toFixed(2) + '%',
+    });
+  }
+  
   onPointClick(point: Point, event?: MouseEvent) {
     if (event) event.stopPropagation()
     if (this.isAddingMode) {
@@ -174,11 +194,26 @@ export class ProjectsDashboardComponent {
       this.handleViewModePointClick(point, event)
     }
   }
-
+  
+  private getMapDimensions(): { width: number; height: number } {
+    const container = this.projectMap.nativeElement as HTMLElement;
+    const { width, height } = container.getBoundingClientRect();
+    return { width, height };
+  }
+  
   onContainerClick(event: MouseEvent) {
     if (this.isAddingMode) {
       this.handleAddModeContainerClick(event)
     }
+  }
+
+  private toContainerCoordinates(p: { x: number; y: number }): { x: number; y: number } {
+    const { width, height } = this.getMapDimensions();
+    
+    return {
+      x: (p.x / 100) * width,  // if p.x is a 0–100 value
+      y: (p.y / 100) * height, // if p.y is a 0–100 value
+    };
   }
 
   drawPath() {
@@ -272,15 +307,6 @@ export class ProjectsDashboardComponent {
     this.showFilters = !this.showFilters
   }
 
-  /**
-   * Before fix:
-   * getBorderPoints(borders: { x: number; y: number }[] | undefined): string {
-   *   if (!borders || borders.length === 0) return ''
-   *   return borders
-   *     .map(border => `${border.x * 20},${border.y * 10.83}`)
-   *     .join(' ')
-   * }
-   */
   getBorderPoints(coordinates: { x: number; y: number }[] | undefined): string {
     if (!coordinates || coordinates.length === 0) return '';
     return coordinates
@@ -400,6 +426,8 @@ export class ProjectsDashboardComponent {
       this.handleAddStage4ContainerClick(xPercent, yPercent, event)
     } else if (this.addStage === 5) {
       this.handleAddStage5ContainerClick(xPercent, yPercent, event)
+    } else if (this.addStage === 7) {
+      this.handleAddStage7ContainerClick(xPercent, yPercent, event)
     }
   }
 
@@ -518,6 +546,48 @@ export class ProjectsDashboardComponent {
     }
   }
 
+  private handleAddStage7ContainerClick(xPercent: number, yPercent: number, event: MouseEvent) {
+    // If we have no projectsMap or no data array, bail out early
+    if (!this.projectsMap) {
+      return;
+    }
+    if (!this.projectsMap.data || this.projectsMap.data.length === 0) {
+      // If there's no data array, create one
+      this.projectsMap.data = [{ borders: [] }];
+    }
+
+    // If there is no "current border" being drawn, create a new one and push it into
+    // the borders array of the first ProjectsMapData (or whichever index you like).
+    if (!this.currentBorder) {
+      this.currentBorder = {
+        Cordinates: [],
+        // you can default color or any data here if needed
+        color: 'blue',
+        data: {
+          name: 'Name',
+        }
+      };
+      this.projectsMap.data[0].borders.push(this.currentBorder);
+    }
+
+    // Now push the newly clicked coordinate
+    this.currentBorder.Cordinates.push({ x: xPercent, y: yPercent });
+    console.log('Added new coordinate: ', { x: xPercent, y: yPercent });
+  }
+
+  finishCurrentBorder() {
+    // Called when user clicks "انهاء الحدود الحالية"
+    if (this.currentBorder) {
+      // finalize it (for example, you might do validations or transformations)
+      console.log('Finishing current border with coords:', this.currentBorder.Cordinates);
+
+      // Now reset currentBorder so next click on map starts a fresh border
+      this.currentBorder = null;
+    } else {
+      console.warn('No border is currently in progress to finish!');
+    }
+  }
+  
   private useExistingPath(existing: Path[]) {
     this.newPath = existing.map(coord => ({ x: coord.x, y: coord.y }))
     const pathData = this.newPath
@@ -627,7 +697,7 @@ export class ProjectsDashboardComponent {
     toggleVisibility(this.newProject?.points);
     toggleVisibility(this.currentProject?.points);
   
-    console.log('Updated points visibility for stage:', newStage);
+    console.log('Updated points visibility for stage:', this.addStage);
   }
 
   onDrawBorder(event: MouseEvent) {

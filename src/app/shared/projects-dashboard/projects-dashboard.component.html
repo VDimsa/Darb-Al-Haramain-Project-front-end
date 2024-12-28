@@ -1,5 +1,3 @@
-<!-- src\app\shared\projects-dashboard\projects-dashboard.component.html -->
-
 <div class="image-container" *ngIf="currentMapImage">
   <div #scrollContainer class="scroll-container" (wheel)="onMouseWheel($event)"
        (click)="addStage === 5 ? onDrawBorder($event) : onContainerClick($event)">
@@ -64,55 +62,54 @@
 
       <!-- SVG for borders -->
       <svg
-        class="borders-svg"
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-        [style.z-index]="isAddingMode && addStage === 5 ? '-1 !important' : 'auto'"
-        [ngClass]="{
-          'nonVisible': isAddingMode && addStage !== 5 && addStage !== 6
-        }">
-        
-        <!-- OLD approach: passing entire Border[] to getBorderPoints
-             This caused an error because `Border[]` != `{x,y}[]`
-             <polygon
-               *ngIf="point.borders && point.isProject"
-               [attr.points]="getBorderPoints(point.borders)"
-               fill="rgba(0, 0, 255, 0.2)"
-               stroke="blue"
-               stroke-width="2"
-               (click)="onBorderClick(point)" />
-        -->
-
-        <ng-container *ngIf="!showPartProjectMap">
-          <ng-container *ngFor="let point of activeProject?.points">
-            <!-- We only render borders for project points (if you want them for all, remove the `point.isProject`) -->
-            <ng-container *ngIf="point.borders && point.isProject">
-              <ng-container *ngFor="let border of point.borders">
-                <polygon
-                  *ngIf="border.Cordinates?.length"
-                  [attr.points]="getBorderPoints(border.Cordinates)"
-                  fill="rgba(0, 0, 255, 0.2)"
-                  stroke="blue"
-                  stroke-width="2"
-                  [style.stroke]="border.color || 'blue'"
-                  [style.fill]="border.color || 'blue'"
-                  (click)="onBorderClick(point, $event)"
-                />
-              </ng-container>
+      class="borders-svg"
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+      [style.z-index]="isAddingMode && addStage === 5 ? '-1 !important' : 'auto'"
+      [ngClass]="{
+        'nonVisible': isAddingMode && ![5, 6, 7].includes(addStage)
+      }"
+    >
+      <!-- 1) Point-based borders: hide in stage 7 by adding `addStage !== 7` -->
+      <ng-container *ngIf="!showPartProjectMap && addStage !== 7">
+        <ng-container *ngFor="let point of activeProject?.points">
+          <!-- Only render if point is a project (remove `point.isProject` to show borders for all) -->
+          <ng-container *ngIf="point.borders && point.isProject">
+            <ng-container *ngFor="let border of point.borders">
+              <polygon
+                *ngIf="border.Cordinates?.length"
+                [attr.points]="getBorderPoints(border.Cordinates)"
+                fill="rgba(0, 0, 255, 0.2)"
+                stroke="blue"
+                stroke-width="2"
+                [style.stroke]="border.color || 'blue'"
+                [style.fill]="border.color || 'blue'"
+                (click)="onBorderClick(point, $event)"
+              ></polygon>
             </ng-container>
           </ng-container>
         </ng-container>
-
-        <!-- The same fix for selectedBorderPoint -->
-        <!-- OLD approach: 
-             <polygon
-               [attr.points]="getBorderPoints(selectedBorderPoint.borders)"
-               fill="rgba(0, 0, 255, 0.2)"
-               stroke="blue"
-               stroke-width="2" 
-             />
-        -->
-        <ng-container *ngIf="showPartProjectMap && selectedBorderPoint && selectedBorderPoint.borders">
-          <ng-container *ngFor="let border of selectedBorderPoint.borders">
+      </ng-container>
+    
+      <!-- 2) If showPartProjectMap is active, show the selected point's borders -->
+      <ng-container *ngIf="showPartProjectMap && selectedBorderPoint && selectedBorderPoint.borders && addStage !== 7">
+        <ng-container *ngFor="let border of selectedBorderPoint.borders">
+          <polygon
+            *ngIf="border.Cordinates?.length"
+            [attr.points]="getBorderPoints(border.Cordinates)"
+            fill="rgba(0, 0, 255, 0.2)"
+            stroke="blue"
+            stroke-width="2"
+            (click)="onPointBorderClick(border, $event)"
+            [style.stroke]="border.color || 'blue'"
+            [style.fill]="border.color || 'blue'"
+          ></polygon>
+        </ng-container>
+      </ng-container>
+    
+      <!-- 3) In Stage 7, show the “inside” borders from `projectsMap.data` -->
+      <ng-container *ngIf="isAddingMode && addStage === 7 && projectsMap && projectsMap.data">
+        <ng-container *ngFor="let data of projectsMap.data">
+          <ng-container *ngFor="let border of data.borders">
             <polygon
               *ngIf="border.Cordinates?.length"
               [attr.points]="getBorderPoints(border.Cordinates)"
@@ -122,11 +119,13 @@
               (click)="onPointBorderClick(border, $event)"
               [style.stroke]="border.color || 'blue'"
               [style.fill]="border.color || 'blue'"
-            />
+            ></polygon>
           </ng-container>
         </ng-container>
-      </svg>
-    </div>
+      </ng-container>
+    </svg>
+
+  </div>
   </div>
 
   <!-- Sidebar -->
@@ -138,6 +137,53 @@
       <i class="fa-solid fa-filter"></i>
     </li>
   </ul>
+
+  <!-- Stage 7: Display Selected ProjectsMap -->
+  <div class="filters" *ngIf="addStage === 7 && selectedBorderPoint">
+    <h4>الحدود الخاصة بالنقطة المختارة</h4>
+
+    <!-- Display the Project Map -->
+    <div *ngIf="selectedBorderPoint.pointMap" class="project-map">
+      <h4>خريطة المشروع:</h4>
+      <img [src]="getMapImageSource(projectsMap.mapImage)" alt="Project Map Preview" class="preview-img" />
+    </div>
+
+    <!-- Show Selected Border Point ID -->
+    <div>
+      <h4>معرف المشروع:</h4>
+      <p>{{ projectsMap.projectId }}</p>
+    </div>
+
+    <!-- Show Selected Border Point ID -->
+    <div>
+      <h4>معرف الحدود:</h4>
+      <p>{{ projectsMap.pointId }}</p>
+    </div>
+
+    <!-- List the Current Borders -->
+    <div>
+      <h4>القائمة الحالية للحدود:</h4>
+      <ng-container *ngIf="projectsMap.data && projectsMap.data.length > 0">
+        <ng-container *ngFor="let data of projectsMap.data">
+          <div *ngIf="data.borders && data.borders.length > 0">
+            <p>عدد الحدود: {{ data.borders.length }}</p>
+    
+            <ul>
+              <li *ngFor="let border of data.borders; index as i">
+                <strong>الحدود {{ i+1 }}: </strong>
+                <span *ngIf="border.data && border.data.name"> {{ border.data.name || 'Name' }} </span>
+              </li>
+            </ul>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+      
+    <!-- UI to show the user the in-progress border and a 'Finish' button -->
+    <button class="btn btn-sm btn-primary" (click)="finishCurrentBorder()">
+      إنهاء الحدود الحالية
+    </button>
+  </div>
 
   <!-- Filters -->
   <div class="filters" *ngIf="!isAddingMode && !showNewMapImage && showFilters && !showPartProjectMap">

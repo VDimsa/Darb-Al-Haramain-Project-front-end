@@ -37,7 +37,7 @@ export interface ProjectsMap {
 
 export interface ProjectsMapData {
   borders: Border[];
-  data: any;
+  data?: any;
 }
 
 export interface Border {
