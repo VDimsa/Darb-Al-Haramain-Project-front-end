@@ -46,6 +46,7 @@ export interface Border {
     y: number;
   }[];
   color?: string;
+  visible: boolean;
   data?: {
     name: string;
     [key: string]: any;

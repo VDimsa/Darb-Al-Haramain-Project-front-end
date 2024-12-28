@@ -94,7 +94,7 @@
       <ng-container *ngIf="showPartProjectMap && selectedBorderPoint && selectedBorderPoint.borders && addStage !== 7">
         <ng-container *ngFor="let border of selectedBorderPoint.borders">
           <polygon
-            *ngIf="border.Cordinates?.length"
+            *ngIf="border.Cordinates?.length && border.visible"
             [attr.points]="getBorderPoints(border.Cordinates)"
             fill="rgba(0, 0, 255, 0.2)"
             stroke="blue"
@@ -197,10 +197,24 @@
       </li>
     </ul>
   </div>
-
   <!-- Filters for Point map -->
   <div class="filters" *ngIf="!isAddingMode && showPartProjectMap && showFilters">
-    <h4>فلاتر</h4>
-    
+    <h4>فلاتر الحدود</h4>
+    <p>قم بإظهار أو إخفاء كل حد من الحدود أدناه:</p>
+  
+    <ul class="list-group">
+      <ng-container *ngFor="let border of selectedBorderPoint?.borders; index as i">
+        <li class="list-group-item">
+          <label>
+            <input
+              type="checkbox"
+              [checked]="border.visible !== false"
+              (change)="toggleBorderVisibility(border, i, $event)"
+            />
+            {{ border.data?.name || ('منطقة ' + (i + 1)) }}
+          </label>
+        </li>
+      </ng-container>
+    </ul>
   </div>
 </div>

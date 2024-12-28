@@ -27,16 +27,16 @@ export class ProjectsDashboardComponent {
   @Output() dataCleared = new EventEmitter<void>()
   @Output() selectedBorderPointChange = new EventEmitter<Point | null>();
   @ViewChild('scrollContainer') scrollContainer!: ElementRef
-  @ViewChild('mapContainer') mapContainer!: ElementRef 
+  @ViewChild('mapContainer') mapContainer!: ElementRef
   @ViewChild('projectMap') projectMap!: ElementRef
   @ViewChildren('mapPoint') mapPoints!: QueryList<ElementRef<HTMLDivElement>>;
-    
+
   @Input() projectsMap: ProjectsMap = {
-      projectId: null,
-      pointId: null,
-      mapImage: null,
-      data: []
-    };
+    projectId: null,
+    pointId: null,
+    mapImage: null,
+    data: []
+  };
 
   selectedProjectPoint: Point | null = null
   selectedPoint: Point | null = null
@@ -86,10 +86,10 @@ export class ProjectsDashboardComponent {
       (filters, option) => ({ ...filters, [option.type]: true }),
       {}
     )
-    
+
     this.selectFirstProjectPoint();
   }
-  
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['addStage']) {
       this.onStageChange();
@@ -125,7 +125,7 @@ export class ProjectsDashboardComponent {
       }
     }
   }
-  
+
   onMouseWheel(event: WheelEvent) {
     // If you only want to zoom on Ctrl+Wheel:
     if (!event.ctrlKey) {
@@ -156,7 +156,7 @@ export class ProjectsDashboardComponent {
     this.mapPoints.forEach((pointRef) => {
       pointRef.nativeElement.style.zoom = `${1 / newContainerScale}`;
     });
-    
+
     // 4) Check bounding boxes — only the container is checked here
     const containerRect = containerEl.getBoundingClientRect();
     const scrollRect = scrollContainer.getBoundingClientRect();
@@ -204,13 +204,13 @@ export class ProjectsDashboardComponent {
       this.handleViewModePointClick(point, event)
     }
   }
-  
+
   private getMapDimensions(): { width: number; height: number } {
     const container = this.projectMap.nativeElement as HTMLElement;
     const { width, height } = container.getBoundingClientRect();
     return { width, height };
   }
-  
+
   onContainerClick(event: MouseEvent) {
     if (this.isAddingMode) {
       this.handleAddModeContainerClick(event)
@@ -219,7 +219,7 @@ export class ProjectsDashboardComponent {
 
   private toContainerCoordinates(p: { x: number; y: number }): { x: number; y: number } {
     const { width, height } = this.getMapDimensions();
-    
+
     return {
       x: (p.x / 100) * width,  // if p.x is a 0–100 value
       y: (p.y / 100) * height, // if p.y is a 0–100 value
@@ -313,6 +313,12 @@ export class ProjectsDashboardComponent {
     this.applyFilters()
   }
 
+  toggleBorderVisibility(border: Border, index: number, event: Event) {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    // Attach a custom property (or you can store in a separate data structure)
+    border['visible'] = isChecked;
+  }
+
   toggleFilters() {
     this.showFilters = !this.showFilters
   }
@@ -338,13 +344,13 @@ export class ProjectsDashboardComponent {
   onPointBorderClick(border: Border, event?: MouseEvent) {
     alert('Point border color is: ' + border.color);
   }
-  
+
   private handleAddModeBorderClick(point: Point, event?: MouseEvent) {
-    if(this.addStage === 6) {
+    if (this.addStage === 6) {
       this.selectedBorderPoint = point;
     }
   }
-  
+
   private handleNonAddModeBorderClick(point: Point, event?: MouseEvent) {
     const selectedProjectMap = alharamenProjectMap.find(
       (map) => map.projectId === this.activeProject?.id && map.pointId === point.id
@@ -368,7 +374,7 @@ export class ProjectsDashboardComponent {
   private onStageChange(newStage?: number) {
     this.handleStageChange(newStage);
   }
-  
+
   private handleAddModePointClick(point: Point, event?: MouseEvent) {
 
     if (this.addStage <= 3) {
@@ -547,7 +553,8 @@ export class ProjectsDashboardComponent {
       if (!this.selectedProjectPoint.borders?.length) {
         // Create the first Border if none exists
         this.selectedProjectPoint.borders = [{
-          Cordinates: []
+          Cordinates: [],
+          visible: true,
         }];
       }
       // Then push to the last border's Cordinates
@@ -572,6 +579,7 @@ export class ProjectsDashboardComponent {
       this.currentBorder = {
         Cordinates: [],
         // you can default color or any data here if needed
+        visible: true,
         color: 'blue',
         data: {
           name: 'Name',
@@ -581,7 +589,9 @@ export class ProjectsDashboardComponent {
     }
 
     // Now push the newly clicked coordinate
-    this.currentBorder.Cordinates.push({ x: xPercent, y: yPercent });
+    if (this.currentBorder) {
+      this.currentBorder.Cordinates.push({ x: xPercent, y: yPercent });
+    }
     console.log('Added new coordinate: ', { x: xPercent, y: yPercent });
   }
 
@@ -597,7 +607,7 @@ export class ProjectsDashboardComponent {
       console.warn('No border is currently in progress to finish!');
     }
   }
-  
+
   private useExistingPath(existing: Path[]) {
     this.newPath = existing.map(coord => ({ x: coord.x, y: coord.y }))
     const pathData = this.newPath
@@ -676,7 +686,7 @@ export class ProjectsDashboardComponent {
     const newIntermediatePoint: Path = { x: xPercent, y: yPercent }
     this.newPath.splice(this.newPath.length - 1, 0, newIntermediatePoint)
   }
-    
+
   private handleStageChange(newStage?: number) {
     this.selectedProjectPoint = null;
     this.selectedPoint = null;
@@ -691,22 +701,22 @@ export class ProjectsDashboardComponent {
       this.showPartProjectMap = false;
       this.currentMapImage = this.activeProject?.mapImage || null;
     }
-    
+
     const toggleVisibility = (points: Point[] | undefined) => {
       points?.forEach((point) => {
         if (this.addStage === 5) {
-          point.visible = point.isProject; 
+          point.visible = point.isProject;
         } else if (this.addStage === 6) {
-          point.visible = false; 
+          point.visible = false;
         } else {
-          point.visible = true; 
+          point.visible = true;
         }
       });
     };
-      
+
     toggleVisibility(this.newProject?.points);
     toggleVisibility(this.currentProject?.points);
-  
+
     console.log('Updated points visibility for stage:', this.addStage);
   }
 
@@ -722,32 +732,34 @@ export class ProjectsDashboardComponent {
       // Instead of pushing directly to .borders, we push to the .Cordinates of a Border
       if (!this.selectedBorderPoint.borders?.length) {
         this.selectedBorderPoint.borders = [{
-          Cordinates: []
+          Cordinates: [],
+          visible: true,
         }];
       }
       this.selectedBorderPoint.borders[0].Cordinates.push({ x: xPercent, y: yPercent });
 
       console.log('Added new border point:', { x: xPercent, y: yPercent });
-    } 
+    }
     else {
       if (!this.selectedProjectPoint) {
         console.warn('No project point selected for drawing borders.');
         return;
       }
-  
+
       const container = this.projectMap.nativeElement as HTMLElement;
       const rect = container.getBoundingClientRect();
       const offsetX = event.clientX - rect.left;
       const offsetY = event.clientY - rect.top;
       const xPercent = (offsetX / rect.width) * 100;
       const yPercent = (offsetY / rect.height) * 100;
-  
+
       // OLD (invalid):
       // this.selectedProjectPoint.borders.push({ x: xPercent, y: yPercent });
       // FIX: push to the .Cordinates of an existing or new Border
       if (!this.selectedProjectPoint.borders?.length) {
         this.selectedProjectPoint.borders = [{
-          Cordinates: []
+          Cordinates: [],
+          visible: true,
         }];
       }
       this.selectedProjectPoint.borders[0].Cordinates.push({ x: xPercent, y: yPercent });
