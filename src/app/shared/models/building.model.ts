@@ -1,3 +1,5 @@
+import { Border } from "./compound.model";
+
 export interface Building {
     id: number;
     name: string;
@@ -20,11 +22,13 @@ export interface Floor {
 
 export interface Apartment {
     id: number;
+    name: string;
     number: string;
     roomsCount: number;
     status: ApartmentStatus;
     floorNumber: number;
     buildingId: number;
+    border: Border;
 }
 
 export interface Location {

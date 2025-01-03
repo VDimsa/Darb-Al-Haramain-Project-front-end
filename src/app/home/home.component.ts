@@ -6,9 +6,9 @@ import { Project } from '../shared/projects-dashboard/project.model';
 import { PointTypeEnum } from '../shared/projects-dashboard/project.model';
 import { staticProjects } from '../../assets/staticPaths';
 import { PreloaderService } from '../shared/preload/preloader.service';
-import { Building, BuildingStatus, ApartmentStatus } from '../shared/models/building.model'; // Adjust the path as necessary
+import { Building, BuildingStatus, ApartmentStatus } from '../shared/models/building.model';
 import { staticBuildings } from '../../assets/staticPaths';
-import { BuildingViewerComponent } from "../shared/building-viewer/building-viewer/building-viewer.component"; // Import the BuildingViewerComponent
+import { BuildingViewerComponent } from "../shared/building-viewer/building-viewer.component"; 
 
 @Component({
   selector: 'app-home',

@@ -599,6 +599,17 @@ export const staticBuildings: Building[] = [
             status: ApartmentStatus.AVAILABLE,
             floorNumber: 1,
             buildingId: 1,
+            border: {
+              coordinates: [
+                { x: 10, y: 10 },
+                { x: 10, y: 60 },
+                { x: 80, y: 60 },
+                { x: 80, y: 10 }
+              ],
+              color: 'green',
+              visible: true
+            },
+            name: ""
           },
           {
             id: 2,
@@ -607,6 +618,17 @@ export const staticBuildings: Building[] = [
             status: ApartmentStatus.BOOKED,
             floorNumber: 1,
             buildingId: 1,
+            border: {
+              coordinates: [
+                { x: 90, y: 10 },
+                { x: 90, y: 60 },
+                { x: 160, y: 60 },
+                { x: 160, y: 10 }
+              ],
+              color: 'yellow',
+              visible: true
+            },
+            name: ""
           },
           {
             id: 3,
@@ -615,6 +637,17 @@ export const staticBuildings: Building[] = [
             status: ApartmentStatus.SOLD,
             floorNumber: 1,
             buildingId: 1,
+            border: {
+              coordinates: [
+                { x: 170, y: 10 },
+                { x: 170, y: 60 },
+                { x: 240, y: 60 },
+                { x: 240, y: 10 }
+              ],
+              color: 'red',
+              visible: true
+            },
+            name: ""
           },
         ],
       },
@@ -628,6 +661,17 @@ export const staticBuildings: Building[] = [
             status: ApartmentStatus.AVAILABLE,
             floorNumber: 2,
             buildingId: 1,
+            border: {
+              coordinates: [
+                { x: 10, y: 70 },
+                { x: 10, y: 120 },
+                { x: 80, y: 120 },
+                { x: 80, y: 70 }
+              ],
+              color: 'green',
+              visible: true
+            },
+            name: ""
           },
           {
             id: 5,
@@ -636,6 +680,17 @@ export const staticBuildings: Building[] = [
             status: ApartmentStatus.BOOKED,
             floorNumber: 2,
             buildingId: 1,
+            border: {
+              coordinates: [
+                { x: 90, y: 70 },
+                { x: 90, y: 120 },
+                { x: 160, y: 120 },
+                { x: 160, y: 70 }
+              ],
+              color: 'yellow',
+              visible: true
+            },
+            name: ""
           },
           {
             id: 6,
@@ -644,6 +699,17 @@ export const staticBuildings: Building[] = [
             status: ApartmentStatus.SOLD,
             floorNumber: 2,
             buildingId: 1,
+            border: {
+              coordinates: [
+                { x: 170, y: 70 },
+                { x: 170, y: 120 },
+                { x: 240, y: 120 },
+                { x: 240, y: 70 }
+              ],
+              color: 'red',
+              visible: true
+            },
+            name: ""
           },
         ],
       },
@@ -656,6 +722,8 @@ export const staticBuildings: Building[] = [
     name: 'مبنى الصيادلة',
     status: BuildingStatus.ACTIVE,
     compoundId: 1,
+    urlVideo: true,
+    url: 'https://res.cloudinary.com/dmyhr9fcz/video/upload/v1735395219/kmjmcboyukqbw4gjbjeg.mp4',
     location: {
       address: 'المدينة المنورة',
       city: 'المدينة المنورة',
@@ -675,52 +743,282 @@ export const staticBuildings: Building[] = [
             status: ApartmentStatus.AVAILABLE,
             floorNumber: 1,
             buildingId: 2,
-          },
-          {
-            id: 8,
-            number: '102',
-            roomsCount: 2,
-            status: ApartmentStatus.BOOKED,
-            floorNumber: 1,
-            buildingId: 2,
-          },
-          {
-            id: 9,
-            number: '103',
-            roomsCount: 4,
-            status: ApartmentStatus.SOLD,
-            floorNumber: 1,
-            buildingId: 2,
-          },
+            border: {
+              coordinates: [
+                { x: 10, y: 10 },
+                { x: 10, y: 60 },
+                { x: 80, y: 60 },
+                { x: 80, y: 10 }
+              ],
+              color: 'green',
+              visible: true
+            },
+            name: "شقة 101"
+          }
         ],
       },
       {
         floorNumber: 2,
         apartments: [
           {
-            id: 10,
+            id: 8,
             number: '201',
-            roomsCount: 3,
-            status: ApartmentStatus.AVAILABLE,
-            floorNumber: 2,
-            buildingId: 2,
-          },
-          {
-            id: 11,
-            number: '202',
             roomsCount: 2,
             status: ApartmentStatus.BOOKED,
             floorNumber: 2,
             buildingId: 2,
-          },
+            border: {
+              coordinates: [
+                { x: 90, y: 10 },
+                { x: 90, y: 60 },
+                { x: 160, y: 60 },
+                { x: 160, y: 10 }
+              ],
+              color: 'yellow',
+              visible: true
+            },
+            name: "شقة 201"
+          }
+        ],
+      },
+      {
+        floorNumber: 3,
+        apartments: [
           {
-            id: 12,
-            number: '203',
+            id: 9,
+            number: '301',
             roomsCount: 4,
             status: ApartmentStatus.SOLD,
-            floorNumber: 2,
+            floorNumber: 3,
             buildingId: 2,
-          },
+            border: {
+              coordinates: [
+                { x: 170, y: 10 },
+                { x: 170, y: 60 },
+                { x: 240, y: 60 },
+                { x: 240, y: 10 }
+              ],
+              color: 'red',
+              visible: true
+            },
+            name: "شقة 301"
+          }
+        ],
+      },
+      {
+        floorNumber: 4,
+        apartments: [
+          {
+            id: 10,
+            number: '401',
+            roomsCount: 3,
+            status: ApartmentStatus.AVAILABLE,
+            floorNumber: 4,
+            buildingId: 2,
+            border: {
+              coordinates: [
+                { x: 10, y: 70 },
+                { x: 10, y: 120 },
+                { x: 80, y: 120 },
+                { x: 80, y: 70 }
+              ],
+              color: 'green',
+              visible: true
+            },
+            name: "شقة 401"
+          }
+        ],
+      },
+      {
+        floorNumber: 5,
+        apartments: [
+          {
+            id: 11,
+            number: '501',
+            roomsCount: 2,
+            status: ApartmentStatus.BOOKED,
+            floorNumber: 5,
+            buildingId: 2,
+            border: {
+              coordinates: [
+                { x: 90, y: 70 },
+                { x: 90, y: 120 },
+                { x: 160, y: 120 },
+                { x: 160, y: 70 }
+              ],
+              color: 'yellow',
+              visible: true
+            },
+            name: "شقة 501"
+          }
+        ],
+      },
+      {
+        floorNumber: 6,
+        apartments: [
+          {
+            id: 12,
+            number: '601',
+            roomsCount: 4,
+            status: ApartmentStatus.SOLD,
+            floorNumber: 6,
+            buildingId: 2,
+            border: {
+              coordinates: [
+                { x: 170, y: 70 },
+                { x: 170, y: 120 },
+                { x: 240, y: 120 },
+                { x: 240, y: 70 }
+              ],
+              color: 'red',
+              visible: true
+            },
+            name: "شقة 601"
+          }
+        ],
+      },
+      {
+        floorNumber: 7,
+        apartments: [
+          {
+            id: 13,
+            number: '701',
+            roomsCount: 3,
+            status: ApartmentStatus.AVAILABLE,
+            floorNumber: 7,
+            buildingId: 2,
+            border: {
+              coordinates: [
+                { x: 10, y: 130 },
+                { x: 10, y: 180 },
+                { x: 80, y: 180 },
+                { x: 80, y: 130 }
+              ],
+              color: 'green',
+              visible: true
+            },
+            name: "شقة 701"
+          }
+        ],
+      },
+      {
+        floorNumber: 8,
+        apartments: [
+          {
+            id: 14,
+            number: '801',
+            roomsCount: 2,
+            status: ApartmentStatus.BOOKED,
+            floorNumber: 8,
+            buildingId: 2,
+            border: {
+              coordinates: [
+                { x: 90, y: 130 },
+                { x: 90, y: 180 },
+                { x: 160, y: 180 },
+                { x: 160, y: 130 }
+              ],
+              color: 'yellow',
+              visible: true
+            },
+            name: "شقة 801"
+          }
+        ],
+      },
+      {
+        floorNumber: 9,
+        apartments: [
+          {
+            id: 15,
+            number: '901',
+            roomsCount: 4,
+            status: ApartmentStatus.SOLD,
+            floorNumber: 9,
+            buildingId: 2,
+            border: {
+              coordinates: [
+                { x: 170, y: 130 },
+                { x: 170, y: 180 },
+                { x: 240, y: 180 },
+                { x: 240, y: 130 }
+              ],
+              color: 'red',
+              visible: true
+            },
+            name: "شقة 901"
+          }
+        ],
+      },
+      {
+        floorNumber: 10,
+        apartments: [
+          {
+            id: 16,
+            number: '1001',
+            roomsCount: 3,
+            status: ApartmentStatus.AVAILABLE,
+            floorNumber: 10,
+            buildingId: 2,
+            border: {
+              coordinates: [
+                { x: 10, y: 190 },
+                { x: 10, y: 240 },
+                { x: 80, y: 240 },
+                { x: 80, y: 190 }
+              ],
+              color: 'green',
+              visible: true
+            },
+            name: "شقة 1001"
+          }
+        ],
+      },
+      {
+        floorNumber: 11,
+        apartments: [
+          {
+            id: 17,
+            number: '1101',
+            roomsCount: 2,
+            status: ApartmentStatus.BOOKED,
+            floorNumber: 11,
+            buildingId: 2,
+            border: {
+              coordinates: [
+                { x: 90, y: 190 },
+                { x: 90, y: 240 },
+                { x: 160, y: 240 },
+                { x: 160, y: 190 }
+              ],
+              color: 'yellow',
+              visible: true
+            },
+            name: "شقة 1101"
+          }
+        ],
+      },
+      {
+        floorNumber: 12,
+        apartments: [
+          {
+            id: 18,
+            number: '1201',
+            roomsCount: 4,
+            status: ApartmentStatus.SOLD,
+            floorNumber: 12,
+            buildingId: 2,
+            border: {
+              coordinates: [
+                { x: 170, y: 190 },
+                { x: 170, y: 240 },
+                { x: 240, y: 240 },
+                { x: 240, y: 190 }
+              ],
+              color: 'red',
+              visible: true
+            },
+            name: "شقة 1201"
+          }
         ],
       },
     ],

@@ -1,0 +1,134 @@
+<div class="building-viewer" *ngIf="building">
+  <!-- Media Display -->
+  <div class="media-container" (click)="onMediaClick($event)">
+    <button class="floating-control" style="left: 0;top: 0;right: auto;width: 50px;height: 50px;" (click)="goBack()">
+      <i class="fa-solid fa-circle-chevron-left"></i>
+    </button>
+    <!-- Video Display -->
+    <video *ngIf="mediaType === 'video'" autoplay loop muted playsinline>
+      <source [src]="building.url" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+
+    <div *ngIf="mediaType === 'image'" class="image-container">
+      <img [src]="building.url" [alt]="building.name" class="building-image" />
+    </div>
+
+    <!-- Borders overlay for apartment status -->
+    <div *ngIf="mediaType === 'image' || mediaType === 'video'" class="borders-overlay">
+      <svg class="apartment-borders">
+        <ng-container *ngFor="let floor of building.floors">
+          <ng-container *ngFor="let apartment of floor.apartments">
+            <polygon *ngIf="shouldShowBorder(apartment.status)"
+              [attr.points]="getPolygonPoints(apartment.border.coordinates)" [ngClass]="{
+                'border-green': apartment.status === 'available',
+                'border-yellow': apartment.status === 'booked',
+                'border-red': apartment.status === 'sold',
+                'border-gray': apartment.status === 'under_maintenance',
+                'click-through': addMode && currentApartment === apartment,
+              }" class="apartment-border" (click)="onBorderClick(apartment)"></polygon>
+          </ng-container>
+        </ng-container>
+      </svg>
+    </div>
+
+    <p *ngIf="mediaType === 'none'">No media available for this building.</p>
+  </div>
+
+  <!-- Floating Control Panel for Add/Edit -->
+  <div *ngIf="addMode" class="floating-control">
+    <h3>Edit Apartments</h3>
+    <div class="controls">
+      <button (click)="saveBuilding()">Save Building</button>
+      <button (click)="cancelAdding()">Cancel</button>
+      <button (click)="addFloorToCurrentBuilding()">Add Floor</button>
+    </div>
+
+    <div class="floors-container" style=" overflow: auto; max-height: 200px; ">
+      <div *ngFor="let floor of building.floors">
+        <h3>Floor {{ floor.floorNumber }}</h3>
+        <button *ngIf="currentFloor !== floor" (click)="editFloor(floor)">Edit</button>
+        <button *ngIf="currentFloor === floor" (click)="doneEditFloor(floor)">Done</button>
+        <button (click)="removeFloor(floor)">Remove</button>
+        <div *ngFor="let apartment of floor.apartments">
+          <div class="apartment-control">
+            <h4>Apartment {{ apartment.number }}</h4>
+            <button *ngIf="currentApartment !== apartment" (click)="editApartment(apartment)">Edit</button>
+            <button *ngIf="currentApartment === apartment" (click)="doneEditApartment(apartment)">Done</button>
+            <button (click)="removeApartment(apartment, floor)">Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="addMode && currentApartment" class="floating-control" style=" width: 300px; right: auto; left: 20px; ">
+    <h3>Edit Apartment {{ currentApartment.name }}</h3>
+    <div class="apartment-edit-form">
+      <label>
+        Name:
+        <input type="text" [(ngModel)]="currentApartment.name" />
+      </label>
+      <label>
+        Number:
+        <input type="text" [(ngModel)]="currentApartment.number" />
+      </label>
+      <label>
+        Rooms Count:
+        <input type="number" [(ngModel)]="currentApartment.roomsCount" />
+      </label>
+      <label>
+        Status:
+        <select [(ngModel)]="currentApartment.status">
+          <option value="available">Available</option>
+          <option value="booked">Booked</option>
+          <option value="sold">Sold</option>
+          <option value="under_maintenance">Under Maintenance</option>
+        </select>
+      </label>
+      <label>
+        Floor Number:
+        <input type="number" [(ngModel)]="currentApartment.floorNumber" />
+      </label>
+      <label>
+        Building ID:
+        <input type="number" [(ngModel)]="currentApartment.buildingId" />
+      </label>
+      <label>
+        Border Coordinates:
+        <button *ngIf="currentApartment.border.coordinates"
+          (click)="clearCoordinates(currentApartment.border.coordinates)">Clear</button>
+        <input type="text" [(ngModel)]="currentApartment.border.coordinates" />
+      </label>
+    </div>
+  </div>
+
+  <div *ngIf="addMode && currentFloor" class="floating-control" style=" width: 300px; right: auto; left: 20px; ">
+    <h3>Edit Floor {{ currentFloor.floorNumber }}</h3>
+    <label>
+      Floor Number:
+      <input type="number" [(ngModel)]="currentFloor.floorNumber" />
+    </label>
+    <button (click)="addAparmentToCurrentFloor(currentFloor)">Add Apartment</button>
+  </div>
+
+  <!-- Floating Filter -->
+  <div *ngIf="!addMode" class="filter-container">
+    <label>
+      <input type="checkbox" [(ngModel)]="showAvailable" />
+      Available
+    </label>
+    <label>
+      <input type="checkbox" [(ngModel)]="showBooked" />
+      Booked
+    </label>
+    <label>
+      <input type="checkbox" [(ngModel)]="showSold" />
+      Sold
+    </label>
+    <label>
+      <input type="checkbox" [(ngModel)]="showUnderMaintenance" />
+      Under Maintenance
+    </label>
+  </div>
+</div>
