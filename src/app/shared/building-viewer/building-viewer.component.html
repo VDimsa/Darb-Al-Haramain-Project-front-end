@@ -19,7 +19,7 @@
       <svg class="apartment-borders">
         <ng-container *ngFor="let floor of building.floors">
           <ng-container *ngFor="let apartment of floor.apartments">
-            <polygon *ngIf="shouldShowBorder(apartment.status)"
+            <polygon *ngIf="shouldShowBorder(apartment.status, apartment.roomsCount, apartment.area)"
               [attr.points]="getPolygonPoints(apartment.border.coordinates)" [ngClass]="{
                 'border-green': apartment.status === 'available',
                 'border-yellow': apartment.status === 'booked',
@@ -130,5 +130,34 @@
       <input type="checkbox" [(ngModel)]="showUnderMaintenance" />
       Under Maintenance
     </label>
+    <div class="room-count-filters">
+      <label>
+        <input type="checkbox" [(ngModel)]="show1Room" />
+        1 Room
+      </label>
+      <label>
+        <input type="checkbox" [(ngModel)]="show2Rooms" />
+        2 Rooms
+      </label>
+      <label>
+        <input type="checkbox" [(ngModel)]="show3Rooms" />
+        3 Rooms
+      </label>
+      <label>
+        <input type="checkbox" [(ngModel)]="show4Rooms" />
+        4 Rooms
+      </label>
+      <label>
+        <input type="checkbox" [(ngModel)]="show5Rooms" />
+        5 Rooms
+      </label>
+    </div>
+    <div class="area-filter">
+      <label>
+        Area:
+        <ngx-slider [(value)]="minArea" [(highValue)]="maxArea" [options]="{ floor: 900, ceil: 1200 }"></ngx-slider>
+        {{ minArea }} - {{ maxArea }} sq ft
+      </label>
+    </div>
   </div>
 </div>

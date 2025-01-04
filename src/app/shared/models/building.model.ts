@@ -29,6 +29,7 @@ export interface Apartment {
     floorNumber: number;
     buildingId: number;
     border: Border;
+    area: number; 
 }
 
 export interface Location {

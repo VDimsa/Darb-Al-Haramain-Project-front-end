@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Building, BuildingStatus, ApartmentStatus, Floor, Apartment } from '../models/building.model';
 import { FormsModule } from '@angular/forms';
 import { Coordinate } from '../models/compound.model';
+import { NgxSliderModule } from '@angular-slider/ngx-slider';
 
 @Component({
   selector: 'app-building-viewer',
@@ -10,6 +11,7 @@ import { Coordinate } from '../models/compound.model';
   imports: [
     CommonModule,
     FormsModule,
+    NgxSliderModule,
   ],
   templateUrl: './building-viewer.component.html',
   styleUrls: ['./building-viewer.component.scss']
@@ -23,7 +25,14 @@ export class BuildingViewerComponent implements OnInit {
   showBooked = true;
   showSold = true;
   showUnderMaintenance = true;
-  addMode = true;
+  show1Room = true;
+  show2Rooms = true;
+  show3Rooms = true;
+  show4Rooms = true;
+  show5Rooms = true;
+  minArea: number = 0;
+  maxArea: number = Infinity;
+  addMode = false;
   currentApartment: Apartment | null = null;
   currentFloor: Floor | null = null;
   polygonCoordinates: { x: number, y: number }[] = [];
@@ -59,16 +68,37 @@ export class BuildingViewerComponent implements OnInit {
     }
   }
 
-  shouldShowBorder(status: ApartmentStatus): boolean {
+  shouldShowBorder(status: ApartmentStatus, roomsCount: number, area: number): boolean {
+    const roomCountCondition = (roomsCount: number) => {
+      switch (roomsCount) {
+        case 1:
+          return this.show1Room;
+        case 2:
+          return this.show2Rooms;
+        case 3:
+          return this.show3Rooms;
+        case 4:
+          return this.show4Rooms;
+        case 5:
+          return this.show5Rooms;
+        default:
+          return false;
+      }
+    };
+
+    const areaCondition = (area: number) => {
+      return (this.minArea ? area >= this.minArea : true) && (this.maxArea ? area <= this.maxArea : true);
+    };
+
     switch (status) {
       case ApartmentStatus.AVAILABLE:
-        return this.showAvailable;
+        return this.showAvailable && roomCountCondition(roomsCount) && areaCondition(area);
       case ApartmentStatus.BOOKED:
-        return this.showBooked;
+        return this.showBooked && roomCountCondition(roomsCount) && areaCondition(area);
       case ApartmentStatus.SOLD:
-        return this.showSold;
+        return this.showSold && roomCountCondition(roomsCount) && areaCondition(area);
       case ApartmentStatus.UNDER_MAINTENANCE:
-        return this.showUnderMaintenance;
+        return this.showUnderMaintenance && roomCountCondition(roomsCount) && areaCondition(area);
       default:
         return false;
     }
@@ -144,6 +174,7 @@ export class BuildingViewerComponent implements OnInit {
       name: 'New Apartment',
       number: '0',
       roomsCount: 0,
+      area: 0,
       status: ApartmentStatus.AVAILABLE,
       floorNumber: floor.floorNumber,
       buildingId: this.building.id,
