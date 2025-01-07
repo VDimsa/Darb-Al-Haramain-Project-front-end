@@ -131,26 +131,11 @@
       Under Maintenance
     </label>
     <div class="room-count-filters">
-      <label>
-        <input type="checkbox" [(ngModel)]="show1Room" />
-        1 Room
-      </label>
-      <label>
-        <input type="checkbox" [(ngModel)]="show2Rooms" />
-        2 Rooms
-      </label>
-      <label>
-        <input type="checkbox" [(ngModel)]="show3Rooms" />
-        3 Rooms
-      </label>
-      <label>
-        <input type="checkbox" [(ngModel)]="show4Rooms" />
-        4 Rooms
-      </label>
-      <label>
-        <input type="checkbox" [(ngModel)]="show5Rooms" />
-        5 Rooms
-      </label>
+      <button [ngClass]="{'active': show1Room}" (click)="show1Room = !show1Room">1 Room</button>
+      <button [ngClass]="{'active': show2Rooms}" (click)="show2Rooms = !show2Rooms">2 Rooms</button>
+      <button [ngClass]="{'active': show3Rooms}" (click)="show3Rooms = !show3Rooms">3 Rooms</button>
+      <button [ngClass]="{'active': show4Rooms}" (click)="show4Rooms = !show4Rooms">4 Rooms</button>
+      <button [ngClass]="{'active': show5Rooms}" (click)="show5Rooms = !show5Rooms">5 Rooms</button>
     </div>
     <div class="area-filter">
       <label>
