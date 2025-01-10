@@ -5,6 +5,7 @@ import { LoginComponent } from './login/login.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SettingsComponent } from './settings/settings.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { IiifTestComponent } from './iiif-test/iiif-test.component';
 
 export const routes: Routes = [
   
@@ -29,6 +30,11 @@ export const routes: Routes = [
   {
     path: 'ar/dashboard',
     component: DashboardComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'ar/iiif-test',
+    component: IiifTestComponent,
     canActivate: [AuthGuard],
   },
 
