@@ -7,54 +7,39 @@
         </div>
         <div class="card-body">
           <form [formGroup]="authForm" (ngSubmit)="onSubmit()">
-            <!-- Username Field -->
+            <!-- Email Field (Login Mode) -->
+            <div class="mb-3" *ngIf="isLoginMode">
+              <input type="email" id="email" class="form-control" formControlName="email"
+                placeholder="البريد الإلكتروني"
+                [ngClass]="{'is-invalid': submitted && authForm.controls['email'].invalid}" autocomplete="username" />
+              <div *ngIf="submitted && authForm.controls['email'].invalid" class="invalid-feedback">
+                يجب إدخال بريد إلكتروني صالح.
+              </div>
+            </div>
+
+            <!-- Username Field (Registration Mode) -->
             <div class="mb-3" *ngIf="!isLoginMode">
-              <input
-                formControlName="username"
-                class="form-control"
-                id="username"
-                placeholder="اسم المستخدم"
-                [ngClass]="{'is-invalid': submitted && authForm.controls['username'].invalid}"
-              />
+              <input formControlName="username" class="form-control" id="username" placeholder="اسم المستخدم"
+                [ngClass]="{'is-invalid': submitted && authForm.controls['username'].invalid}" />
               <div *ngIf="submitted && authForm.controls['username'].invalid" class="invalid-feedback">
                 اسم المستخدم مطلوب.
               </div>
             </div>
 
-            <!-- Email Field -->
-            <div class="mb-3">
-              <input
-                type="email"
-                id="email"
-                class="form-control"
-                formControlName="email"
-                *ngIf="!isLoginMode"
+            <!-- Email Field (Registration Mode) -->
+            <div class="mb-3" *ngIf="!isLoginMode">
+              <input type="email" id="email" class="form-control" formControlName="email"
                 placeholder="البريد الالكترونى"
-                [ngClass]="{'is-invalid': submitted && authForm.controls['email'].invalid}"
-                autocomplete="username"/>
+                [ngClass]="{'is-invalid': submitted && authForm.controls['email'].invalid}" autocomplete="username" />
               <div *ngIf="submitted && authForm.controls['email'].invalid" class="invalid-feedback">
                 يجب إدخال بريد إلكتروني صالح.
               </div>
-              <input
-                type="text"
-                id="username"
-                class="form-control"
-                formControlName="username"
-                *ngIf="isLoginMode"
-                placeholder="اسم المستخدم"
-                [ngClass]="{'is-invalid': submitted && authForm.controls['username'].invalid}"
-                autocomplete="username"/>
             </div>
 
             <!-- Password Field -->
             <div class="mb-3">
-              <input
-                type="password"
-                id="password"
-                class="form-control"
-                formControlName="password"
-                placeholder="الرقم السرى"
-                [ngClass]="{'is-invalid': submitted && authForm.controls['password'].invalid}"
+              <input type="password" id="password" class="form-control" formControlName="password"
+                placeholder="الرقم السرى" [ngClass]="{'is-invalid': submitted && authForm.controls['password'].invalid}"
                 autocomplete="current-password" />
               <div *ngIf="submitted && authForm.controls['password'].invalid" class="invalid-feedback">
                 كلمة المرور مطلوبة (لا تقل عن 4 أحرف).
@@ -62,11 +47,7 @@
             </div>
 
             <!-- Submit Button with Loading Spinner -->
-            <button
-              type="submit"
-              class="btn btn-primary w-100"
-              [disabled]="loading"
-            >
+            <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
               <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
               {{ loading ? 'جارٍ التحميل...' : (isLoginMode ? 'تسجيل الدخول' : 'التسجيل') }}
             </button>

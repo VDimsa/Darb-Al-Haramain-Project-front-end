@@ -3,8 +3,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { environment } from '../../environments/environment';
 import { isPlatformBrowser } from '@angular/common';
+import { AuthService } from '../services/auth/auth.service';
+import { ApiResponse, AuthResponseData } from '../shared/models/response.model';
 
 @Component({
   selector: 'app-login',
@@ -12,6 +13,7 @@ import { isPlatformBrowser } from '@angular/common';
   imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
+  providers: [HttpClient],
 })
 export class LoginComponent {
   authForm: FormGroup;
@@ -24,20 +26,27 @@ export class LoginComponent {
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private http: HttpClient,
+    private authService: AuthService,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
-    // Initialize form with validators
     this.authForm = this.formBuilder.group({
-      username: ['', Validators.required],
-      email: ['', [Validators.email]],
+      username: ['', Validators.required], // For registration mode
+      email: ['', [Validators.required, Validators.email]], // For both modes
+      password: ['', [Validators.required, Validators.minLength(4)]], // For both modes
+    });
+  }
+
+  ngOnInit(): void {
+    // Initialize the form with only email and password fields
+    this.authForm = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(4)]],
     });
   }
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId) && localStorage.getItem('token')) {
-      this.router.navigate(['/']);  // Redirect to home if token exists
+      this.router.navigate(['/']); // Redirect to home if token exists
     }
   }
 
@@ -46,98 +55,68 @@ export class LoginComponent {
     this.message = '';
     this.messageType = '';
     this.submitted = false;
-  
+
     if (this.isLoginMode) {
-      // If login mode, remove email validation
-      this.authForm.get('email')?.clearValidators();
-      this.authForm.get('username')?.setValidators([Validators.required]);
+      // Remove the username field in login mode
+      this.authForm.removeControl('username');
     } else {
-      // If register mode, add email validation
-      this.authForm.get('email')?.setValidators([Validators.required, Validators.email]);
-      this.authForm.get('username')?.clearValidators();
+      // Add the username field in registration mode
+      this.authForm.addControl('username', this.formBuilder.control('', Validators.required));
     }
-  
-    // Update the validity of the fields
-    this.authForm.get('email')?.updateValueAndValidity();
-    this.authForm.get('username')?.updateValueAndValidity();
-  
-    // Reset the form to clear values when switching modes
+
+    // Reset the form when switching modes
     this.authForm.reset();
-  
-    // Optionally, if you want to keep the username field value, do something like this:
-    if (this.isLoginMode) {
-      this.authForm.get('username')?.setValue(this.authForm.get('username')?.value);
-    }
   }
-    
+
   onSubmit(): void {
     this.submitted = true;
     this.message = '';
     this.messageType = '';
 
     if (this.authForm.invalid) {
+      console.log('Invalid form:', this.authForm.errors); // Log form errors
+      console.log('Form controls:', this.authForm.controls); // Log individual control errors
       return;
     }
 
     this.loading = true;
 
+    const { username, email, password } = this.authForm.value;
+
     if (this.isLoginMode) {
-      this.login();
+      // Login with email and password
+      this.authService.login(email, password).subscribe({
+        next: (response) => this.handleAuthSuccess(response),
+        error: (err) => this.handleAuthError(err),
+      });
     } else {
-      this.register();
+      // Register with username, email, and password
+      this.authService.register(username, email, password).subscribe({
+        next: (response) => this.handleAuthSuccess(response),
+        error: (err) => this.handleAuthError(err),
+      });
     }
   }
 
-  login(): void {
-    const loginData = {
-      username: this.authForm.value.username,
-      password: this.authForm.value.password,
-    };
+  private handleAuthSuccess(response: ApiResponse<AuthResponseData>): void {
+    this.message = response.message.en; // Use the English message
+    this.messageType = 'success';
+    this.loading = false;
 
-    console.log('loginData are: ', loginData)
-    this.http
-      .post(`${environment.apiUrl}/auth/login`, loginData)
-      .subscribe({
-        next: (response: any) => {
-          this.message = response.message.en;
-          this.messageType = 'success';
-          this.loading = false;
+    if (response.data?.token && response.data?.user) {
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      this.router.navigate(['/']);
+    }
 
-          console.log(response.success, response.message.en)
-          // Store the token and navigate to the home page
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('user', JSON.stringify(response.user));
-          this.router.navigate(['/']);
-        },
-        error: (err) => {
-          this.message = 'Login failed. Please check your credentials.';
-          this.messageType = 'error';
-          this.loading = false;
-        },
-      });
+    if (!this.isLoginMode) {
+      this.toggleMode(); // Switch back to login mode after successful registration
+    }
   }
 
-  register(): void {
-    const registerData = {
-      username: this.authForm.value.username,
-      email: this.authForm.value.email,
-      password: this.authForm.value.password,
-    };
-
-    this.http
-      .post(`${environment.apiUrl}/auth/register`, registerData)
-      .subscribe({
-        next: (response: any) => {
-          this.message = response.message.en;
-          this.messageType = 'success';
-          this.loading = false;
-          this.toggleMode(); 
-        },
-        error: (err) => {
-          this.message = 'Registration failed. Please try again.';
-          this.messageType = 'error';
-          this.loading = false;
-        },
-      });
+  private handleAuthError(err: any): void {
+    this.message = err.error?.message?.en || (this.isLoginMode ? 'Login failed. Please check your credentials.' : 'Registration failed. Please try again.');
+    this.messageType = 'error';
+    this.loading = false;
   }
 }
