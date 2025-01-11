@@ -1,5 +1,5 @@
 import { ApartmentStatus, Building, BuildingStatus } from "../app/shared/models/building.model";
-import { Project, PointTypeEnum, ProjectsMap } from "../app/shared/projects-dashboard/project.model";
+import { Project, PointTypeEnum, ProjectsMap } from "../app/shared/models/project.model";
 
 export const staticProjects: Project[] = [
   {

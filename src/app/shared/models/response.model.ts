@@ -1,21 +1,16 @@
+import { User } from "./user.model";
+
 export interface ApiResponse<T> {
     successful: boolean;
     message: {
       en: string;
       ar: string;
     };
-    data?: T; // Optional data field
+    data: T | null; // Data can be null in case of errors
   }
   
   export interface AuthResponseData {
-    user?: User;
-    token?: string;
+    user: User;
+    token: string;
   }
   
-  export interface User {
-    id: number;
-    username: string;
-    email: string;
-    password: string;
-    created_at: string;
-  }

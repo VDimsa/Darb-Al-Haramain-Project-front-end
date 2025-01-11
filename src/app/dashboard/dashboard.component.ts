@@ -1,6 +1,6 @@
 import { Component, Inject, PLATFORM_ID, SimpleChanges } from '@angular/core';
 import { ProjectsDashboardComponent } from "../shared/projects-dashboard/projects-dashboard.component";
-import { Border, Point, PointTypeEnum, Project, ProjectsMap, ProjectsMapData } from '../shared/projects-dashboard/project.model';
+import { Border, Point, PointTypeEnum, Project, ProjectsMap, ProjectsMapData } from '../shared/models/project.model';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FormsModule } from '@angular/forms';

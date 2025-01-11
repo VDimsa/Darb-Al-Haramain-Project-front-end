@@ -2,7 +2,6 @@ import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../services/auth/auth.service';
 import { ApiResponse, AuthResponseData } from '../shared/models/response.model';
@@ -10,10 +9,9 @@ import { ApiResponse, AuthResponseData } from '../shared/models/response.model';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
-  providers: [HttpClient],
 })
 export class LoginComponent {
   authForm: FormGroup;
@@ -30,23 +28,14 @@ export class LoginComponent {
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     this.authForm = this.formBuilder.group({
-      username: ['', Validators.required], // For registration mode
-      email: ['', [Validators.required, Validators.email]], // For both modes
-      password: ['', [Validators.required, Validators.minLength(4)]], // For both modes
-    });
-  }
-
-  ngOnInit(): void {
-    // Initialize the form with only email and password fields
-    this.authForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(4)]],
     });
   }
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     if (isPlatformBrowser(this.platformId) && localStorage.getItem('token')) {
-      this.router.navigate(['/']); // Redirect to home if token exists
+      this.router.navigate(['/']);
     }
   }
 
@@ -57,14 +46,11 @@ export class LoginComponent {
     this.submitted = false;
 
     if (this.isLoginMode) {
-      // Remove the username field in login mode
       this.authForm.removeControl('username');
     } else {
-      // Add the username field in registration mode
       this.authForm.addControl('username', this.formBuilder.control('', Validators.required));
     }
 
-    // Reset the form when switching modes
     this.authForm.reset();
   }
 
@@ -74,8 +60,6 @@ export class LoginComponent {
     this.messageType = '';
 
     if (this.authForm.invalid) {
-      console.log('Invalid form:', this.authForm.errors); // Log form errors
-      console.log('Form controls:', this.authForm.controls); // Log individual control errors
       return;
     }
 
@@ -86,24 +70,36 @@ export class LoginComponent {
     if (this.isLoginMode) {
       // Login with email and password
       this.authService.login(email, password).subscribe({
-        next: (response) => this.handleAuthSuccess(response),
+        next: (response) => {
+          if (response.successful) {
+            this.handleAuthSuccess(response);
+          } else {
+            this.handleAuthError(response);
+          }
+        },
         error: (err) => this.handleAuthError(err),
       });
     } else {
       // Register with username, email, and password
       this.authService.register(username, email, password).subscribe({
-        next: (response) => this.handleAuthSuccess(response),
+        next: (response) => {
+          if (response.successful) {
+            this.handleAuthSuccess(response);
+          } else {
+            this.handleAuthError(response);
+          }
+        },
         error: (err) => this.handleAuthError(err),
       });
     }
   }
 
   private handleAuthSuccess(response: ApiResponse<AuthResponseData>): void {
-    this.message = response.message.en; // Use the English message
+    this.message = response.message.ar; // Show Arabic message
     this.messageType = 'success';
     this.loading = false;
 
-    if (response.data?.token && response.data?.user) {
+    if (response.successful && response.data?.token && response.data?.user) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       this.router.navigate(['/']);
@@ -114,9 +110,11 @@ export class LoginComponent {
     }
   }
 
-  private handleAuthError(err: any): void {
-    this.message = err.error?.message?.en || (this.isLoginMode ? 'Login failed. Please check your credentials.' : 'Registration failed. Please try again.');
+  private handleAuthError(err: ApiResponse<AuthResponseData>): void {
+    const arMessage = err.message?.ar;
+    this.message = arMessage || (this.isLoginMode ? 'بيانات الاعتماد غير صالحة' : 'فشل التسجيل');
     this.messageType = 'error';
     this.loading = false;
+    console.error('Authentication error:', err);
   }
 }

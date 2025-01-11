@@ -1,7 +1,7 @@
 // src\app\shared\projects-dashboard\projects-dashboard.component.ts
 import { Component, ElementRef, ViewChild, Input, Output, EventEmitter, SimpleChanges, ViewChildren, QueryList } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { pointTypes, PointType, Project, Point, PointTypeEnum, Path, Border, ProjectsMap } from './project.model'
+import { pointTypes, PointType, Project, Point, PointTypeEnum, Path, Border, ProjectsMap } from '../models/project.model'
 import { PreloaderService } from '../preload/preloader.service'
 import { alharamenProjectMap } from '../../../assets/staticPaths'
 import { FormsModule } from '@angular/forms';

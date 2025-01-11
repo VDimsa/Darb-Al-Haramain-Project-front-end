@@ -1,4 +1,3 @@
-// src\app\shared\projects-dashboard\project.model.ts
 export interface Project {
   id: number | null;
   name: string;
