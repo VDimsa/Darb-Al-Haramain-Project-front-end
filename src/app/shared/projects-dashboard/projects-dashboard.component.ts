@@ -1,4 +1,3 @@
-// src\app\shared\projects-dashboard\projects-dashboard.component.ts
 import { Component, ElementRef, ViewChild, Input, Output, EventEmitter, SimpleChanges, ViewChildren, QueryList } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { pointTypes, PointType, Project, Point, PointTypeEnum, Path, Border, ProjectsMap } from '../models/project.model'
@@ -21,7 +20,6 @@ export class ProjectsDashboardComponent {
   @Input() newProject: Partial<Project> | null = null
   @Input() newPointBoarder: Partial<Point> | null = null
   @Input() isAddingMode = false
-  @Input() showNewMapImage: boolean = false
   @Input() selectedBorderPoint: Point | null = null
   @Input() addingPointType: PointTypeEnum | null = null
   @Input() showSidebar = true
@@ -62,7 +60,7 @@ export class ProjectsDashboardComponent {
   uniqueFloors: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   areaRange = { min: 0, max: 10000 };
   occupancyRange = { min: 0, max: 100 };
-  
+
   activeBorderFilters = {
     types: {} as { [key: string]: boolean },
     floors: [] as number[],
@@ -79,11 +77,12 @@ export class ProjectsDashboardComponent {
   pathDrawn = false
 
   currentMapImage: string | File | null = null
-  showPartProjectMap = false
+  showPartProjectMap: boolean = false;
 
   // New properties for dynamic scaling
   imageWidth: number = 1
   imageHeight: number = 1
+  selectedProjectMap: ProjectsMap | undefined
 
   constructor(
     private preloaderService: PreloaderService
@@ -93,7 +92,7 @@ export class ProjectsDashboardComponent {
 
   ngOnInit() {
     if (this.activeProject?.mapImage) {
-      this.currentMapImage = this.getMapImageSource(this.activeProject.mapImage)
+      this.setShowPartProjectMap(this.getMapImageSource(this.activeProject.mapImage))
     }
 
     this.filterOptions = pointTypes
@@ -121,6 +120,11 @@ export class ProjectsDashboardComponent {
     if (changes['selectedBorderPoint'] && this.selectedBorderPoint) {
       this.initializeAdvancedFilters();
       this.applyAdvancedFilters();
+    }
+
+    // Check if the `showPartProjectMap` input property has changed
+    if (changes['showPartProjectMap']) {
+      alert(`showPartProjectMap value changed to: ${this.showPartProjectMap}`);
     }
   }
 
@@ -184,44 +188,6 @@ export class ProjectsDashboardComponent {
     this.mapPoints.forEach((pointRef) => {
       pointRef.nativeElement.style.zoom = `${1 / newContainerScale}`;
     });
-
-    // 4) Check bounding boxes — only the container is checked here
-    const containerRect = containerEl.getBoundingClientRect();
-    const scrollRect = scrollContainer.getBoundingClientRect();
-
-    // If container is smaller than the scroll area in width OR height,
-    // we scale the container up so that it is at least as large
-    // as the scroll container in both dimensions.
-    if (containerRect.width < scrollRect.width || containerRect.height < scrollRect.height) {
-      const widthRatio = scrollRect.width / containerRect.width;
-      const heightRatio = scrollRect.height / containerRect.height;
-      const neededRatio = Math.max(widthRatio, heightRatio);
-
-      // Correct the newContainerScale
-      newContainerScale *= neededRatio;
-      newContainerScale = Math.min(newContainerScale, 2);
-
-      // Apply again
-      containerEl.style.zoom = `${newContainerScale}`;
-    }
-
-    // 5) Update the stored scales
-    this.containerScale = newContainerScale;
-
-    // 6) (Optional) compute scroll percentages or do any other scroll logic
-    const scrollLeftPercentage = (
-      scrollContainer.scrollLeft /
-      (scrollContainer.scrollWidth - scrollContainer.clientWidth)
-    ) * 100;
-    const scrollTopPercentage = (
-      scrollContainer.scrollTop /
-      (scrollContainer.scrollHeight - scrollContainer.clientHeight)
-    ) * 100;
-
-    console.log('Updated Scroll Position Percentage:', {
-      scrollLeftPercentage: scrollLeftPercentage.toFixed(2) + '%',
-      scrollTopPercentage: scrollTopPercentage.toFixed(2) + '%',
-    });
   }
 
   onPointClick(point: Point, event?: MouseEvent) {
@@ -267,18 +233,37 @@ export class ProjectsDashboardComponent {
   }
 
   autoScroll() {
-    if (this.currentProject?.autoScroll && this.scrollContainer) {
-      const { x, y } = this.currentProject.autoScroll
+    if (this.scrollContainer) {
       const scrollElement = this.scrollContainer.nativeElement
-      const scrollLeft = (x / 100) * scrollElement.scrollWidth
-      const scrollTop = (y / 100) * scrollElement.scrollHeight
-      scrollElement.scrollLeft = -scrollLeft
-      scrollElement.scrollTop = scrollTop
+      const centerHeight = scrollElement.clientHeight / 2;
+      const centerWidth = scrollElement.clientWidth / 2;
+
+      if (this.currentProject?.autoScroll && this.scrollContainer && !this.showPartProjectMap) {
+        const { x, y } = this.currentProject.autoScroll
+        var scrollLeft = (x / 100) * scrollElement.scrollWidth
+        var scrollTop = (y / 100) * scrollElement.scrollHeight
+        
+        scrollLeft -= centerWidth
+        scrollTop -= centerHeight
+
+        scrollElement.scrollLeft = -scrollLeft
+        scrollElement.scrollTop = scrollTop
+      } else if (this.selectedProjectMap?.autoScroll && this.scrollContainer && this.showPartProjectMap) {
+        const { x, y } = this.selectedProjectMap.autoScroll
+        var scrollLeft = (x / 100) * scrollElement.scrollWidth
+        var scrollTop = (y / 100) * scrollElement.scrollHeight
+        
+        scrollLeft -= centerWidth
+        scrollTop -= centerHeight
+
+        scrollElement.scrollLeft = -scrollLeft
+        scrollElement.scrollTop = scrollTop
+      }
     }
   }
 
   onImageLoad() {
-    this.autoScroll()
+    this.autoScroll();
     const img = this.projectMap.nativeElement as HTMLImageElement
     this.imageWidth = img.naturalWidth
     this.imageHeight = img.naturalHeight
@@ -314,11 +299,16 @@ export class ProjectsDashboardComponent {
   }
 
   clearData() {
+    if (this.showPartProjectMap && this.activeProject) {
+      this.setShowPartProjectMap(this.getMapImageSource(this.activeProject.mapImage));
+      this.showPartProjectMap = false;
+      return;
+    }
+
     this.clearCachedURLs()
     this.selectedBorderPoint = null
-    this.showPartProjectMap = false
     if (this.activeProject?.mapImage) {
-      this.currentMapImage = this.getMapImageSource(this.activeProject.mapImage)
+      this.setShowPartProjectMap(this.getMapImageSource(this.activeProject.mapImage))
     }
     this.currentProject = null
     this.selectedPath = []
@@ -385,20 +375,27 @@ export class ProjectsDashboardComponent {
     }
   }
 
+  setShowPartProjectMap(value: string | File | null) {
+    this.preloaderService.show();
+    this.currentMapImage = value;
+    setTimeout(() => {
+      this.autoScroll();
+      this.preloaderService.hide();
+    }, 2000);
+  }
+
   private handleNonAddModeBorderClick(point: Point, event?: MouseEvent) {
-    const selectedProjectMap = alharamenProjectMap.find(
+    this.selectedProjectMap = alharamenProjectMap.find(
       (map) => map.projectId === this.activeProject?.id && map.pointId === point.id
     );
 
-    if (selectedProjectMap) {
-      this.currentMapImage = selectedProjectMap.mapImage;
+    if (this.selectedProjectMap) {
+      this.setShowPartProjectMap(this.selectedProjectMap.mapImage);
       this.showPartProjectMap = true;
-      // OLD: this.selectedBorderPoint = { ...point, borders: selectedProjectMap.data![0]?.borders[0]?.Cordinates || [] };
-      // Instead we must preserve the shape: Point => { borders: Border[] }, each Border must have Cordinates
-      // We'll create a new Border[] from the existing selectedProjectMap data:
+
       this.selectedBorderPoint = {
         ...point,
-        borders: selectedProjectMap.data![0]?.borders || []
+        borders: this.selectedProjectMap.data![0]?.borders || []
       };
     } else {
       console.error('No map found for the selected project and point:', point);
@@ -734,10 +731,10 @@ export class ProjectsDashboardComponent {
 
     if (this.addStage === 7) {
       this.showPartProjectMap = true;
-      this.currentMapImage = this.selectedBorderPoint?.pointMap || null;
+      this.setShowPartProjectMap(this.selectedBorderPoint?.pointMap || null);
     } else {
       this.showPartProjectMap = false;
-      this.currentMapImage = this.activeProject?.mapImage || null;
+      this.setShowPartProjectMap(this.activeProject?.mapImage || null);
     }
 
     const toggleVisibility = (points: Point[] | undefined) => {

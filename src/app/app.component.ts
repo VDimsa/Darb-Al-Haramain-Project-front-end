@@ -18,9 +18,7 @@ export class AppComponent {
 
   constructor(
     private preloaderService: PreloaderService,
-  ) {
-    this.preloaderService.show();
-  }
+  ) {}
 
   ngAfterViewInit() {
     setTimeout(() => {

@@ -32,8 +32,6 @@ export class DashboardComponent {
   selectedBorderPoint: Point | null = null; 
   uploadedBorderImage: string | null = null; 
   newPointBoarder: Partial<Point>|null = null;
-  showNewMapImage: boolean = false;
-
   
   projectsMap: ProjectsMap = {
     projectId: null,

@@ -4,7 +4,7 @@
     <div #mapContainer class="map-container">
       <!-- Map Image -->
       <img #projectMap
-        [src]="showNewMapImage && newPointBoarder && newPointBoarder.pointMap ? newPointBoarder.pointMap : currentMapImage"
+        [src]="currentMapImage"
         [alt]="activeProject?.name"
         (load)="onImageLoad()"
         (error)="onImageError()"
@@ -57,7 +57,7 @@
               [attr.d]="path.d"
               fill="none"
               stroke="white"
-              stroke-width="2"
+              stroke-width="0.1%"
               class="animated-path" />
       </svg>
 
@@ -188,7 +188,7 @@
   </div>
 
   <!-- Filters -->
-  <div class="filters" *ngIf="!isAddingMode && !showNewMapImage && showFilters && !showPartProjectMap">
+  <div class="filters" *ngIf="!isAddingMode && !showPartProjectMap && showFilters && !showPartProjectMap">
     <h4>فلاتر</h4>
     <ul class="list-group">
       <li class="list-group-item" *ngFor="let filter of filterOptions">

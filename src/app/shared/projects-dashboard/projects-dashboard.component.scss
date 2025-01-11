@@ -190,9 +190,9 @@
 }
 
 .animated-path {
-  stroke-dasharray: 999; /* Adjust based on path length */
-  stroke-dashoffset: 999; /* Start offset matches dasharray */
-  animation: draw 2s linear forwards;
+  stroke-dasharray: 9999; /* Adjust based on path length */
+  stroke-dashoffset: 9999; /* Start offset matches dasharray */
+  animation: draw 3s linear forwards;
 }
 
 @keyframes draw {

@@ -7,6 +7,7 @@ export interface Project {
     x: number;
     y: number;
   };
+  autoZoom?: number;
   points: Point[];
 }
 
@@ -16,6 +17,11 @@ export interface Point {
   type: PointTypeEnum;
   isProject: boolean;
   pointMap?: string | File | null;
+  autoScroll?: {
+    x: number;
+    y: number;
+  };
+  autoZoom?: number;
   visible: boolean;
   paths?: PathToPoints[];
   logo?: string | File | null;
@@ -31,6 +37,11 @@ export interface ProjectsMap {
   projectId: number | null;
   pointId: number | null;
   mapImage: string | File | null;
+  autoScroll?: {
+    x: number;
+    y: number;
+  };
+  autoZoom?: number;
   data?: ProjectsMapData[];
 }
 
