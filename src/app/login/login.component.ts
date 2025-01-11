@@ -1,6 +1,6 @@
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../services/auth/auth.service';
@@ -20,10 +20,12 @@ export class LoginComponent {
   submitted: boolean = false;
   message: string = '';
   messageType: 'success' | 'error' | '' = '';
+  returnUrl: string = '/'; // Default redirect URL after login
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute, // Inject ActivatedRoute to get query parameters
     private authService: AuthService,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
@@ -34,8 +36,14 @@ export class LoginComponent {
   }
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId) && localStorage.getItem('token')) {
-      this.router.navigate(['/']);
+    if (isPlatformBrowser(this.platformId)) {
+      // Check if the user is already logged in
+      if (localStorage.getItem('token')) {
+        this.router.navigate(['/']);
+      }
+
+      // Get the return URL from query parameters or default to '/'
+      this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
     }
   }
 
@@ -102,7 +110,9 @@ export class LoginComponent {
     if (response.successful && response.data?.token && response.data?.user) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      this.router.navigate(['/']);
+
+      // Redirect to the return URL or default to '/'
+      this.router.navigateByUrl(this.returnUrl);
     }
 
     if (!this.isLoginMode) {

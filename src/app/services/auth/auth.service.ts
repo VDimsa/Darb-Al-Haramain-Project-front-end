@@ -3,12 +3,16 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse, AuthResponseData } from '../../shared/models/response.model';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private http: HttpClient) {}
+  private jwtHelper = new JwtHelperService();
+
+  constructor(private http: HttpClient, private router: Router) {}
 
   // Login with email and password
   login(email: string, password: string): Observable<ApiResponse<AuthResponseData>> {
@@ -20,7 +24,6 @@ export class AuthService {
       .pipe(
         catchError((error) => {
           console.error('Login error:', error);
-          // Return a structured error response
           return throwError(() => ({
             successful: false,
             message: {
@@ -40,12 +43,11 @@ export class AuthService {
         username,
         email,
         password,
-        role_id, // Default role_id is 1 (user)
+        role_id,
       })
       .pipe(
         catchError((error) => {
           console.error('Registration error:', error);
-          // Return a structured error response
           return throwError(() => ({
             successful: false,
             message: {
@@ -56,5 +58,17 @@ export class AuthService {
           }));
         })
       );
+  }
+
+  // Check if the token is expired
+  isTokenExpired(): boolean {
+    const token = localStorage.getItem('token');
+    return token ? this.jwtHelper.isTokenExpired(token) : true;
+  }
+
+  // Logout the user
+  logout(): void {
+    localStorage.removeItem('token');
+    this.router.navigate(['/login']);
   }
 }
