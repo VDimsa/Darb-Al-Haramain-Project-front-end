@@ -94,6 +94,15 @@ export class HomeComponent {
     this.selectedProject = project;
   }
 
+  // Select a specific building
+  onBuildingSelected(building: Building | null) {
+    this.preloaderService.show();
+    this.selectedBuilding = building; // Store the selected building
+    setTimeout(() => {
+      this.preloaderService.hide();
+    }, 2000)
+  }
+
   // Reset search and go back to the search view
   backToSearch() {
     this.selectedProject = null;

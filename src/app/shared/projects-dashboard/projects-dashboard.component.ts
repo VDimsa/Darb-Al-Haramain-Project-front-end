@@ -2,8 +2,9 @@ import { Component, ElementRef, ViewChild, Input, Output, EventEmitter, SimpleCh
 import { CommonModule } from '@angular/common'
 import { pointTypes, PointType, Project, Point, PointTypeEnum, Path, Border, ProjectsMap } from '../models/project.model'
 import { PreloaderService } from '../preload/preloader.service'
-import { alharamenProjectMap } from '../../../assets/staticPaths'
+import { alharamenProjectMap, staticBuildings } from '../../../assets/staticPaths'
 import { FormsModule } from '@angular/forms';
+import { Building } from '../models/building.model'
 
 @Component({
   selector: 'app-projects-dashboard',
@@ -26,6 +27,7 @@ export class ProjectsDashboardComponent {
   @Input() addStage = 0
   @Output() dataCleared = new EventEmitter<void>()
   @Output() selectedBorderPointChange = new EventEmitter<Point | null>();
+  @Output() selectedBuilding = new EventEmitter<Building | null>();
   @ViewChild('scrollContainer') scrollContainer!: ElementRef
   @ViewChild('mapContainer') mapContainer!: ElementRef
   @ViewChild('projectMap') projectMap!: ElementRef
@@ -61,11 +63,12 @@ export class ProjectsDashboardComponent {
   areaRange = { min: 0, max: 10000 };
   occupancyRange = { min: 0, max: 100 };
 
+  // Initialize activeBorderFilters with default values
   activeBorderFilters = {
-    types: {} as { [key: string]: boolean },
-    floors: [] as number[],
-    area: { min: 0, max: 10000 },
-    occupancy: { min: 0, max: 100 }
+    types: this.borderTypes.reduce((acc, type) => ({ ...acc, [type]: true }), {} as { [key: string]: boolean }),
+    floors: [...this.uniqueFloors], // Include all floors by default
+    area: { min: this.areaRange.min, max: this.areaRange.max }, // Use the full range by default
+    occupancy: { min: this.occupancyRange.min, max: this.occupancyRange.max } // Use the full range by default
   };
 
   filteredBorders: Border[] = [];
@@ -83,6 +86,7 @@ export class ProjectsDashboardComponent {
   imageWidth: number = 1
   imageHeight: number = 1
   selectedProjectMap: ProjectsMap | undefined
+  addBuildingBorder: boolean = false;
 
   constructor(
     private preloaderService: PreloaderService
@@ -242,7 +246,7 @@ export class ProjectsDashboardComponent {
         const { x, y } = this.currentProject.autoScroll
         var scrollLeft = (x / 100) * scrollElement.scrollWidth
         var scrollTop = (y / 100) * scrollElement.scrollHeight
-        
+
         scrollLeft -= centerWidth
         scrollTop -= centerHeight
 
@@ -252,7 +256,7 @@ export class ProjectsDashboardComponent {
         const { x, y } = this.selectedProjectMap.autoScroll
         var scrollLeft = (x / 100) * scrollElement.scrollWidth
         var scrollTop = (y / 100) * scrollElement.scrollHeight
-        
+
         scrollLeft -= centerWidth
         scrollTop -= centerHeight
 
@@ -366,9 +370,15 @@ export class ProjectsDashboardComponent {
   }
 
   onPointBorderClick(border: Border, event?: MouseEvent) {
-    alert('Point border color is: ' + border.color);
+    const building = staticBuildings.find((map) => map.id === 1);
+  
+    if (building) {
+      this.selectedBuilding.emit(building); // Emit the building object
+    } else {
+      this.selectedBuilding.emit(null); // Emit null if no building is found
+    }
   }
-
+  
   private handleAddModeBorderClick(point: Point, event?: MouseEvent) {
     if (this.addStage === 6) {
       this.selectedBorderPoint = point;
@@ -397,6 +407,7 @@ export class ProjectsDashboardComponent {
         ...point,
         borders: this.selectedProjectMap.data![0]?.borders || []
       };
+      this.resetFilters();
     } else {
       console.error('No map found for the selected project and point:', point);
     }
@@ -474,7 +485,7 @@ export class ProjectsDashboardComponent {
     } else if (this.addStage === 5) {
       this.handleAddStage5ContainerClick(xPercent, yPercent, event)
     } else if (this.addStage === 7) {
-      this.handleAddStage7ContainerClick(xPercent, yPercent, event)
+      if(this.addBuildingBorder) this.handleAddStage7ContainerClick(xPercent, yPercent, event)
     }
   }
 
@@ -630,11 +641,33 @@ export class ProjectsDashboardComponent {
     console.log('Added new coordinate: ', { x: xPercent, y: yPercent });
   }
 
+  // Method to handle border color change
+  onBorderColorChange(border: Border, event: Event) {
+    const newColor = (event.target as HTMLInputElement).value;
+    border.color = newColor; // Update the border color
+    console.log('Updated border color:', border.color);
+  }
+
+  // Method to remove a border
+  removeBorder(data: any, index: number) {
+    if (data.borders && data.borders.length > index) {
+      data.borders.splice(index, 1); // Remove the border at the specified index
+      console.log('Border removed at index:', index);
+    } else {
+      console.error('Invalid border index or data:', index, data);
+    }
+  }
+
+  toggleDrawingBuildingBorder() {
+    this.addBuildingBorder = !this.addBuildingBorder;
+  }
+
   finishCurrentBorder() {
     // Called when user clicks "انهاء الحدود الحالية"
     if (this.currentBorder) {
-      // finalize it (for example, you might do validations or transformations)
+      // finalize it (for example, you might do validations or transformations) 
       console.log('Finishing current border with coords:', this.currentBorder.Cordinates);
+      if(this.projectsMap.data) console.log('Borders:', this.projectsMap.data[0].borders);
 
       // Now reset currentBorder so next click on map starts a fresh border
       this.currentBorder = null;
@@ -730,11 +763,15 @@ export class ProjectsDashboardComponent {
     this.selectedPath = [];
 
     if (this.addStage === 7) {
-      this.showPartProjectMap = true;
-      this.setShowPartProjectMap(this.selectedBorderPoint?.pointMap || null);
+      if (!this.showPartProjectMap) {
+        this.showPartProjectMap = true;
+        this.setShowPartProjectMap(this.selectedBorderPoint?.pointMap || null);
+      }
     } else {
-      this.showPartProjectMap = false;
-      this.setShowPartProjectMap(this.activeProject?.mapImage || null);
+      if (this.showPartProjectMap) {
+        this.showPartProjectMap = false;
+        this.setShowPartProjectMap(this.activeProject?.mapImage || null);
+      }
     }
 
     const toggleVisibility = (points: Point[] | undefined) => {

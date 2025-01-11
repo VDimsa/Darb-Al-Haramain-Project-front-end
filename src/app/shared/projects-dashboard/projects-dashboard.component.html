@@ -1,47 +1,33 @@
 <div class="image-container" *ngIf="currentMapImage">
   <div #scrollContainer class="scroll-container" (wheel)="onMouseWheel($event)"
-       (click)="addStage === 5 ? onDrawBorder($event) : onContainerClick($event)">
+    (click)="addStage === 5 ? onDrawBorder($event) : onContainerClick($event)">
     <div #mapContainer class="map-container">
       <!-- Map Image -->
-      <img #projectMap
-        [src]="currentMapImage"
-        [alt]="activeProject?.name"
-        (load)="onImageLoad()"
+      <img #projectMap [src]="currentMapImage" [alt]="activeProject?.name" (load)="onImageLoad()"
         (error)="onImageError()"
         [ngClass]="{'pointer': addStage === 1 || addStage === 2 || addStage === 5, 'map-image': true}" />
 
       <!-- Points overlay -->
-      <div
-        style="
+      <div style="
           position: absolute;
           top: 0;
           right: 0;
           width: 100%;
           height: 100%;
-          overflow: hidden;"
-        [style.z-index]="!isAddingMode ? '2 !important' : 'auto'"
-        *ngIf="!showPartProjectMap">
+          overflow: hidden;" [style.z-index]="!isAddingMode ? '2 !important' : 'auto'" *ngIf="!showPartProjectMap">
         <div class="points-dashboard">
-          <div #mapPoint
-            *ngFor="let point of activeProject?.points"
-            [style.left.%]="point.position.x"
-            [style.top.%]="point.position.y"
-            class="point"
-            [ngClass]="{
+          <div #mapPoint *ngFor="let point of activeProject?.points" [style.left.%]="point.position.x"
+            [style.top.%]="point.position.y" class="point" [ngClass]="{
               'isMega': point.importance === 1,
               'nonVisible': !point.visible,
               'isProject': point.isProject,
               'light-effect': point.importance === 1,
               'selected-effect': selectedPoint === point || selectedProjectPoint === point
-            }"
-            (click)="onPointClick(point, $event)">
-            <i *ngIf="!point.isProject && point.importance === 0"
-               [class]="getPointClass(point.type)"
-               [id]="point.id"></i>
-            <img *ngIf="point.isProject || point.importance === 1"
-                 [src]="getMapImageSource(point.logo)"
-                 alt="Project Logo"
-                 [ngClass]="{
+            }" (click)="onPointClick(point, $event)">
+            <i *ngIf="!point.isProject && point.importance === 0" [class]="getPointClass(point.type)"
+              [id]="point.id"></i>
+            <img *ngIf="point.isProject || point.importance === 1" [src]="getMapImageSource(point.logo)"
+              alt="Project Logo" [ngClass]="{
                    'logo': point.isProject
                  }" />
           </div>
@@ -49,79 +35,55 @@
       </div>
 
       <!-- SVG for paths -->
-      <svg *ngIf="selectedPath && !showPartProjectMap"
-           [attr.viewBox]="'0 0 ' + imageWidth + ' ' + imageHeight"
-           [style.z-index]="!isAddingMode ? '1 !important' : 'auto'"
-           class="path-svg">
-        <path *ngFor="let path of selectedPath"
-              [attr.d]="path.d"
-              fill="none"
-              stroke="white"
-              stroke-width="0.1%"
-              class="animated-path" />
+      <svg *ngIf="selectedPath && !showPartProjectMap" [attr.viewBox]="'0 0 ' + imageWidth + ' ' + imageHeight"
+        [style.z-index]="!isAddingMode ? '1 !important' : 'auto'" class="path-svg">
+        <path *ngFor="let path of selectedPath" [attr.d]="path.d" fill="none" stroke="white" stroke-width="0.1%"
+          class="animated-path" />
       </svg>
 
       <!-- SVG for borders -->
-      <svg
-        class="borders-svg"
-        [attr.viewBox]="'0 0 ' + imageWidth + ' ' + imageHeight"
+      <svg class="borders-svg" [attr.viewBox]="'0 0 ' + imageWidth + ' ' + imageHeight"
         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-        [style.z-index]="isAddingMode && addStage === 5 ? '-1 !important' : 'auto'"
+        [style.z-index]="isAddingMode && addStage === 5 ? '-1 !important' : 'auto'" 
         [ngClass]="{
           'nonVisible': isAddingMode && ![5, 6, 7].includes(addStage)
-        }"
-      >
+        }">
         <!-- 1) Point-based borders: hide in stage 7 by adding `addStage !== 7` -->
         <ng-container *ngIf="!showPartProjectMap && addStage !== 7">
           <ng-container *ngFor="let point of activeProject?.points">
             <!-- Only render if point is a project (remove `point.isProject` to show borders for all) -->
             <ng-container *ngIf="point.borders && point.isProject">
               <ng-container *ngFor="let border of point.borders">
-                <polygon
-                  *ngIf="border.Cordinates?.length"
-                  [attr.points]="getBorderPoints(border.Cordinates)"
-                  fill="rgba(0, 0, 255, 0.2)"
-                  stroke="blue"
-                  stroke-width="2"
-                  [style.stroke]="border.color || 'blue'"
-                  [style.fill]="border.color || 'blue'"
-                  (click)="onBorderClick(point, $event)"
-                ></polygon>
+                <polygon *ngIf="border.Cordinates?.length" [attr.points]="getBorderPoints(border.Cordinates)"
+                  fill="rgba(0, 0, 255, 0.2)" stroke="blue" stroke-width="2" [style.stroke]="border.color || 'blue'"
+                  [style.fill]="border.color || 'blue'" (click)="onBorderClick(point, $event)"></polygon>
               </ng-container>
             </ng-container>
           </ng-container>
         </ng-container>
-      
+
         <!-- 2) If showPartProjectMap is active, show the selected point's borders -->
-        <ng-container *ngIf="showPartProjectMap && selectedBorderPoint && selectedBorderPoint.borders && addStage !== 7">
+        <ng-container
+          *ngIf="showPartProjectMap && selectedBorderPoint && selectedBorderPoint.borders && addStage !== 7">
           <ng-container *ngFor="let border of selectedBorderPoint.borders">
-            <polygon
-              *ngIf="border.Cordinates?.length && border.visible && filteredBorders.includes(border)"
-              [attr.points]="getBorderPoints(border.Cordinates)"
-              fill="rgba(0, 0, 255, 0.2)"
-              stroke="blue"
-              stroke-width="2"
-              (click)="onPointBorderClick(border, $event)"
-              [style.stroke]="border.color || 'blue'"
-              [style.fill]="border.color || 'blue'"
-            ></polygon>
+            <polygon *ngIf="border.Cordinates?.length && border.visible && filteredBorders.includes(border)"
+              [attr.points]="getBorderPoints(border.Cordinates)" fill="rgba(0, 0, 255, 0.2)" stroke="blue"
+              stroke-width="2" (click)="onPointBorderClick(border, $event)" [style.stroke]="border.color || 'blue'"
+              [style.fill]="border.color || 'blue'"></polygon>
           </ng-container>
         </ng-container>
-      
+
         <!-- 3) In Stage 7, show the “inside” borders from `projectsMap.data` -->
-        <ng-container *ngIf="isAddingMode && addStage === 7 && projectsMap && projectsMap.data">
+        <ng-container *ngIf="isAddingMode && (addStage === 7 || addStage === 8) && projectsMap && projectsMap.data">
           <ng-container *ngFor="let data of projectsMap.data">
             <ng-container *ngFor="let border of data.borders">
-              <polygon
-                *ngIf="border.Cordinates?.length"
-                [attr.points]="getBorderPoints(border.Cordinates)"
-                fill="rgba(0, 0, 255, 0.2)"
-                stroke="blue"
-                stroke-width="2"
-                (click)="onPointBorderClick(border, $event)"
-                [style.stroke]="border.color || 'blue'"
-                [style.fill]="border.color || 'blue'"
-              ></polygon>
+              <polygon *ngIf="border.Cordinates?.length" [attr.points]="getBorderPoints(border.Cordinates)"
+                [ngClass]="{
+                  'click-through': addStage === 7 && addBuildingBorder,
+                }"
+                (click)="addStage === 8 ? onPointBorderClick(border, $event) : null"
+                fill="rgba(0, 0, 255, 0.2)" stroke="blue" stroke-width="2" [style.stroke]="border.color || 'blue'"
+                [style.fill]="border.color || 'blue'"></polygon>
             </ng-container>
           </ng-container>
         </ng-container>
@@ -169,18 +131,29 @@
         <ng-container *ngFor="let data of projectsMap.data">
           <div *ngIf="data.borders && data.borders.length > 0">
             <p>عدد الحدود: {{ data.borders.length }}</p>
-    
+
             <ul>
               <li *ngFor="let border of data.borders; index as i">
-                <strong>الحدود {{ i+1 }}: </strong>
+                <strong>الحدود {{ i + 1 }}: </strong>
                 <span *ngIf="border.data && border.data.name"> {{ border.data.name || 'Name' }} </span>
+
+                <!-- Input to edit border color -->
+                <input type="text" class="form-control ng-pristine ng-valid ng-touched" [value]="border.color" (input)="onBorderColorChange(border, $event)" />
+
+                <!-- Button to remove the border -->
+                <button class="btn btn-sm btn-primary" (click)="removeBorder(data, i)">حذف</button>
               </li>
             </ul>
           </div>
         </ng-container>
       </ng-container>
     </div>
-      
+
+    <!-- UI to show the user the in-progress border and a 'Finish' button -->
+    <button class="btn btn-sm btn-primary" (click)="toggleDrawingBuildingBorder()">
+      تفعيل وضع التحديد
+    </button>
+
     <!-- UI to show the user the in-progress border and a 'Finish' button -->
     <button class="btn btn-sm btn-primary" (click)="finishCurrentBorder()">
       إنهاء الحدود الحالية
@@ -206,19 +179,14 @@
     overflow-y: auto;
     overflow-x: hidden;
   ">
-    <h4>فلاتر الحدود</h4>
-
     <!-- Type Filters -->
     <div class="filter-section">
       <h5>النوع</h5>
       <ul class="list-group">
         <li class="list-group-item" *ngFor="let type of borderTypes">
           <label>
-            <input
-              type="checkbox"
-              [checked]="activeBorderFilters.types[type]"
-              (change)="onTypeFilterChange(type, $event)"
-            />
+            <input type="checkbox" [checked]="activeBorderFilters.types[type]"
+              (change)="onTypeFilterChange(type, $event)" />
             {{ getTypeLabel(type) }}
           </label>
         </li>
@@ -231,11 +199,8 @@
       <ul class="list-group">
         <li class="list-group-item" *ngFor="let floor of uniqueFloors">
           <label>
-            <input
-              type="checkbox"
-              [checked]="activeBorderFilters.floors.includes(floor)"
-              (change)="onFloorFilterChange(floor, $event)"
-            />
+            <input type="checkbox" [checked]="activeBorderFilters.floors.includes(floor)"
+              (change)="onFloorFilterChange(floor, $event)" />
             {{ floor }}
           </label>
         </li>
@@ -248,23 +213,13 @@
       <div class="slider-container">
         <label>
           الحد الأدنى: {{ activeBorderFilters.area.min }} م²
-          <input
-            type="range"
-            min="{{ areaRange.min }}"
-            max="{{ areaRange.max }}"
-            [(ngModel)]="activeBorderFilters.area.min"
-            (input)="onAreaFilterChange()"
-          />
+          <input type="range" min="{{ areaRange.min }}" max="{{ areaRange.max }}"
+            [(ngModel)]="activeBorderFilters.area.min" (input)="onAreaFilterChange()" />
         </label>
         <label>
           الحد الأقصى: {{ activeBorderFilters.area.max }} م²
-          <input
-            type="range"
-            min="{{ areaRange.min }}"
-            max="{{ areaRange.max }}"
-            [(ngModel)]="activeBorderFilters.area.max"
-            (input)="onAreaFilterChange()"
-          />
+          <input type="range" min="{{ areaRange.min }}" max="{{ areaRange.max }}"
+            [(ngModel)]="activeBorderFilters.area.max" (input)="onAreaFilterChange()" />
         </label>
       </div>
     </div>
@@ -275,23 +230,13 @@
       <div class="slider-container">
         <label>
           الحد الأدنى: {{ activeBorderFilters.occupancy.min }}%
-          <input
-            type="range"
-            min="{{ occupancyRange.min }}"
-            max="{{ occupancyRange.max }}"
-            [(ngModel)]="activeBorderFilters.occupancy.min"
-            (input)="onOccupancyFilterChange()"
-          />
+          <input type="range" min="{{ occupancyRange.min }}" max="{{ occupancyRange.max }}"
+            [(ngModel)]="activeBorderFilters.occupancy.min" (input)="onOccupancyFilterChange()" />
         </label>
         <label>
           الحد الأقصى: {{ activeBorderFilters.occupancy.max }}%
-          <input
-            type="range"
-            min="{{ occupancyRange.min }}"
-            max="{{ occupancyRange.max }}"
-            [(ngModel)]="activeBorderFilters.occupancy.max"
-            (input)="onOccupancyFilterChange()"
-          />
+          <input type="range" min="{{ occupancyRange.min }}" max="{{ occupancyRange.max }}"
+            [(ngModel)]="activeBorderFilters.occupancy.max" (input)="onOccupancyFilterChange()" />
         </label>
       </div>
     </div>

@@ -36,9 +36,11 @@
     </div>
   </div>
 
-  <div *ngIf="selectedProject">
+  <div *ngIf="selectedProject && !selectedBuilding">
     <app-projects-dashboard *ngIf="selectedProject.id" [currentProject]="selectedProject"
-      (dataCleared)="backToSearch()"></app-projects-dashboard>
+    (dataCleared)="backToSearch()"
+    (selectedBuilding)="onBuildingSelected($event)"
+      ></app-projects-dashboard>
   </div>
 
   <!-- Building Viewer Display -->
