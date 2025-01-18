@@ -1,5 +1,5 @@
-import { ApartmentStatus, Building, BuildingStatus } from '../app/shared/models/building.model';
-import { Project, PointTypeEnum, ProjectsMap } from '../app/shared/models/project.model';
+import { ApartmentStatus, Building, BuildingStatus } from "../app/shared/models/building.model";
+import { Project, PointTypeEnum, ProjectsMap } from "../app/shared/models/project.model";
 
 export const staticProjects: Project[] = [
   {
@@ -366,7 +366,7 @@ export const staticProjects: Project[] = [
               'name': 'اسم النقطة',
               'type': PointTypeEnum.PROJECT,
               'importance': 1,
-              'logo': 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico',
+              logo: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico',
               'isProject': false,
               'position': {
                 'x': 24.75,
@@ -498,7 +498,7 @@ export const staticProjects: Project[] = [
         'name': 'اسم النقطة',
         'type': PointTypeEnum.PROJECT,
         'importance': 1,
-        'logo': 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico',
+        logo: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico',
         'isProject': false,
         'position': {
           'x': 58.35,
@@ -513,7 +513,7 @@ export const staticProjects: Project[] = [
         'name': 'اسم النقطة',
         'type': PointTypeEnum.PROJECT,
         'importance': 1,
-        'logo': 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico',
+        logo: 'https://res.cloudinary.com/dmyhr9fcz/image/upload/v1733559930/ogx0jgirrgqrjq70gjed.ico',
         'isProject': false,
         'position': {
           'x': 24.75,
