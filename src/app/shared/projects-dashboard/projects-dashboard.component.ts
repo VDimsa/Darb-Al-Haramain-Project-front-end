@@ -1,36 +1,33 @@
-import { Component, ElementRef, ViewChild, Input, Output, EventEmitter, SimpleChanges, ViewChildren, QueryList } from '@angular/core'
-import { CommonModule } from '@angular/common'
-import { pointTypes, PointType, Project, Point, PointTypeEnum, Path, Border, ProjectsMap } from '../models/project.model'
-import { PreloaderService } from '../preload/preloader.service'
-import { alharamenProjectMap, staticBuildings } from '../../../assets/staticPaths'
+import { Component, ElementRef, ViewChild, Input, Output, EventEmitter, SimpleChanges, ViewChildren, QueryList } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { pointTypes, PointType, Project, Point, PointTypeEnum, Path, Border, ProjectsMap } from '../models/project.model';
+import { PreloaderService } from '../preload/preloader.service';
+import { alharamenProjectMap, staticBuildings } from '../../../assets/staticPaths';
 import { FormsModule } from '@angular/forms';
-import { Building } from '../models/building.model'
+import { Building } from '../models/building.model';
 
 @Component({
   selector: 'app-projects-dashboard',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-  ],
+  imports: [CommonModule, FormsModule],
   templateUrl: './projects-dashboard.component.html',
   styleUrls: ['./projects-dashboard.component.scss']
 })
 export class ProjectsDashboardComponent {
-  @Input() currentProject: Project | null = null
-  @Input() newProject: Partial<Project> | null = null
-  @Input() newPointBoarder: Partial<Point> | null = null
-  @Input() isAddingMode = false
-  @Input() selectedBorderPoint: Point | null = null
-  @Input() addingPointType: PointTypeEnum | null = null
-  @Input() showSidebar = true
-  @Input() addStage = 0
-  @Output() dataCleared = new EventEmitter<void>()
+  @Input() currentProject: Project | null = null;
+  @Input() newProject: Partial<Project> | null = null;
+  @Input() newPointBoarder: Partial<Point> | null = null;
+  @Input() isAddingMode = false;
+  @Input() selectedBorderPoint: Point | null = null;
+  @Input() addingPointType: PointTypeEnum | null = null;
+  @Input() showSidebar = true;
+  @Input() addStage = 0;
+  @Output() dataCleared = new EventEmitter<void>();
   @Output() selectedBorderPointChange = new EventEmitter<Point | null>();
   @Output() selectedBuilding = new EventEmitter<Building | null>();
-  @ViewChild('scrollContainer') scrollContainer!: ElementRef
-  @ViewChild('mapContainer') mapContainer!: ElementRef
-  @ViewChild('projectMap') projectMap!: ElementRef
+  @ViewChild('scrollContainer') scrollContainer!: ElementRef;
+  @ViewChild('mapContainer') mapContainer!: ElementRef;
+  @ViewChild('projectMap') projectMap!: ElementRef;
   @ViewChildren('mapPoint') mapPoints!: QueryList<ElementRef<HTMLDivElement>>;
 
   @Input() projectsMap: ProjectsMap = {
@@ -40,78 +37,50 @@ export class ProjectsDashboardComponent {
     data: []
   };
 
-  selectedProjectPoint: Point | null = null
-  selectedPoint: Point | null = null
-  newPath: Path[] | null = null
-  showFilters = false
+  selectedProjectPoint: Point | null = null;
+  selectedPoint: Point | null = null;
+  newPath: Path[] | null = null;
+  showFilters = false;
 
-  private isDragging = false
-  private offsetX = 0
-  private offsetY = 0
-  private transformX = 0
-  private transformY = 0
-
-  // Suppose you store two different scales:
+  private isDragging = false;
+  private offsetX = 0;
+  private offsetY = 0;
+  private transformX = 0;
+  private transformY = 0;
   private containerScale: number = 1;
-
   private currentBorder: Border | null = null;
   private imageCache = new Map<File, string>();
 
-  // Advanced Filter Properties
   borderTypes: string[] = ['سكني', 'تجاري', 'تسوق', 'ترفيه', 'خدمات', 'مكاتب', 'مستشفيات', 'مدارس', 'مساجد', 'مطاعم', 'مولات', 'مواقف'];
   uniqueFloors: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   areaRange = { min: 0, max: 10000 };
   occupancyRange = { min: 0, max: 100 };
 
-  // Initialize activeBorderFilters with default values
   activeBorderFilters = {
     types: this.borderTypes.reduce((acc, type) => ({ ...acc, [type]: true }), {} as { [key: string]: boolean }),
-    floors: [...this.uniqueFloors], // Include all floors by default
-    area: { min: this.areaRange.min, max: this.areaRange.max }, // Use the full range by default
-    occupancy: { min: this.occupancyRange.min, max: this.occupancyRange.max } // Use the full range by default
+    floors: [...this.uniqueFloors],
+    area: { min: this.areaRange.min, max: this.areaRange.max },
+    occupancy: { min: this.occupancyRange.min, max: this.occupancyRange.max }
   };
 
   filteredBorders: Border[] = [];
-
-  filterOptions: { type: string; label: string }[] = []
-  activeFilters: { [key: string]: boolean } = {}
-
-  selectedPath: { d: string }[] = []
-  pathDrawn = false
-
-  currentMapImage: string | File | null = null
+  filterOptions: { type: string; label: string }[] = [];
+  activeFilters: { [key: string]: boolean } = {};
+  selectedPath: { d: string }[] = [];
+  pathDrawn = false;
+  currentMapImage: string | File | null = null;
   showPartProjectMap: boolean = false;
-
-  // New properties for dynamic scaling
-  imageWidth: number = 1
-  imageHeight: number = 1
-  selectedProjectMap: ProjectsMap | undefined
+  imageWidth: number = 1;
+  imageHeight: number = 1;
+  selectedProjectMap: ProjectsMap | undefined;
   addBuildingBorder: boolean = false;
 
-  constructor(
-    private preloaderService: PreloaderService
-  ) {
-    this.preloaderService.show()
+  constructor(private preloaderService: PreloaderService) {
+    this.preloaderService.show();
   }
 
   ngOnInit() {
-    if (this.activeProject?.mapImage) {
-      this.setShowPartProjectMap(this.getMapImageSource(this.activeProject.mapImage))
-    }
-
-    this.filterOptions = pointTypes
-      .filter((pt) => pt.type !== PointTypeEnum.PROJECT)
-      .map((pt) => ({
-        type: pt.type,
-        label: this.getFilterLabel(pt.type),
-      }))
-
-    this.activeFilters = this.filterOptions.reduce(
-      (filters, option) => ({ ...filters, [option.type]: true }),
-      {}
-    )
-
-    this.initializeAdvancedFilters();
+    this.initializeFilters();
     this.selectFirstProjectPoint();
   }
 
@@ -120,186 +89,154 @@ export class ProjectsDashboardComponent {
       this.onStageChange();
     }
 
-    // Re-initialize filters if selectedBorderPoint changes
     if (changes['selectedBorderPoint'] && this.selectedBorderPoint) {
       this.initializeAdvancedFilters();
       this.applyAdvancedFilters();
     }
 
-    // Check if the `showPartProjectMap` input property has changed
     if (changes['showPartProjectMap']) {
-      alert(`showPartProjectMap value changed to: ${this.showPartProjectMap}`);
+      console.log(`showPartProjectMap value changed to: ${this.showPartProjectMap}`);
     }
   }
 
   ngAfterViewInit() {
     setTimeout(() => {
       this.preloaderService.hide();
-    }, 2000)
+    }, 2000);
   }
 
   ngOnDestroy() {
-    this.clearCachedURLs()
+    this.clearCachedURLs();
   }
 
-  getFilterLabel(type: string): string {
+  private initializeFilters() {
+    if (this.activeProject?.mapImage) {
+      this.setShowPartProjectMap(this.getMapImageSource(this.activeProject.mapImage));
+    }
+
+    this.filterOptions = pointTypes
+      .filter((pt) => pt.type !== PointTypeEnum.PROJECT)
+      .map((pt) => ({
+        type: pt.type,
+        label: this.getFilterLabel(pt.type),
+      }));
+
+    this.activeFilters = this.filterOptions.reduce(
+      (filters, option) => ({ ...filters, [option.type]: true }),
+      {}
+    );
+
+    this.initializeAdvancedFilters();
+  }
+
+  private selectFirstProjectPoint() {
+    if (this.activeProject?.points) {
+      const firstProjectPoint = this.activeProject.points.find(point => point.isProject);
+      if (firstProjectPoint) {
+        this.onPointClick(firstProjectPoint);
+      }
+    }
+  }
+
+  private getFilterLabel(type: string): string {
     const labels: { [key: string]: string } = {
       mosque: 'مساجد',
       school: 'مدارس',
       restaurant: 'مطاعم',
       mall: 'مولات',
       hospital: 'مستشفيات',
-    }
-    return labels[type] || type
+    };
+    return labels[type] || type;
   }
 
-  selectFirstProjectPoint() {
-    if (this.activeProject?.points) {
-      const firstProjectPoint = this.activeProject.points.find(point => point.isProject)
-      if (firstProjectPoint) {
-        this.onPointClick(firstProjectPoint)
-      }
-    }
-  }
-
-  onMouseWheel(event: WheelEvent) {
-    // If you only want to zoom on Ctrl+Wheel:
-    if (!event.ctrlKey) {
+  private initializeAdvancedFilters() {
+    if (!this.selectedBorderPoint || !this.selectedBorderPoint.borders) {
       return;
     }
 
-    event.preventDefault();
+    this.borderTypes = Array.from(
+      new Set(this.selectedBorderPoint.borders.map(border => border.data?.type).filter(type => type))
+    ) as string[];
 
-    const scrollContainer = this.scrollContainer.nativeElement as HTMLElement;
-    const containerEl = this.mapContainer.nativeElement as HTMLElement;
-
-    // Decide how much to zoom in/out per wheel event
-    const zoomStep = 0.1;
-
-    // If event.deltaY > 0 => user is scrolling "down": we typically treat that as zoom out.
-    // If event.deltaY < 0 => user is scrolling "up": that is zoom in.
-    const isZoomOut = event.deltaY > 0;
-
-    // 1) Compute new container scale
-    let newContainerScale = this.containerScale + (isZoomOut ? -zoomStep : zoomStep);
-
-    // 2) Clamp both scales to your min/max (here 0.5 and 2)
-    newContainerScale = Math.max(0.5, Math.min(2, newContainerScale));
-
-    // 3) Temporarily apply these scales so we can measure container dimensions
-    containerEl.style.zoom = `${newContainerScale}`;
-
-    this.mapPoints.forEach((pointRef) => {
-      pointRef.nativeElement.style.zoom = `${1 / newContainerScale}`;
+    this.borderTypes.forEach(type => {
+      this.activeBorderFilters.types[type] = true;
     });
+
+    this.uniqueFloors = Array.from(
+      new Set(this.selectedBorderPoint.borders.map(border => border.data?.floors).filter(floors => floors != null))
+    ) as number[];
+
+    this.activeBorderFilters.floors = [...this.uniqueFloors];
+
+    const areas = this.selectedBorderPoint.borders
+      .map(border => parseInt(border.data?.area?.replace(/\D/g, '') || '0', 10))
+      .filter(area => !isNaN(area));
+    this.areaRange.min = Math.min(...areas, 0);
+    this.areaRange.max = Math.max(...areas, 10000);
+    this.activeBorderFilters.area.min = this.areaRange.min;
+    this.activeBorderFilters.area.max = this.areaRange.max;
+
+    const occupancies = this.selectedBorderPoint.borders
+      .map(border => parseInt((border.data?.occupancy ?? '0').replace(/%/g, ''), 10))
+      .filter(occupancy => !isNaN(occupancy));
+    this.occupancyRange.min = Math.min(...occupancies, 0);
+    this.occupancyRange.max = Math.max(...occupancies, 100);
+    this.activeBorderFilters.occupancy.min = this.occupancyRange.min;
+    this.activeBorderFilters.occupancy.max = this.occupancyRange.max;
+
+    this.filteredBorders = [...this.selectedBorderPoint.borders];
   }
 
-  onPointClick(point: Point, event?: MouseEvent) {
-    if (event) event.stopPropagation()
-    if (this.isAddingMode) {
-      this.handleAddModePointClick(point, event)
-    } else {
-      this.handleViewModePointClick(point, event)
-    }
+  private clearCachedURLs() {
+    this.imageCache.forEach((url) => URL.revokeObjectURL(url));
+    this.imageCache.clear();
   }
 
-  private getMapDimensions(): { width: number; height: number } {
-    const container = this.projectMap.nativeElement as HTMLElement;
-    const { width, height } = container.getBoundingClientRect();
-    return { width, height };
+  private setShowPartProjectMap(value: string | File | null) {
+    this.preloaderService.show();
+    this.currentMapImage = value;
+    setTimeout(() => {
+      this.autoScroll();
+      this.preloaderService.hide();
+    }, 2000);
   }
 
-  onContainerClick(event: MouseEvent) {
-    if (this.isAddingMode) {
-      this.handleAddModeContainerClick(event)
-    }
-  }
-
-  private toContainerCoordinates(p: { x: number; y: number }): { x: number; y: number } {
-    const { width, height } = this.getMapDimensions();
-
-    return {
-      x: (p.x / 100) * width,  // if p.x is a 0–100 value
-      y: (p.y / 100) * height, // if p.y is a 0–100 value
-    };
-  }
-
-  drawPath() {
-    if (!this.activeProject || !this.selectedProjectPoint || !this.selectedPoint) return
-    const projectPoint = this.activeProject.points!.find(p => p.isProject)
-    if (!projectPoint || !projectPoint.paths) return
-    const pathToPoint = projectPoint.paths.find(p => p.point.id === this.selectedPoint!.id)
-    if (!pathToPoint) return
-    const pathData = pathToPoint.path
-      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
-      .join(' ')
-    this.selectedPath = [{ d: pathData }]
-  }
-
-  autoScroll() {
+  private autoScroll() {
     if (this.scrollContainer) {
-      const scrollElement = this.scrollContainer.nativeElement
+      const scrollElement = this.scrollContainer.nativeElement;
       const centerHeight = scrollElement.clientHeight / 2;
       const centerWidth = scrollElement.clientWidth / 2;
 
-      if (this.currentProject?.autoScroll && this.scrollContainer && !this.showPartProjectMap) {
-        const { x, y } = this.currentProject.autoScroll
-        var scrollLeft = (x / 100) * scrollElement.scrollWidth
-        var scrollTop = (y / 100) * scrollElement.scrollHeight
-
-        scrollLeft -= centerWidth
-        scrollTop -= centerHeight
-
-        scrollElement.scrollLeft = -scrollLeft
-        scrollElement.scrollTop = scrollTop
-      } else if (this.selectedProjectMap?.autoScroll && this.scrollContainer && this.showPartProjectMap) {
-        const { x, y } = this.selectedProjectMap.autoScroll
-        var scrollLeft = (x / 100) * scrollElement.scrollWidth
-        var scrollTop = (y / 100) * scrollElement.scrollHeight
-
-        scrollLeft -= centerWidth
-        scrollTop -= centerHeight
-
-        scrollElement.scrollLeft = -scrollLeft
-        scrollElement.scrollTop = scrollTop
+      if (this.currentProject?.autoScroll && !this.showPartProjectMap) {
+        const { x, y } = this.currentProject.autoScroll;
+        let scrollLeft = (x / 100) * scrollElement.scrollWidth - centerWidth;
+        let scrollTop = (y / 100) * scrollElement.scrollHeight - centerHeight;
+        scrollElement.scrollLeft = -scrollLeft;
+        scrollElement.scrollTop = scrollTop;
+      } else if (this.selectedProjectMap?.autoScroll && this.showPartProjectMap) {
+        const { x, y } = this.selectedProjectMap.autoScroll;
+        let scrollLeft = (x / 100) * scrollElement.scrollWidth - centerWidth;
+        let scrollTop = (y / 100) * scrollElement.scrollHeight - centerHeight;
+        scrollElement.scrollLeft = -scrollLeft;
+        scrollElement.scrollTop = scrollTop;
       }
     }
   }
 
   onImageLoad() {
     this.autoScroll();
-    const img = this.projectMap.nativeElement as HTMLImageElement
-    this.imageWidth = img.naturalWidth
-    this.imageHeight = img.naturalHeight
-    // Update SVG viewBoxes if necessary
-    // This assumes SVGs are using viewBox for scaling
+    const img = this.projectMap.nativeElement as HTMLImageElement;
+    this.imageWidth = img.naturalWidth;
+    this.imageHeight = img.naturalHeight;
   }
 
   onImageError() {
-    console.error('Failed to load image.')
-  }
-
-  getMapImageSource(mapImage: string | File | null | undefined): string | null {
-    if (!mapImage) return null
-    if (typeof mapImage === 'string') return mapImage
-    if (mapImage instanceof File) {
-      if (!this.imageCache.has(mapImage)) {
-        const url = URL.createObjectURL(mapImage)
-        this.imageCache.set(mapImage, url)
-      }
-      return this.imageCache.get(mapImage) || null
-    }
-    return null
+    console.error('Failed to load image.');
   }
 
   getPointClass(type: string): string {
-    const pointType = pointTypes.find((pt: PointType) => pt.type === type)
-    return pointType ? pointType.class : ''
-  }
-
-  clearCachedURLs() {
-    this.imageCache.forEach((url) => URL.revokeObjectURL(url))
-    this.imageCache.clear()
+    const pointType = pointTypes.find((pt: PointType) => pt.type === type);
+    return pointType ? pointType.class : '';
   }
 
   clearData() {
@@ -309,46 +246,45 @@ export class ProjectsDashboardComponent {
       return;
     }
 
-    this.clearCachedURLs()
-    this.selectedBorderPoint = null
+    this.clearCachedURLs();
+    this.selectedBorderPoint = null;
     if (this.activeProject?.mapImage) {
-      this.setShowPartProjectMap(this.getMapImageSource(this.activeProject.mapImage))
+      this.setShowPartProjectMap(this.getMapImageSource(this.activeProject.mapImage));
     }
-    this.currentProject = null
-    this.selectedPath = []
-    this.dataCleared.emit()
+    this.currentProject = null;
+    this.selectedPath = [];
+    this.dataCleared.emit();
   }
 
   get activeProject(): Project | Partial<Project> | null {
-    return this.isAddingMode ? this.newProject : this.currentProject
+    return this.isAddingMode ? this.newProject : this.currentProject;
   }
 
   applyFilters() {
     if (this.currentProject?.points) {
       this.currentProject.points.forEach((point) => {
         if (point.type === PointTypeEnum.PROJECT) {
-          point.visible = true
+          point.visible = true;
         } else {
-          point.visible = this.activeFilters[point.type] || false
+          point.visible = this.activeFilters[point.type] || false;
         }
-      })
+      });
     }
   }
 
   onFilterChange(filterKey: string, event: Event) {
-    const isChecked = (event.target as HTMLInputElement).checked
-    this.activeFilters[filterKey] = isChecked
-    this.applyFilters()
+    const isChecked = (event.target as HTMLInputElement).checked;
+    this.activeFilters[filterKey] = isChecked;
+    this.applyFilters();
   }
 
   toggleBorderVisibility(border: Border, index: number, event: Event) {
     const isChecked = (event.target as HTMLInputElement).checked;
-    // Attach a custom property (or you can store in a separate data structure)
     border['visible'] = isChecked;
   }
 
   toggleFilters() {
-    this.showFilters = !this.showFilters
+    this.showFilters = !this.showFilters;
   }
 
   getBorderPoints(coordinates: { x: number; y: number }[] | undefined): string {
@@ -365,33 +301,22 @@ export class ProjectsDashboardComponent {
       this.handleNonAddModeBorderClick(point, event);
     }
 
-    // Emit the updated border point
     this.selectedBorderPointChange.emit(this.selectedBorderPoint);
   }
 
   onPointBorderClick(border: Border, event?: MouseEvent) {
     const building = staticBuildings.find((map) => map.id === 1);
-  
     if (building) {
-      this.selectedBuilding.emit(building); // Emit the building object
+      this.selectedBuilding.emit(building);
     } else {
-      this.selectedBuilding.emit(null); // Emit null if no building is found
+      this.selectedBuilding.emit(null);
     }
   }
-  
+
   private handleAddModeBorderClick(point: Point, event?: MouseEvent) {
     if (this.addStage === 6) {
       this.selectedBorderPoint = point;
     }
-  }
-
-  setShowPartProjectMap(value: string | File | null) {
-    this.preloaderService.show();
-    this.currentMapImage = value;
-    setTimeout(() => {
-      this.autoScroll();
-      this.preloaderService.hide();
-    }, 2000);
   }
 
   private handleNonAddModeBorderClick(point: Point, event?: MouseEvent) {
@@ -418,36 +343,32 @@ export class ProjectsDashboardComponent {
   }
 
   private handleAddModePointClick(point: Point, event?: MouseEvent) {
-
     if (this.addStage <= 3) {
       if (this.newProject && this.newProject.points && this.addStage === 1 && point.isProject) {
-        this.newProject.points = this.newProject.points.filter(p => p.id !== point.id)
+        this.newProject.points = this.newProject.points.filter(p => p.id !== point.id);
       }
       if (this.newProject && this.newProject.points && this.addStage === 2 && point.importance === 1) {
-        this.newProject.points = this.newProject.points.filter(p => p.id !== point.id)
+        this.newProject.points = this.newProject.points.filter(p => p.id !== point.id);
       }
       if (this.newProject && this.newProject.points && this.addStage === 3 && point.importance === 0) {
-        this.newProject.points = this.newProject.points.filter(p => p.id !== point.id)
+        this.newProject.points = this.newProject.points.filter(p => p.id !== point.id);
       }
     }
 
     if (this.addStage === 4) {
-
       if (point.isProject) {
         if (this.selectedProjectPoint !== point) {
           this.selectedProjectPoint = point;
           this.pathDrawn = false;
-          console.log('Selected project point:', this.selectedProjectPoint);
         }
       } else {
         if (this.selectedPoint !== point) {
           this.selectedPoint = point;
           this.pathDrawn = false;
-          console.log('Selected point:', this.selectedPoint);
         }
       }
 
-      this.handleAddStage4PointClick(point)
+      this.handleAddStage4PointClick(point);
     }
 
     if (this.addStage === 5) {
@@ -457,35 +378,148 @@ export class ProjectsDashboardComponent {
 
   private handleViewModePointClick(point: Point, event?: MouseEvent) {
     if (point.isProject) {
-      this.selectedPath = []
-      this.selectedProjectPoint = point
-      this.selectedPoint = null
+      this.selectedPath = [];
+      this.selectedProjectPoint = point;
+      this.selectedPoint = null;
     } else {
-      this.selectedPath = []
-      this.selectedPoint = point
+      this.selectedPath = [];
+      this.selectedPoint = point;
     }
 
     if (this.selectedProjectPoint && this.selectedPoint) {
-      this.drawPath()
+      this.drawPath();
+    }
+  }
+  
+  onMouseWheel(event: WheelEvent) {
+    if (!event.ctrlKey) return; // Only zoom if Ctrl key is pressed
+    event.preventDefault();
+
+    const scrollContainer = this.scrollContainer.nativeElement as HTMLElement;
+    const containerEl = this.mapContainer.nativeElement as HTMLElement;
+
+    const zoomStep = 0.1;
+    const isZoomOut = event.deltaY > 0;
+    let newContainerScale = this.containerScale + (isZoomOut ? -zoomStep : zoomStep);
+
+    // Clamp the scale between 0.5 and 2
+    newContainerScale = Math.max(0.5, Math.min(2, newContainerScale));
+
+    // Apply the new scale
+    containerEl.style.zoom = `${newContainerScale}`;
+
+    // Adjust the points' scale
+    this.mapPoints.forEach((pointRef) => {
+      pointRef.nativeElement.style.zoom = `${1 / newContainerScale}`;
+    });
+  }
+
+  onContainerClick(event: MouseEvent) {
+    if (this.isAddingMode) {
+      this.handleAddModeContainerClick(event);
     }
   }
 
+  onPointClick(point: Point, event?: MouseEvent) {
+    if (event) event.stopPropagation();
+    if (this.isAddingMode) {
+      this.handleAddModePointClick(point, event);
+    } else {
+      this.handleViewModePointClick(point, event);
+    }
+  }
+
+  drawPath() {
+    if (!this.activeProject || !this.selectedProjectPoint || !this.selectedPoint) return;
+
+    const projectPoint = this.activeProject.points!.find(p => p.isProject);
+    if (!projectPoint || !projectPoint.paths) return;
+
+    const pathToPoint = projectPoint.paths.find(p => p.point.id === this.selectedPoint!.id);
+    if (!pathToPoint) return;
+
+    const pathData = pathToPoint.path
+      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
+      .join(' ');
+
+    this.selectedPath = [{ d: pathData }];
+  }
+
+  // Make these methods public
+  getMapImageSource(mapImage: string | File | null | undefined): string | null {
+    if (!mapImage) return null;
+    if (typeof mapImage === 'string') return mapImage;
+    if (mapImage instanceof File) {
+      if (!this.imageCache.has(mapImage)) {
+        const url = URL.createObjectURL(mapImage);
+        this.imageCache.set(mapImage, url);
+      }
+      return this.imageCache.get(mapImage) || null;
+    }
+    return null;
+  }
+
+  applyAdvancedFilters() {
+    if (!this.selectedBorderPoint || !this.selectedBorderPoint.borders) {
+      this.filteredBorders = [];
+      return;
+    }
+
+    this.filteredBorders = this.selectedBorderPoint.borders.filter(border => {
+      const borderType = border.data?.type;
+      const borderFloors = border.data?.floors;
+      const borderAreaStr = border.data?.area;
+      const borderArea = borderAreaStr ? parseInt(borderAreaStr.replace(/\D/g, ''), 10) : 0;
+      const borderOccupancyStr = border.data?.occupancy;
+      const borderOccupancy = borderOccupancyStr ? parseInt(borderOccupancyStr.replace(/%/g, ''), 10) : 0;
+
+      return (
+        (!borderType || this.activeBorderFilters.types[borderType]) &&
+        (!borderFloors || this.activeBorderFilters.floors.includes(borderFloors)) &&
+        borderArea >= this.activeBorderFilters.area.min &&
+        borderArea <= this.activeBorderFilters.area.max &&
+        borderOccupancy >= this.activeBorderFilters.occupancy.min &&
+        borderOccupancy <= this.activeBorderFilters.occupancy.max
+      );
+    });
+
+    console.log('Filtered Borders:', this.filteredBorders);
+  }
+
+  resetFilters() {
+    if (!this.selectedBorderPoint || !this.selectedBorderPoint.borders) {
+      return;
+    }
+
+    this.borderTypes.forEach(type => {
+      this.activeBorderFilters.types[type] = true;
+    });
+
+    this.activeBorderFilters.floors = [...this.uniqueFloors];
+    this.activeBorderFilters.area.min = this.areaRange.min;
+    this.activeBorderFilters.area.max = this.areaRange.max;
+    this.activeBorderFilters.occupancy.min = this.occupancyRange.min;
+    this.activeBorderFilters.occupancy.max = this.occupancyRange.max;
+
+    this.filteredBorders = [...this.selectedBorderPoint.borders];
+  }
+
   private handleAddModeContainerClick(event: MouseEvent) {
-    const container = this.projectMap.nativeElement as HTMLElement
-    const rect = container.getBoundingClientRect()
-    const offsetX = event.clientX - rect.left
-    const offsetY = event.clientY - rect.top
-    const xPercent = (offsetX / rect.width) * 100
-    const yPercent = (offsetY / rect.height) * 100
+    const container = this.projectMap.nativeElement as HTMLElement;
+    const rect = container.getBoundingClientRect();
+    const offsetX = event.clientX - rect.left;
+    const offsetY = event.clientY - rect.top;
+    const xPercent = (offsetX / rect.width) * 100;
+    const yPercent = (offsetY / rect.height) * 100;
 
     if (this.addStage <= 3) {
-      this.addNewPoint(xPercent, yPercent)
+      this.addNewPoint(xPercent, yPercent);
     } else if (this.addStage === 4) {
-      this.handleAddStage4ContainerClick(xPercent, yPercent, event)
+      this.handleAddStage4ContainerClick(xPercent, yPercent, event);
     } else if (this.addStage === 5) {
-      this.handleAddStage5ContainerClick(xPercent, yPercent, event)
+      this.handleAddStage5ContainerClick(xPercent, yPercent, event);
     } else if (this.addStage === 7) {
-      if(this.addBuildingBorder) this.handleAddStage7ContainerClick(xPercent, yPercent, event)
+      if (this.addBuildingBorder) this.handleAddStage7ContainerClick(xPercent, yPercent, event);
     }
   }
 
@@ -497,38 +531,34 @@ export class ProjectsDashboardComponent {
       importance: 2,
       logo: this.activeProject?.logo,
       isProject: true,
-      position: {
-        x: xPercent,
-        y: yPercent,
-      },
+      position: { x: xPercent, y: yPercent },
       visible: true,
-      // For type safety, add an empty array for borders & paths if needed
       borders: [],
       paths: []
-    }
+    };
 
     if (this.addStage === 2) {
-      point.importance = 1
-      point.name = 'اسم النقطة'
-      point.isProject = false
+      point.importance = 1;
+      point.name = 'اسم النقطة';
+      point.isProject = false;
     } else if (this.addStage === 3) {
-      point.importance = 0
-      point.name = 'اسم النقطة'
-      point.type = this.addingPointType!
-      point.logo = null
-      point.isProject = false
+      point.importance = 0;
+      point.name = 'اسم النقطة';
+      point.type = this.addingPointType!;
+      point.logo = null;
+      point.isProject = false;
     }
 
     if (this.newProject) {
-      this.newProject.points = this.newProject.points || []
-      this.newProject.points.push(point)
+      this.newProject.points = this.newProject.points || [];
+      this.newProject.points.push(point);
     } else {
       this.newProject = {
         id: null,
         name: '',
         mapImage: null,
         points: [point],
-      }
+      };
     }
   }
 
@@ -536,22 +566,16 @@ export class ProjectsDashboardComponent {
     if (this.selectedPoint && this.selectedProjectPoint && !this.pathDrawn) {
       const existingPath = this.selectedProjectPoint.paths?.find(
         (p) => p.point.id === this.selectedPoint!.id
-      )
+      );
       if (existingPath) {
-        this.useExistingPath(existingPath.path)
+        this.useExistingPath(existingPath.path);
       } else {
-        this.initializePath(this.selectedProjectPoint, this.selectedPoint)
+        this.initializePath(this.selectedProjectPoint, this.selectedPoint);
       }
-    }
-
-    else if (point === this.selectedProjectPoint && this.selectedPoint && this.pathDrawn) {
-      this.resetPath(this.selectedProjectPoint, this.selectedPoint)
-      return
-    }
-
-    else if (point === this.selectedPoint && this.pathDrawn) {
-      this.finalizePath()
-      return
+    } else if (point === this.selectedProjectPoint && this.selectedPoint && this.pathDrawn) {
+      this.resetPath(this.selectedProjectPoint, this.selectedPoint);
+    } else if (point === this.selectedPoint && this.pathDrawn) {
+      this.finalizePath();
     }
   }
 
@@ -559,10 +583,8 @@ export class ProjectsDashboardComponent {
     if (point.isProject) {
       if (this.selectedProjectPoint !== point) {
         this.selectedProjectPoint = point;
-        console.log('Selected project point for Stage 5:', this.selectedProjectPoint);
       } else {
         if (this.selectedProjectPoint) {
-          // Clean up the existing borders (which are an array of Border objects)
           this.selectedProjectPoint.borders = [];
           this.selectedProjectPoint.pointMap = null;
         }
@@ -575,147 +597,96 @@ export class ProjectsDashboardComponent {
   private handleAddStage4ContainerClick(xPercent: number, yPercent: number, event: MouseEvent) {
     if (this.selectedProjectPoint && this.selectedPoint) {
       if (!this.newPath) {
-        this.checkOrCreatePathForStage4()
+        this.checkOrCreatePathForStage4();
       } else {
-        this.addIntermediatePointToPath(xPercent, yPercent)
+        this.addIntermediatePointToPath(xPercent, yPercent);
       }
 
       const pathData = this.newPath
         ?.map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
-        .join(' ')
-      this.selectedPath = pathData ? [{ d: pathData }] : []
-      this.pathDrawn = true
+        .join(' ');
+      this.selectedPath = pathData ? [{ d: pathData }] : [];
+      this.pathDrawn = true;
     }
   }
 
   private handleAddStage5ContainerClick(xPercent: number, yPercent: number, event: MouseEvent) {
     if (this.selectedProjectPoint) {
-      // Instead of pushing {x, y} directly into `borders` (which is an array of Border),
-      // we need to push into the .Cordinates of a Border.
       if (!this.selectedProjectPoint.borders?.length) {
-        // Create the first Border if none exists
         this.selectedProjectPoint.borders = [{
           Cordinates: [],
           visible: true,
           color: 'blue',
-          data: {
-            name: 'اسم الحد',
-          }
+          data: { name: 'اسم الحد' }
         }];
       }
-      // Then push to the last border's Cordinates
       this.selectedProjectPoint.borders[this.selectedProjectPoint.borders.length - 1]
         .Cordinates.push({ x: xPercent, y: yPercent });
     }
   }
 
   private handleAddStage7ContainerClick(xPercent: number, yPercent: number, event: MouseEvent) {
-    // If we have no projectsMap or no data array, bail out early
-    if (!this.projectsMap) {
-      return;
-    }
+    if (!this.projectsMap) return;
     if (!this.projectsMap.data || this.projectsMap.data.length === 0) {
-      // If there's no data array, create one
       this.projectsMap.data = [{ borders: [] }];
     }
 
-    // If there is no "current border" being drawn, create a new one and push it into
-    // the borders array of the first ProjectsMapData (or whichever index you like).
     if (!this.currentBorder) {
       this.currentBorder = {
         Cordinates: [],
-        // you can default color or any data here if needed
         visible: true,
         color: 'blue',
-        data: {
-          name: 'اسم الحد',
-        }
+        data: { name: 'اسم الحد' }
       };
       this.projectsMap.data[0].borders.push(this.currentBorder);
     }
 
-    // Now push the newly clicked coordinate
     if (this.currentBorder) {
       this.currentBorder.Cordinates.push({ x: xPercent, y: yPercent });
     }
     console.log('Added new coordinate: ', { x: xPercent, y: yPercent });
   }
 
-  // Method to handle border color change
-  onBorderColorChange(border: Border, event: Event) {
-    const newColor = (event.target as HTMLInputElement).value;
-    border.color = newColor; // Update the border color
-    console.log('Updated border color:', border.color);
-  }
-
-  // Method to remove a border
-  removeBorder(data: any, index: number) {
-    if (data.borders && data.borders.length > index) {
-      data.borders.splice(index, 1); // Remove the border at the specified index
-      console.log('Border removed at index:', index);
-    } else {
-      console.error('Invalid border index or data:', index, data);
-    }
-  }
-
-  toggleDrawingBuildingBorder() {
-    this.addBuildingBorder = !this.addBuildingBorder;
-  }
-
-  finishCurrentBorder() {
-    // Called when user clicks "انهاء الحدود الحالية"
-    if (this.currentBorder) {
-      // finalize it (for example, you might do validations or transformations) 
-      console.log('Finishing current border with coords:', this.currentBorder.Cordinates);
-      if(this.projectsMap.data) console.log('Borders:', this.projectsMap.data[0].borders);
-
-      // Now reset currentBorder so next click on map starts a fresh border
-      this.currentBorder = null;
-    } else {
-      console.warn('No border is currently in progress to finish!');
-    }
-  }
-
   private useExistingPath(existing: Path[]) {
-    this.newPath = existing.map(coord => ({ x: coord.x, y: coord.y }))
+    this.newPath = existing.map(coord => ({ x: coord.x, y: coord.y }));
     const pathData = this.newPath
       .map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
-      .join(' ')
-    this.selectedPath = [{ d: pathData }]
-    this.pathDrawn = true
+      .join(' ');
+    this.selectedPath = [{ d: pathData }];
+    this.pathDrawn = true;
   }
 
   private initializePath(projectPoint: Point, targetPoint: Point) {
-    this.newPath = [projectPoint.position, targetPoint.position]
+    this.newPath = [projectPoint.position, targetPoint.position];
     const pathData = this.newPath
       .map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
-      .join(' ')
-    this.selectedPath = [{ d: pathData }]
-    this.pathDrawn = true
+      .join(' ');
+    this.selectedPath = [{ d: pathData }];
+    this.pathDrawn = true;
   }
 
   private resetPath(projectPoint: Point, targetPoint: Point) {
-    this.newPath = [projectPoint.position, targetPoint.position]
+    this.newPath = [projectPoint.position, targetPoint.position];
     const pathData = this.newPath
       .map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
-      .join(' ')
-    this.selectedPath = [{ d: pathData }]
+      .join(' ');
+    this.selectedPath = [{ d: pathData }];
   }
 
   private finalizePath() {
-    if (!this.newPath) return
-    const projectPoint = this.newProject?.points?.find(p => p.id === this.selectedProjectPoint!.id)
+    if (!this.newPath) return;
+    const projectPoint = this.newProject?.points?.find(p => p.id === this.selectedProjectPoint!.id);
     if (projectPoint) {
-      if (!projectPoint.paths) projectPoint.paths = []
+      if (!projectPoint.paths) projectPoint.paths = [];
       const existingPathIndex = projectPoint.paths.findIndex(
         p => p.point.id === this.selectedPoint!.id
-      )
+      );
       if (existingPathIndex !== -1) {
         projectPoint.paths[existingPathIndex].path = this.newPath.map((coord, index) => ({
           id: index + 1,
           x: coord.x,
           y: coord.y,
-        }))
+        }));
       } else {
         projectPoint.paths.push({
           point: this.selectedPoint!,
@@ -724,35 +695,35 @@ export class ProjectsDashboardComponent {
             x: coord.x,
             y: coord.y,
           })),
-        })
+        });
       }
-      this.selectedPoint = null
-      this.newPath = null
-      this.selectedPath = []
-      this.pathDrawn = false
+      this.selectedPoint = null;
+      this.newPath = null;
+      this.selectedPath = [];
+      this.pathDrawn = false;
     }
   }
 
   private checkOrCreatePathForStage4() {
-    const projectPoint = this.currentProject?.points.find(p => p.isProject)
+    const projectPoint = this.currentProject?.points.find(p => p.isProject);
     if (projectPoint && projectPoint.paths) {
       const existingPath = projectPoint.paths.find(
         p => p.point.id === this.selectedPoint!.id
-      )
+      );
       if (existingPath) {
-        this.useExistingPath(existingPath.path)
+        this.useExistingPath(existingPath.path);
       } else {
-        this.initializePath(this.selectedProjectPoint!, this.selectedPoint!)
+        this.initializePath(this.selectedProjectPoint!, this.selectedPoint!);
       }
     } else {
-      this.initializePath(this.selectedProjectPoint!, this.selectedPoint!)
+      this.initializePath(this.selectedProjectPoint!, this.selectedPoint!);
     }
   }
 
   private addIntermediatePointToPath(xPercent: number, yPercent: number) {
-    if (!this.newPath) return
-    const newIntermediatePoint: Path = { x: xPercent, y: yPercent }
-    this.newPath.splice(this.newPath.length - 1, 0, newIntermediatePoint)
+    if (!this.newPath) return;
+    const newIntermediatePoint: Path = { x: xPercent, y: yPercent };
+    this.newPath.splice(this.newPath.length - 1, 0, newIntermediatePoint);
   }
 
   private handleStageChange(newStage?: number) {
@@ -801,22 +772,18 @@ export class ProjectsDashboardComponent {
       const xPercent = (offsetX / rect.width) * 100;
       const yPercent = (offsetY / rect.height) * 100;
 
-      // Instead of pushing directly to .borders, we push to the .Cordinates of a Border
       if (!this.selectedBorderPoint.borders?.length) {
         this.selectedBorderPoint.borders = [{
           Cordinates: [],
           visible: true,
           color: 'blue',
-          data: {
-            name: 'اسم الحد',
-          }
+          data: { name: 'اسم الحد' }
         }];
       }
       this.selectedBorderPoint.borders[0].Cordinates.push({ x: xPercent, y: yPercent });
 
       console.log('Added new border point:', { x: xPercent, y: yPercent });
-    }
-    else {
+    } else {
       if (!this.selectedProjectPoint) {
         console.warn('No project point selected for drawing borders.');
         return;
@@ -829,17 +796,12 @@ export class ProjectsDashboardComponent {
       const xPercent = (offsetX / rect.width) * 100;
       const yPercent = (offsetY / rect.height) * 100;
 
-      // OLD (invalid):
-      // this.selectedProjectPoint.borders.push({ x: xPercent, y: yPercent });
-      // FIX: push to the .Cordinates of an existing or new Border
       if (!this.selectedProjectPoint.borders?.length) {
         this.selectedProjectPoint.borders = [{
           Cordinates: [],
           visible: true,
           color: 'blue',
-          data: {
-            name: 'اسم الحد',
-          }
+          data: { name: 'اسم الحد' }
         }];
       }
       this.selectedProjectPoint.borders[0].Cordinates.push({ x: xPercent, y: yPercent });
@@ -848,57 +810,36 @@ export class ProjectsDashboardComponent {
     }
   }
 
+  onBorderColorChange(border: Border, event: Event) {
+    const newColor = (event.target as HTMLInputElement).value;
+    border.color = newColor;
+    console.log('Updated border color:', border.color);
+  }
 
+  removeBorder(data: any, index: number) {
+    if (data.borders && data.borders.length > index) {
+      data.borders.splice(index, 1);
+      console.log('Border removed at index:', index);
+    } else {
+      console.error('Invalid border index or data:', index, data);
+    }
+  }
+
+  toggleDrawingBuildingBorder() {
+    this.addBuildingBorder = !this.addBuildingBorder;
+  }
+
+  finishCurrentBorder() {
+    if (this.currentBorder) {
+      console.log('Finishing current border with coords:', this.currentBorder.Cordinates);
+      if (this.projectsMap.data) console.log('Borders:', this.projectsMap.data[0].borders);
+      this.currentBorder = null;
+    } else {
+      console.warn('No border is currently in progress to finish!');
+    }
+  }
 
   // --- Advanced Filter Methods ---
-
-  /**
-   * Initializes the advanced filters based on the selectedBorderPoint's borders.
-   */
-  private initializeAdvancedFilters() {
-    if (!this.selectedBorderPoint || !this.selectedBorderPoint.borders) {
-      return;
-    }
-
-    // Extract unique types
-    this.borderTypes = Array.from(
-      new Set(this.selectedBorderPoint.borders.map(border => border.data?.type).filter(type => type))
-    ) as string[];
-
-    // Initialize type filters
-    this.borderTypes.forEach(type => {
-      this.activeBorderFilters.types[type] = true;
-    });
-
-    // Extract unique floors
-    this.uniqueFloors = Array.from(
-      new Set(this.selectedBorderPoint.borders.map(border => border.data?.floors).filter(floors => floors != null))
-    ) as number[];
-
-    // Initialize floors filters (select all by default)
-    this.activeBorderFilters.floors = [...this.uniqueFloors];
-
-    // Determine area range
-    const areas = this.selectedBorderPoint.borders
-      .map(border => parseInt(border.data?.area?.replace(/\D/g, '') || '0', 10))
-      .filter(area => !isNaN(area));
-    this.areaRange.min = Math.min(...areas, 0);
-    this.areaRange.max = Math.max(...areas, 10000);
-    this.activeBorderFilters.area.min = this.areaRange.min;
-    this.activeBorderFilters.area.max = this.areaRange.max;
-
-    // Determine occupancy range
-    const occupancies = this.selectedBorderPoint.borders
-      .map(border => parseInt((border.data?.occupancy ?? '0').replace(/%/g, ''), 10))
-      .filter(occupancy => !isNaN(occupancy));
-    this.occupancyRange.min = Math.min(...occupancies, 0);
-    this.occupancyRange.max = Math.max(...occupancies, 100);
-    this.activeBorderFilters.occupancy.min = this.occupancyRange.min;
-    this.activeBorderFilters.occupancy.max = this.occupancyRange.max;
-
-    // Initially, all borders are shown
-    this.filteredBorders = [...this.selectedBorderPoint.borders];
-  }
 
   /**
    * Handles changes in the type filter checkboxes.
@@ -908,6 +849,7 @@ export class ProjectsDashboardComponent {
   onTypeFilterChange(type: string, event: Event) {
     const isChecked = (event.target as HTMLInputElement).checked;
     this.activeBorderFilters.types[type] = isChecked;
+    this.applyAdvancedFilters();
   }
 
   /**
@@ -922,104 +864,27 @@ export class ProjectsDashboardComponent {
     } else {
       this.activeBorderFilters.floors = this.activeBorderFilters.floors.filter(f => f !== floor);
     }
+    this.applyAdvancedFilters();
   }
 
   /**
    * Handles changes in the area range sliders.
    */
   onAreaFilterChange() {
-    // Ensure min is not greater than max
     if (this.activeBorderFilters.area.min > this.activeBorderFilters.area.max) {
       this.activeBorderFilters.area.min = this.activeBorderFilters.area.max;
     }
+    this.applyAdvancedFilters();
   }
 
   /**
    * Handles changes in the occupancy range sliders.
    */
   onOccupancyFilterChange() {
-    // Ensure min is not greater than max
     if (this.activeBorderFilters.occupancy.min > this.activeBorderFilters.occupancy.max) {
       this.activeBorderFilters.occupancy.min = this.activeBorderFilters.occupancy.max;
     }
-  }
-
-  /**
-   * Applies the advanced filters to the borders.
-   */
-  applyAdvancedFilters() {
-    if (!this.selectedBorderPoint || !this.selectedBorderPoint.borders) {
-      this.filteredBorders = [];
-      return;
-    }
-
-    this.filteredBorders = this.selectedBorderPoint.borders.filter(border => {
-      // Filter by type
-      const borderType = border.data?.type;
-      if (borderType && !this.activeBorderFilters.types[borderType]) {
-        return false;
-      }
-
-      // Filter by floors
-      const borderFloors = border.data?.floors;
-      if (borderFloors != null && !this.activeBorderFilters.floors.includes(borderFloors)) {
-        return false;
-      }
-
-      // Filter by area
-      const borderAreaStr = border.data?.area;
-      const borderArea = borderAreaStr ? parseInt(borderAreaStr.replace(/\D/g, ''), 10) : 0;
-      if (
-        borderArea < this.activeBorderFilters.area.min ||
-        borderArea > this.activeBorderFilters.area.max
-      ) {
-        return false;
-      }
-
-      // Filter by occupancy
-      const borderOccupancyStr = border.data?.occupancy;
-      const borderOccupancy = borderOccupancyStr
-        ? parseInt(borderOccupancyStr.replace(/%/g, ''), 10)
-        : 0;
-      if (
-        borderOccupancy < this.activeBorderFilters.occupancy.min ||
-        borderOccupancy > this.activeBorderFilters.occupancy.max
-      ) {
-        return false;
-      }
-
-      return true;
-    });
-
-    console.log('Filtered Borders:', this.filteredBorders);
-  }
-
-  /**
-   * Resets all advanced filters to their default states.
-   */
-  resetFilters() {
-    if (!this.selectedBorderPoint || !this.selectedBorderPoint.borders) {
-      return;
-    }
-
-    // Reset type filters
-    this.borderTypes.forEach(type => {
-      this.activeBorderFilters.types[type] = true;
-    });
-
-    // Reset floors filters
-    this.activeBorderFilters.floors = [...this.uniqueFloors];
-
-    // Reset area filters
-    this.activeBorderFilters.area.min = this.areaRange.min;
-    this.activeBorderFilters.area.max = this.areaRange.max;
-
-    // Reset occupancy filters
-    this.activeBorderFilters.occupancy.min = this.occupancyRange.min;
-    this.activeBorderFilters.occupancy.max = this.occupancyRange.max;
-
-    // Show all borders
-    this.filteredBorders = [...this.selectedBorderPoint.borders];
+    this.applyAdvancedFilters();
   }
 
   /**
@@ -1033,7 +898,6 @@ export class ProjectsDashboardComponent {
       'تجاري': 'تجاري',
       'عيادات': 'عيادات',
       'تسوق': 'تسوق'
-      // Add more types as needed
     };
     return labels[type] || type;
   }
