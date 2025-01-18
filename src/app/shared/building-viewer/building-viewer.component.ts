@@ -32,7 +32,7 @@ export class BuildingViewerComponent implements OnInit {
   show5Rooms = true;
   minArea: number = 0;
   maxArea: number = Infinity;
-  addMode = false;
+  addMode = true;
   currentApartment: Apartment | null = null;
   currentFloor: Floor | null = null;
   polygonCoordinates: { x: number, y: number }[] = [];
