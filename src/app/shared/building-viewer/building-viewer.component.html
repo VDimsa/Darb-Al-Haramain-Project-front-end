@@ -1,7 +1,15 @@
 <div class="building-viewer" *ngIf="building">
   <!-- Media Display -->
-  <div class="media-container" (click)="onMediaClick($event)">
-    <button class="floating-control" style="left: 0;top: 0;right: auto;width: 50px;height: 50px;" (click)="goBack()">
+  <div
+    [ngClass]="showSidebarFilter ? 'open' : ''"
+    class="media-container"
+    (click)="onMediaClick($event)"
+  >
+    <button
+      class="floating-control"
+      style="left: 0; top: 0; right: auto; width: 50px; height: 50px"
+      (click)="goBack()"
+    >
       <i class="fa-solid fa-circle-chevron-left"></i>
     </button>
     <!-- Video Display -->
@@ -15,24 +23,44 @@
     </div>
 
     <!-- Borders overlay for apartment status -->
-    <div *ngIf="mediaType === 'image' || mediaType === 'video'" class="borders-overlay">
+    <div
+      *ngIf="mediaType === 'image' || mediaType === 'video'"
+      class="borders-overlay"
+    >
       <svg class="apartment-borders">
         <ng-container *ngFor="let floor of building.floors">
           <ng-container *ngFor="let apartment of floor.apartments">
-            <polygon *ngIf="shouldShowBorder(apartment.status, apartment.roomsCount, apartment.area)"
-              [attr.points]="getPolygonPoints(apartment.border.coordinates)" [ngClass]="{
+            <polygon
+              *ngIf="
+                shouldShowBorder(
+                  apartment.status,
+                  apartment.roomsCount,
+                  apartment.area
+                )
+              "
+              [attr.points]="getPolygonPoints(apartment.border.coordinates)"
+              [ngClass]="{
                 'border-green': apartment.status === 'available',
                 'border-yellow': apartment.status === 'booked',
                 'border-red': apartment.status === 'sold',
                 'border-gray': apartment.status === 'under_maintenance',
                 'click-through': addMode && currentApartment === apartment,
-              }" class="apartment-border" (click)="onBorderClick(apartment)"></polygon>
+              }"
+              class="apartment-border"
+              (click)="onBorderClick(apartment)"
+            ></polygon>
           </ng-container>
         </ng-container>
       </svg>
     </div>
 
     <p *ngIf="mediaType === 'none'">No media available for this building.</p>
+    <!-- FILTER BUTTON -->
+    <div class="filter-btn">
+      <button (click)="onShowSidebarFilter()">
+        <img src="/assets/image/icons/filter.svg" />
+      </button>
+    </div>
   </div>
 
   <!-- Floating Control Panel for Add/Edit -->
@@ -44,17 +72,31 @@
       <button (click)="addFloorToCurrentBuilding()">Add Floor</button>
     </div>
 
-    <div class="floors-container" style=" overflow: auto; max-height: 200px; ">
+    <div class="floors-container" style="overflow: auto; max-height: 200px">
       <div *ngFor="let floor of building.floors">
         <h3>Floor {{ floor.floorNumber }}</h3>
-        <button *ngIf="currentFloor !== floor" (click)="editFloor(floor)">Edit</button>
-        <button *ngIf="currentFloor === floor" (click)="doneEditFloor(floor)">Done</button>
+        <button *ngIf="currentFloor !== floor" (click)="editFloor(floor)">
+          Edit
+        </button>
+        <button *ngIf="currentFloor === floor" (click)="doneEditFloor(floor)">
+          Done
+        </button>
         <button (click)="removeFloor(floor)">Remove</button>
         <div *ngFor="let apartment of floor.apartments">
           <div class="apartment-control">
             <h4>Apartment {{ apartment.number }}</h4>
-            <button *ngIf="currentApartment !== apartment" (click)="editApartment(apartment)">Edit</button>
-            <button *ngIf="currentApartment === apartment" (click)="doneEditApartment(apartment)">Done</button>
+            <button
+              *ngIf="currentApartment !== apartment"
+              (click)="editApartment(apartment)"
+            >
+              Edit
+            </button>
+            <button
+              *ngIf="currentApartment === apartment"
+              (click)="doneEditApartment(apartment)"
+            >
+              Done
+            </button>
             <button (click)="removeApartment(apartment, floor)">Remove</button>
           </div>
         </div>
@@ -62,7 +104,11 @@
     </div>
   </div>
 
-  <div *ngIf="addMode && currentApartment" class="floating-control" style=" width: 300px; right: auto; left: 20px; ">
+  <div
+    *ngIf="addMode && currentApartment"
+    class="floating-control"
+    style="width: 300px; right: auto; left: 20px"
+  >
     <h3>Edit Apartment {{ currentApartment.name }}</h3>
     <div class="apartment-edit-form">
       <label>
@@ -96,20 +142,30 @@
       </label>
       <label>
         Border Coordinates:
-        <button *ngIf="currentApartment.border.coordinates"
-          (click)="clearCoordinates(currentApartment.border.coordinates)">Clear</button>
+        <button
+          *ngIf="currentApartment.border.coordinates"
+          (click)="clearCoordinates(currentApartment.border.coordinates)"
+        >
+          Clear
+        </button>
         <input type="text" [(ngModel)]="currentApartment.border.coordinates" />
       </label>
     </div>
   </div>
 
-  <div *ngIf="addMode && currentFloor" class="floating-control" style=" width: 300px; right: auto; left: 20px; ">
+  <div
+    *ngIf="addMode && currentFloor"
+    class="floating-control"
+    style="width: 300px; right: auto; left: 20px"
+  >
     <h3>Edit Floor {{ currentFloor.floorNumber }}</h3>
     <label>
       Floor Number:
       <input type="number" [(ngModel)]="currentFloor.floorNumber" />
     </label>
-    <button (click)="addAparmentToCurrentFloor(currentFloor)">Add Apartment</button>
+    <button (click)="addAparmentToCurrentFloor(currentFloor)">
+      Add Apartment
+    </button>
   </div>
 
   <!-- Floating Filter -->
@@ -131,18 +187,215 @@
       Under Maintenance
     </label>
     <div class="room-count-filters">
-      <button [ngClass]="{'active': show1Room}" (click)="show1Room = !show1Room">1 Room</button>
-      <button [ngClass]="{'active': show2Rooms}" (click)="show2Rooms = !show2Rooms">2 Rooms</button>
-      <button [ngClass]="{'active': show3Rooms}" (click)="show3Rooms = !show3Rooms">3 Rooms</button>
-      <button [ngClass]="{'active': show4Rooms}" (click)="show4Rooms = !show4Rooms">4 Rooms</button>
-      <button [ngClass]="{'active': show5Rooms}" (click)="show5Rooms = !show5Rooms">5 Rooms</button>
+      <button
+        [ngClass]="{ active: show1Room }"
+        (click)="show1Room = !show1Room"
+      >
+        1 Room
+      </button>
+      <button
+        [ngClass]="{ active: show2Rooms }"
+        (click)="show2Rooms = !show2Rooms"
+      >
+        2 Rooms
+      </button>
+      <button
+        [ngClass]="{ active: show3Rooms }"
+        (click)="show3Rooms = !show3Rooms"
+      >
+        3 Rooms
+      </button>
+      <button
+        [ngClass]="{ active: show4Rooms }"
+        (click)="show4Rooms = !show4Rooms"
+      >
+        4 Rooms
+      </button>
+      <button
+        [ngClass]="{ active: show5Rooms }"
+        (click)="show5Rooms = !show5Rooms"
+      >
+        5 Rooms
+      </button>
     </div>
     <div class="area-filter">
       <label>
         Area:
-        <ngx-slider [(value)]="minArea" [(highValue)]="maxArea" [options]="{ floor: 900, ceil: 1200 }"></ngx-slider>
+        <ngx-slider
+          [(value)]="minArea"
+          [(highValue)]="maxArea"
+          [options]="{ floor: 900, ceil: 1200 }"
+        ></ngx-slider>
         {{ minArea }} - {{ maxArea }} sq ft
       </label>
     </div>
+  </div>
+</div>
+
+<div [ngClass]="showSidebarFilter ? 'open' : ''" class="sidebar-filter">
+  <div class="logo-image">
+    <img src="/assets/image/logo.png" />
+  </div>
+  <!-- -------------------------------- -->
+  <!-- TYPES -->
+  <!-- -------------------------------- -->
+  <div class="types">
+    <button
+      [ngClass]="activeTypeBtn == 'Available' ? 'active' : ''"
+      type="button"
+      (click)="onActiveTypeBtn('Available')"
+    >
+      متاح
+    </button>
+    <button
+      [ngClass]="activeTypeBtn == 'Reserved' ? 'active' : ''"
+      type="button"
+      (click)="onActiveTypeBtn('Reserved')"
+    >
+      محجوز
+    </button>
+    <button
+      [ngClass]="activeTypeBtn == 'SoldOut' ? 'active' : ''"
+      type="button"
+      (click)="onActiveTypeBtn('SoldOut')"
+    >
+      مباع
+    </button>
+  </div>
+  <!-- -------------------------------- -->
+  <!-- BUILDING TYPES -->
+  <!-- -------------------------------- -->
+  <div class="building-types">
+    <button
+      (click)="onButtonBuildingType('amenities')"
+      type="button"
+      [ngClass]="buttonBuildingType['amenities'] ? 'active' : ''"
+    >
+      مرافق
+    </button>
+    <button
+      (click)="onButtonBuildingType('twoBedrooms')"
+      [ngClass]="buttonBuildingType['twoBedrooms'] ? 'active' : ''"
+      type="button"
+    >
+      2 غرف نوم
+    </button>
+    <button
+      (click)="onButtonBuildingType('threeBedrooms')"
+      [ngClass]="buttonBuildingType['threeBedrooms'] ? 'active' : ''"
+      type="button"
+    >
+      3 غرف نوم
+    </button>
+    <button
+      (click)="onButtonBuildingType('fourBedrooms')"
+      [ngClass]="buttonBuildingType['fourBedrooms'] ? 'active' : ''"
+      type="button"
+    >
+      4 غرف نوم
+    </button>
+    <button
+      (click)="onButtonBuildingType('upperBuilding')"
+      [ngClass]="buttonBuildingType['upperBuilding'] ? 'active' : ''"
+      type="button"
+    >
+      شقه علوية
+    </button>
+  </div>
+  <!-- -------------------------------- -->
+  <!-- BUILDING VIEWS -->
+  <!-- -------------------------------- -->
+  <div class="building-views">
+    <button
+      [ngClass]="buttonBuildingViews['seeView'] ? 'active' : ''"
+      (click)="onButtonBuildingViews('seeView')"
+      type="button"
+    >
+      اطلالة البحر
+    </button>
+    <button
+      [ngClass]="buttonBuildingViews['seeFront'] ? 'active' : ''"
+      (click)="onButtonBuildingViews('seeFront')"
+      type="button"
+    >
+      واجهة البحر
+    </button>
+  </div>
+  <!-- -------------------------------- -->
+  <!-- CLASS TYPES -->
+  <!-- -------------------------------- -->
+  <div class="class-types">
+    <p>النوع</p>
+    <div class="type">
+      <button
+        [ngClass]="buttonClassTypes['A'] ? 'active' : ''"
+        (click)="onButtonClassTypes('A')"
+        type="button"
+      >
+        A
+      </button>
+      <button
+        [ngClass]="buttonClassTypes['B'] ? 'active' : ''"
+        (click)="onButtonClassTypes('B')"
+        type="button"
+      >
+        B
+      </button>
+      <button
+        [ngClass]="buttonClassTypes['C'] ? 'active' : ''"
+        (click)="onButtonClassTypes('C')"
+        type="button"
+      >
+        C
+      </button>
+      <button
+        [ngClass]="buttonClassTypes['D'] ? 'active' : ''"
+        (click)="onButtonClassTypes('D')"
+        type="button"
+      >
+        D
+      </button>
+      <button
+        [ngClass]="buttonClassTypes['E'] ? 'active' : ''"
+        (click)="onButtonClassTypes('E')"
+        type="button"
+      >
+        E
+      </button>
+    </div>
+  </div>
+
+  <!-- -------------------------------- -->
+  <!-- Floor & SIZE NUMBER -->
+  <!-- -------------------------------- -->
+
+  <div class="floar-number">
+    <p>رقم الدور</p>
+    <ngx-slider
+      [(value)]="minFloorValue"
+      [(highValue)]="maxFloorValue"
+      [options]="floorOptions"
+    ></ngx-slider>
+  </div>
+  <div class="size-number">
+    <p>القياس, متر مربع</p>
+    <ngx-slider
+      [(value)]="minSizeValue"
+      [(highValue)]="maxSizeValue"
+      [options]="SizeOptions"
+    ></ngx-slider>
+  </div>
+  <!-- -------------------------------- -->
+  <!-- DETAILS -->
+  <!-- -------------------------------- -->
+  <div class="details">
+    <p>0:مباع</p>
+    <p>184:المجموع</p>
+  </div>
+  <!-- -------------------------------- -->
+  <!-- RESET -->
+  <!-- -------------------------------- -->
+  <div class="reset">
+    <button type="button">تصفية إعادة تعين</button>
   </div>
 </div>

@@ -1,70 +1,86 @@
 <div *ngIf="currentProject && currentStage !== 0">
-    <app-projects-dashboard 
-    *ngIf="currentProject" 
-    [isAddingMode]="true" 
-    [newPointBoarder]="newPointBoarder" 
-    [selectedBorderPoint]="selectedBorderPoint" 
-    [addingPointType]="currentPointType" 
-    [showSidebar]="false" 
-    [newProject]="currentProject" 
-    [projectsMap]="projectsMap" 
+  <app-projects-dashboard
+    *ngIf="currentProject"
+    [isAddingMode]="true"
+    [newPointBoarder]="newPointBoarder"
+    [selectedBorderPoint]="selectedBorderPoint"
+    [addingPointType]="currentPointType"
+    [showSidebar]="false"
+    [newProject]="currentProject"
+    [projectsMap]="projectsMap"
     [addStage]="currentStage"
     (selectedBorderPointChange)="selectedBorderPoint = $event"
-    ></app-projects-dashboard>
+  ></app-projects-dashboard>
 </div>
-  
+
 <div class="dashboard stage-0" *ngIf="currentStage === 0">
   <mat-tab-group class="tabs-dark-theme">
     <mat-tab label="إضافة مشروع">
       <div class="tab-content">
-        <form (ngSubmit)="onSubmit()" #projectForm="ngForm" class="new-project-form">
-          <div class="form-group" style="width: 100%;">
+        <form
+          (ngSubmit)="onSubmit()"
+          #projectForm="ngForm"
+          class="new-project-form"
+        >
+          <div class="form-group" style="width: 100%">
             <label for="projectName">اسم المشروع</label>
-            <input 
-              type="text" 
-              id="projectName" 
-              class="form-control" 
-              name="name" 
-              [(ngModel)]="currentProject.name" 
-              required 
-              placeholder="أدخل اسم المشروع" 
+            <input
+              type="text"
+              id="projectName"
+              class="form-control"
+              name="name"
+              [(ngModel)]="currentProject.name"
+              required
+              placeholder="أدخل اسم المشروع"
             />
           </div>
-          
+
           <div class="form-group image">
             <label for="logo">شعار المشروع</label>
-            <input 
-              type="file" 
-              id="logo" 
-              class="form-control" 
-              name="logo" 
-              (change)="onFileSelected($event, 'logo')" 
+            <input
+              type="file"
+              id="logo"
+              class="form-control"
+              name="logo"
+              (change)="onFileSelected($event, 'logo')"
               accept="image/*"
             />
             <div *ngIf="currentProject.logo">
-              <img [src]="currentProject.logo" alt="Project Logo Preview" class="preview-img" />
+              <img
+                [src]="currentProject.logo"
+                alt="Project Logo Preview"
+                class="preview-img"
+              />
             </div>
           </div>
-        
+
           <div class="form-group image">
             <label for="mapImage">صورة الخريطة</label>
-            <input 
-              type="file" 
-              id="mapImage" 
-              class="form-control" 
-              name="mapImage" 
-              (change)="onFileSelected($event, 'mapImage')" 
+            <input
+              type="file"
+              id="mapImage"
+              class="form-control"
+              name="mapImage"
+              (change)="onFileSelected($event, 'mapImage')"
               accept="image/*"
             />
             <div *ngIf="currentProject.mapImage">
-              <img [src]="currentProject.mapImage" alt="Map Image Preview" class="preview-img" />
+              <img
+                [src]="currentProject.mapImage"
+                alt="Map Image Preview"
+                class="preview-img"
+              />
             </div>
           </div>
-        
-          <button 
-            type="submit" 
-            class="btn btn-primary" 
-            [disabled]="!currentProject.name || !currentProject.logo || !currentProject.mapImage"
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="
+              !currentProject.name ||
+              !currentProject.logo ||
+              !currentProject.mapImage
+            "
           >
             التالى
           </button>
@@ -82,131 +98,164 @@
 </div>
 
 <div class="adding-stages" *ngIf="currentProject && currentStage !== 0">
-
-  <div *ngIf="projectViewer && currentProject && currentProject.name!.length > 0" class="projectViewer">
+  <div
+    *ngIf="projectViewer && currentProject && currentProject.name!.length > 0"
+    class="projectViewer"
+  >
     <div>
-      <img [src]="currentProject.logo" alt="Project Logo Preview" class="preview-img" />
-      <h1>{{currentProject.name}}</h1>
+      <img
+        [src]="currentProject.logo"
+        alt="Project Logo Preview"
+        class="preview-img"
+      />
+      <h1>{{ currentProject.name }}</h1>
     </div>
 
     <h2>مشاريعى</h2>
     <ng-container *ngFor="let point of currentProject?.points">
       <div *ngIf="point.isProject === true">
-        <img [src]="point.logo" [alt]="point.name">
-        <p *ngIf="currentStage !== 1">{{point.paths?.length || 0}}</p>
-        <p *ngIf="currentStage !== 1">{{point.name}}</p>
-        <input *ngIf="currentStage === 1" type="text" [(ngModel)]="point.name" class="form-control" name="point"/>
+        <img [src]="point.logo" [alt]="point.name" />
+        <p *ngIf="currentStage !== 1">{{ point.paths?.length || 0 }}</p>
+        <p *ngIf="currentStage !== 1">{{ point.name }}</p>
+        <input
+          *ngIf="currentStage === 1"
+          type="text"
+          [(ngModel)]="point.name"
+          class="form-control"
+          name="point"
+        />
       </div>
     </ng-container>
-    
+
     <h2>علامات مميزة</h2>
     <ng-container *ngFor="let point of currentProject?.points">
       <div *ngIf="point.importance === 1">
-        <img 
-          [src]="point.logo" 
-          [alt]="point.name" 
-          [class]="{clickable: currentStage === 2}" 
-          (click)="triggerFileInput(point)" 
+        <img
+          [src]="point.logo"
+          [alt]="point.name"
+          [class]="{ clickable: currentStage === 2 }"
+          (click)="triggerFileInput(point)"
         />
-        <input 
-          type="file" 
-          class="hidden-input" 
-          #fileInput 
-          (change)="onImageChange($event, point)" 
-          accept="image/*" 
+        <input
+          type="file"
+          class="hidden-input"
+          #fileInput
+          (change)="onImageChange($event, point)"
+          accept="image/*"
         />
-        <p *ngIf="currentStage !== 2">{{point.name}}</p>
-        <input *ngIf="currentStage === 2" type="text" [(ngModel)]="point.name" class="form-control" name="point"/>
+        <p *ngIf="currentStage !== 2">{{ point.name }}</p>
+        <input
+          *ngIf="currentStage === 2"
+          type="text"
+          [(ngModel)]="point.name"
+          class="form-control"
+          name="point"
+        />
       </div>
     </ng-container>
-    
+
     <h2>علامات عامة</h2>
     <ng-container *ngFor="let point of currentProject?.points">
       <div *ngIf="point.importance === 0">
         <i class="fa-solid" [ngClass]="getIcon(point.type)"></i>
-        <p *ngIf="currentStage !== 3">{{point.name}}</p>
-        <input *ngIf="currentStage === 3" type="text" [(ngModel)]="point.name" class="form-control" name="point"/>
+        <p *ngIf="currentStage !== 3">{{ point.name }}</p>
+        <input
+          *ngIf="currentStage === 3"
+          type="text"
+          [(ngModel)]="point.name"
+          class="form-control"
+          name="point"
+        />
       </div>
     </ng-container>
-    
   </div>
 
   <div class="stage-6 row" *ngIf="currentStage === 6 && selectedBorderPoint">
     <div *ngIf="selectedBorderPoint" class="border-upload-container">
-      <h1>النقطة المختارة: {{ selectedBorderPoint.name || 'بدون اسم' }}</h1>
-  
+      <h1>النقطة المختارة: {{ selectedBorderPoint.name || "بدون اسم" }}</h1>
+
       <div class="form-group">
         <label for="borderImageUpload">تحميل صورة الخريطة</label>
-        <input 
-          type="file" 
-          id="borderImageUpload" 
-          class="form-control" 
-          accept="image/*" 
-          (change)="onBorderImageUpload($event)" 
+        <input
+          type="file"
+          id="borderImageUpload"
+          class="form-control"
+          accept="image/*"
+          (change)="onBorderImageUpload($event)"
         />
       </div>
-  
+
       <div *ngIf="selectedBorderPoint.pointMap" class="image-preview">
-        <img [src]="selectedBorderPoint.pointMap" alt="Border Map Preview" class="preview-img" />
+        <img
+          [src]="selectedBorderPoint.pointMap"
+          alt="Border Map Preview"
+          class="preview-img"
+        />
       </div>
-  
-      <button 
-        class="btn btn-primary mt-2" 
-        [disabled]="!selectedBorderPoint.pointMap" 
-        (click)="onActionButtonClick()">
+
+      <button
+        class="btn btn-primary mt-2"
+        [disabled]="!selectedBorderPoint.pointMap"
+        (click)="onActionButtonClick()"
+      >
         تنفيذ
       </button>
     </div>
   </div>
-  
+
   <div class="bottom-stages">
     <button (click)="back()">
       <i class="fa-solid fa-circle-chevron-right"></i>
     </button>
-    <button *ngIf="currentProject && currentProject.name!.length > 0" (click)="toggleProjectViewer()">
+    <button
+      *ngIf="currentProject && currentProject.name!.length > 0"
+      (click)="toggleProjectViewer()"
+    >
       <i *ngIf="projectViewer" class="fa-solid fa-eye"></i>
       <i *ngIf="!projectViewer" class="fa-solid fa-eye-low-vision"></i>
     </button>
 
     <div class="stage-1 row" *ngIf="currentStage === 1">
       <i class="fa-solid fa-hand-pointer"></i>
-      <p>
-        يرجى النقر على الخريطة في المواقع المحددة لإضافة مشاريعك.
-      </p>
+      <p>يرجى النقر على الخريطة في المواقع المحددة لإضافة مشاريعك.</p>
     </div>
     <div class="stage-2 row" *ngIf="currentStage === 2">
       <i class="fa-solid fa-hand-pointer"></i>
       <p>
-        يرجى النقر على الخريطة في المواقع المحددة لإضافة العلامات المهمة، ثم قم بتغير الاسم و الشعار من القائمة.
+        يرجى النقر على الخريطة في المواقع المحددة لإضافة العلامات المهمة، ثم قم
+        بتغير الاسم و الشعار من القائمة.
       </p>
     </div>
     <div class="stage-3 row" *ngIf="currentStage === 3">
       <i class="fa-solid fa-hand-pointer"></i>
-      <div class="row" style="flex-direction: row;">
-        <i *ngFor="let point of pointTypes" 
+      <div class="row" style="flex-direction: row">
+        <i
+          *ngFor="let point of pointTypes"
           [class]="'fa-solid ' + point.icon"
-          [ngClass]="{ 'active': currentPointType === point.type }"
-          (click)="selectType(point.type)">
+          [ngClass]="{ active: currentPointType === point.type }"
+          (click)="selectType(point.type)"
+        >
         </i>
       </div>
     </div>
     <div class="stage-4 row" *ngIf="currentStage === 4">
       <i class="fa-solid fa-hand-pointer"></i>
       <p>
-        من فضلك اختر المشروع والنقطة، ارسم الطريق، ثم اضغط على النقطة لحفظه أو على المشروع لإعادة التهيئة.
+        من فضلك اختر المشروع والنقطة، ارسم الطريق، ثم اضغط على النقطة لحفظه أو
+        على المشروع لإعادة التهيئة.
       </p>
     </div>
     <div class="stage-5 row" *ngIf="currentStage === 5">
       <i class="fa-solid fa-hand-pointer"></i>
       <p>
-        أختر اى مشروع، ثم إبدا برسم الحدود، يمكنك الضغط على المشروع مرة اخرى لإعادة التهيئة.
+        أختر اى مشروع، ثم إبدا برسم الحدود، يمكنك الضغط على المشروع مرة اخرى
+        لإعادة التهيئة.
       </p>
     </div>
     <div class="stage-6 row" *ngIf="currentStage === 6">
       <i class="fa-solid fa-hand-pointer"></i>
       <p>يرجى اختيار الحدود ثم تحميل صورة الخريطة للنقطة.</p>
     </div>
-        
 
     <button (click)="next()" [disabled]="currentStage === 6">
       <i class="fa-solid fa-circle-chevron-left"></i>

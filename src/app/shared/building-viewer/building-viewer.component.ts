@@ -1,20 +1,29 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Building, BuildingStatus, ApartmentStatus, Floor, Apartment } from '../models/building.model';
+import {
+  Building,
+  BuildingStatus,
+  ApartmentStatus,
+  Floor,
+  Apartment,
+} from '../models/building.model';
 import { FormsModule } from '@angular/forms';
 import { Coordinate } from '../models/compound.model';
-import { NgxSliderModule } from '@angular-slider/ngx-slider';
-
+import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 @Component({
   selector: 'app-building-viewer',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    NgxSliderModule,
-  ],
+  imports: [CommonModule, FormsModule, NgxSliderModule],
   templateUrl: './building-viewer.component.html',
-  styleUrls: ['./building-viewer.component.scss']
+  styleUrls: ['./building-viewer.component.scss'],
 })
 export class BuildingViewerComponent implements OnInit {
   @Input() building!: Building;
@@ -35,9 +44,9 @@ export class BuildingViewerComponent implements OnInit {
   addMode = true;
   currentApartment: Apartment | null = null;
   currentFloor: Floor | null = null;
-  polygonCoordinates: { x: number, y: number }[] = [];
+  polygonCoordinates: { x: number; y: number }[] = [];
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit(): void {
     this.determineMediaType();
@@ -68,7 +77,11 @@ export class BuildingViewerComponent implements OnInit {
     }
   }
 
-  shouldShowBorder(status: ApartmentStatus, roomsCount: number, area: number): boolean {
+  shouldShowBorder(
+    status: ApartmentStatus,
+    roomsCount: number,
+    area: number
+  ): boolean {
     const roomCountCondition = (roomsCount: number) => {
       switch (roomsCount) {
         case 1:
@@ -87,25 +100,42 @@ export class BuildingViewerComponent implements OnInit {
     };
 
     const areaCondition = (area: number) => {
-      return (this.minArea ? area >= this.minArea : true) && (this.maxArea ? area <= this.maxArea : true);
+      return (
+        (this.minArea ? area >= this.minArea : true) &&
+        (this.maxArea ? area <= this.maxArea : true)
+      );
     };
 
     switch (status) {
       case ApartmentStatus.AVAILABLE:
-        return this.showAvailable && roomCountCondition(roomsCount) && areaCondition(area);
+        return (
+          this.showAvailable &&
+          roomCountCondition(roomsCount) &&
+          areaCondition(area)
+        );
       case ApartmentStatus.BOOKED:
-        return this.showBooked && roomCountCondition(roomsCount) && areaCondition(area);
+        return (
+          this.showBooked &&
+          roomCountCondition(roomsCount) &&
+          areaCondition(area)
+        );
       case ApartmentStatus.SOLD:
-        return this.showSold && roomCountCondition(roomsCount) && areaCondition(area);
+        return (
+          this.showSold && roomCountCondition(roomsCount) && areaCondition(area)
+        );
       case ApartmentStatus.UNDER_MAINTENANCE:
-        return this.showUnderMaintenance && roomCountCondition(roomsCount) && areaCondition(area);
+        return (
+          this.showUnderMaintenance &&
+          roomCountCondition(roomsCount) &&
+          areaCondition(area)
+        );
       default:
         return false;
     }
   }
 
-  getPolygonPoints(coordinates: { x: number, y: number }[]): string {
-    return coordinates.map(coord => `${coord.x},${coord.y}`).join(' ');
+  getPolygonPoints(coordinates: { x: number; y: number }[]): string {
+    return coordinates.map((coord) => `${coord.x},${coord.y}`).join(' ');
   }
 
   getBorderColor(status: string): string {
@@ -134,13 +164,13 @@ export class BuildingViewerComponent implements OnInit {
   }
 
   onBorderClick(apartment: Apartment): void {
-    if(this.addMode) {
+    if (this.addMode) {
       console.log('Border clicked:', apartment.border);
     }
   }
 
   goBack(): void {
-    this.takeAction.emit()
+    this.takeAction.emit();
   }
 
   startAddMode(): void {
@@ -197,7 +227,7 @@ export class BuildingViewerComponent implements OnInit {
 
   editFloor(floor: Floor): void {
     if (this.currentApartment) this.currentApartment = null;
-    
+
     this.currentFloor = floor;
     console.log('Edit floor:', floor);
   }
@@ -216,7 +246,7 @@ export class BuildingViewerComponent implements OnInit {
 
   editApartment(apartment: Apartment): void {
     if (this.currentFloor) this.currentFloor = null;
-    
+
     this.currentApartment = apartment;
     console.log('Edit apartment:', apartment);
   }
@@ -236,4 +266,80 @@ export class BuildingViewerComponent implements OnInit {
       floor.apartments.splice(index, 1);
     }
   }
+
+  // ============================
+  // SIDEBAR FILTER
+  // ============================
+  showSidebarFilter: boolean = false;
+  onShowSidebarFilter() {
+    this.showSidebarFilter = !this.showSidebarFilter;
+  }
+  // ============================
+  // Active Buttos
+  // ============================
+  activeTypeBtn: string | null = 'Available';
+
+  onActiveTypeBtn(value: string) {
+    this.activeTypeBtn = value;
+  }
+
+  // ======================
+  // * Filter BUILDING TYPES
+  // ======================
+  buttonBuildingType: { [key: string]: boolean } = {
+    amenities: false,
+    twoBedrooms: false,
+    threeBedrooms: false,
+    fourBedrooms: false,
+    upperBuilding: false,
+  };
+
+  onButtonBuildingType(buttonName: string) {
+    this.buttonBuildingType[buttonName] = !this.buttonBuildingType[buttonName];
+  }
+
+  // ======================
+  // * Filter BUILDING VIEWS
+  // ======================
+  buttonBuildingViews: { [key: string]: boolean } = {
+    seeView: false,
+    seeFront: false,
+  };
+
+  onButtonBuildingViews(buttonName: string) {
+    this.buttonBuildingViews[buttonName] =
+      !this.buttonBuildingViews[buttonName];
+  }
+  // ======================
+  // * Filter CLASS TYPES
+  // ======================
+  buttonClassTypes: { [key: string]: boolean } = {
+    A: true,
+    B: true,
+    C: true,
+    D: true,
+    E: true,
+  };
+
+  onButtonClassTypes(buttonName: string) {
+    this.buttonClassTypes[buttonName] = !this.buttonClassTypes[buttonName];
+  }
+
+  // ===================================
+  // ===================================
+  // floorValue: number = 0;
+  minFloorValue: number = 0;
+  maxFloorValue: number = 24;
+  floorOptions: Options = {
+    floor: 0,
+    ceil: 24,
+  };
+  minSizeValue: number = 0;
+  maxSizeValue: number = 295;
+  SizeOptions: Options = {
+    floor: 0,
+    ceil: 295,
+  };
+  // ===================================
+  // ===================================
 }

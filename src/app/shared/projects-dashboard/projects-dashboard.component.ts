@@ -1,8 +1,30 @@
-import { Component, ElementRef, ViewChild, Input, Output, EventEmitter, SimpleChanges, ViewChildren, QueryList } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  Input,
+  Output,
+  EventEmitter,
+  SimpleChanges,
+  ViewChildren,
+  QueryList,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { pointTypes, PointType, Project, Point, PointTypeEnum, Path, Border, ProjectsMap } from '../models/project.model';
+import {
+  pointTypes,
+  PointType,
+  Project,
+  Point,
+  PointTypeEnum,
+  Path,
+  Border,
+  ProjectsMap,
+} from '../models/project.model';
 import { PreloaderService } from '../preload/preloader.service';
-import { alharamenProjectMap, staticBuildings } from '../../../assets/staticPaths';
+import {
+  alharamenProjectMap,
+  staticBuildings,
+} from '../../../assets/staticPaths';
 import { FormsModule } from '@angular/forms';
 import { Building } from '../models/building.model';
 
@@ -11,7 +33,7 @@ import { Building } from '../models/building.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './projects-dashboard.component.html',
-  styleUrls: ['./projects-dashboard.component.scss']
+  styleUrls: ['./projects-dashboard.component.scss'],
 })
 export class ProjectsDashboardComponent {
   @Input() currentProject: Project | null = null;
@@ -34,7 +56,7 @@ export class ProjectsDashboardComponent {
     projectId: null,
     pointId: null,
     mapImage: null,
-    data: []
+    data: [],
   };
 
   selectedProjectPoint: Point | null = null;
@@ -51,16 +73,32 @@ export class ProjectsDashboardComponent {
   private currentBorder: Border | null = null;
   private imageCache = new Map<File, string>();
 
-  borderTypes: string[] = ['سكني', 'تجاري', 'تسوق', 'ترفيه', 'خدمات', 'مكاتب', 'مستشفيات', 'مدارس', 'مساجد', 'مطاعم', 'مولات', 'مواقف'];
+  borderTypes: string[] = [
+    'سكني',
+    'تجاري',
+    'تسوق',
+    'ترفيه',
+    'خدمات',
+    'مكاتب',
+    'مستشفيات',
+    'مدارس',
+    'مساجد',
+    'مطاعم',
+    'مولات',
+    'مواقف',
+  ];
   uniqueFloors: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   areaRange = { min: 0, max: 10000 };
   occupancyRange = { min: 0, max: 100 };
 
   activeBorderFilters = {
-    types: this.borderTypes.reduce((acc, type) => ({ ...acc, [type]: true }), {} as { [key: string]: boolean }),
+    types: this.borderTypes.reduce(
+      (acc, type) => ({ ...acc, [type]: true }),
+      {} as { [key: string]: boolean }
+    ),
     floors: [...this.uniqueFloors],
     area: { min: this.areaRange.min, max: this.areaRange.max },
-    occupancy: { min: this.occupancyRange.min, max: this.occupancyRange.max }
+    occupancy: { min: this.occupancyRange.min, max: this.occupancyRange.max },
   };
 
   filteredBorders: Border[] = [];
@@ -95,7 +133,9 @@ export class ProjectsDashboardComponent {
     }
 
     if (changes['showPartProjectMap']) {
-      console.log(`showPartProjectMap value changed to: ${this.showPartProjectMap}`);
+      console.log(
+        `showPartProjectMap value changed to: ${this.showPartProjectMap}`
+      );
     }
   }
 
@@ -111,7 +151,9 @@ export class ProjectsDashboardComponent {
 
   private initializeFilters() {
     if (this.activeProject?.mapImage) {
-      this.setShowPartProjectMap(this.getMapImageSource(this.activeProject.mapImage));
+      this.setShowPartProjectMap(
+        this.getMapImageSource(this.activeProject.mapImage)
+      );
     }
 
     this.filterOptions = pointTypes
@@ -131,7 +173,9 @@ export class ProjectsDashboardComponent {
 
   private selectFirstProjectPoint() {
     if (this.activeProject?.points) {
-      const firstProjectPoint = this.activeProject.points.find(point => point.isProject);
+      const firstProjectPoint = this.activeProject.points.find(
+        (point) => point.isProject
+      );
       if (firstProjectPoint) {
         this.onPointClick(firstProjectPoint);
       }
@@ -155,30 +199,42 @@ export class ProjectsDashboardComponent {
     }
 
     this.borderTypes = Array.from(
-      new Set(this.selectedBorderPoint.borders.map(border => border.data?.type).filter(type => type))
+      new Set(
+        this.selectedBorderPoint.borders
+          .map((border) => border.data?.type)
+          .filter((type) => type)
+      )
     ) as string[];
 
-    this.borderTypes.forEach(type => {
+    this.borderTypes.forEach((type) => {
       this.activeBorderFilters.types[type] = true;
     });
 
     this.uniqueFloors = Array.from(
-      new Set(this.selectedBorderPoint.borders.map(border => border.data?.floors).filter(floors => floors != null))
+      new Set(
+        this.selectedBorderPoint.borders
+          .map((border) => border.data?.floors)
+          .filter((floors) => floors != null)
+      )
     ) as number[];
 
     this.activeBorderFilters.floors = [...this.uniqueFloors];
 
     const areas = this.selectedBorderPoint.borders
-      .map(border => parseInt(border.data?.area?.replace(/\D/g, '') || '0', 10))
-      .filter(area => !isNaN(area));
+      .map((border) =>
+        parseInt(border.data?.area?.replace(/\D/g, '') || '0', 10)
+      )
+      .filter((area) => !isNaN(area));
     this.areaRange.min = Math.min(...areas, 0);
     this.areaRange.max = Math.max(...areas, 10000);
     this.activeBorderFilters.area.min = this.areaRange.min;
     this.activeBorderFilters.area.max = this.areaRange.max;
 
     const occupancies = this.selectedBorderPoint.borders
-      .map(border => parseInt((border.data?.occupancy ?? '0').replace(/%/g, ''), 10))
-      .filter(occupancy => !isNaN(occupancy));
+      .map((border) =>
+        parseInt((border.data?.occupancy ?? '0').replace(/%/g, ''), 10)
+      )
+      .filter((occupancy) => !isNaN(occupancy));
     this.occupancyRange.min = Math.min(...occupancies, 0);
     this.occupancyRange.max = Math.max(...occupancies, 100);
     this.activeBorderFilters.occupancy.min = this.occupancyRange.min;
@@ -213,7 +269,10 @@ export class ProjectsDashboardComponent {
         let scrollTop = (y / 100) * scrollElement.scrollHeight - centerHeight;
         scrollElement.scrollLeft = -scrollLeft;
         scrollElement.scrollTop = scrollTop;
-      } else if (this.selectedProjectMap?.autoScroll && this.showPartProjectMap) {
+      } else if (
+        this.selectedProjectMap?.autoScroll &&
+        this.showPartProjectMap
+      ) {
         const { x, y } = this.selectedProjectMap.autoScroll;
         let scrollLeft = (x / 100) * scrollElement.scrollWidth - centerWidth;
         let scrollTop = (y / 100) * scrollElement.scrollHeight - centerHeight;
@@ -241,7 +300,9 @@ export class ProjectsDashboardComponent {
 
   clearData() {
     if (this.showPartProjectMap && this.activeProject) {
-      this.setShowPartProjectMap(this.getMapImageSource(this.activeProject.mapImage));
+      this.setShowPartProjectMap(
+        this.getMapImageSource(this.activeProject.mapImage)
+      );
       this.showPartProjectMap = false;
       return;
     }
@@ -249,7 +310,9 @@ export class ProjectsDashboardComponent {
     this.clearCachedURLs();
     this.selectedBorderPoint = null;
     if (this.activeProject?.mapImage) {
-      this.setShowPartProjectMap(this.getMapImageSource(this.activeProject.mapImage));
+      this.setShowPartProjectMap(
+        this.getMapImageSource(this.activeProject.mapImage)
+      );
     }
     this.currentProject = null;
     this.selectedPath = [];
@@ -290,7 +353,12 @@ export class ProjectsDashboardComponent {
   getBorderPoints(coordinates: { x: number; y: number }[] | undefined): string {
     if (!coordinates || coordinates.length === 0) return '';
     return coordinates
-      .map(coord => `${(coord.x / 100) * this.imageWidth},${(coord.y / 100) * this.imageHeight}`)
+      .map(
+        (coord) =>
+          `${(coord.x / 100) * this.imageWidth},${
+            (coord.y / 100) * this.imageHeight
+          }`
+      )
       .join(' ');
   }
 
@@ -321,7 +389,8 @@ export class ProjectsDashboardComponent {
 
   private handleNonAddModeBorderClick(point: Point, event?: MouseEvent) {
     this.selectedProjectMap = alharamenProjectMap.find(
-      (map) => map.projectId === this.activeProject?.id && map.pointId === point.id
+      (map) =>
+        map.projectId === this.activeProject?.id && map.pointId === point.id
     );
 
     if (this.selectedProjectMap) {
@@ -330,7 +399,7 @@ export class ProjectsDashboardComponent {
 
       this.selectedBorderPoint = {
         ...point,
-        borders: this.selectedProjectMap.data![0]?.borders || []
+        borders: this.selectedProjectMap.data![0]?.borders || [],
       };
       this.resetFilters();
     } else {
@@ -344,14 +413,35 @@ export class ProjectsDashboardComponent {
 
   private handleAddModePointClick(point: Point, event?: MouseEvent) {
     if (this.addStage <= 3) {
-      if (this.newProject && this.newProject.points && this.addStage === 1 && point.isProject) {
-        this.newProject.points = this.newProject.points.filter(p => p.id !== point.id);
+      if (
+        this.newProject &&
+        this.newProject.points &&
+        this.addStage === 1 &&
+        point.isProject
+      ) {
+        this.newProject.points = this.newProject.points.filter(
+          (p) => p.id !== point.id
+        );
       }
-      if (this.newProject && this.newProject.points && this.addStage === 2 && point.importance === 1) {
-        this.newProject.points = this.newProject.points.filter(p => p.id !== point.id);
+      if (
+        this.newProject &&
+        this.newProject.points &&
+        this.addStage === 2 &&
+        point.importance === 1
+      ) {
+        this.newProject.points = this.newProject.points.filter(
+          (p) => p.id !== point.id
+        );
       }
-      if (this.newProject && this.newProject.points && this.addStage === 3 && point.importance === 0) {
-        this.newProject.points = this.newProject.points.filter(p => p.id !== point.id);
+      if (
+        this.newProject &&
+        this.newProject.points &&
+        this.addStage === 3 &&
+        point.importance === 0
+      ) {
+        this.newProject.points = this.newProject.points.filter(
+          (p) => p.id !== point.id
+        );
       }
     }
 
@@ -390,7 +480,7 @@ export class ProjectsDashboardComponent {
       this.drawPath();
     }
   }
-  
+
   onMouseWheel(event: WheelEvent) {
     if (!event.ctrlKey) return; // Only zoom if Ctrl key is pressed
     event.preventDefault();
@@ -400,7 +490,8 @@ export class ProjectsDashboardComponent {
 
     const zoomStep = 0.1;
     const isZoomOut = event.deltaY > 0;
-    let newContainerScale = this.containerScale + (isZoomOut ? -zoomStep : zoomStep);
+    let newContainerScale =
+      this.containerScale + (isZoomOut ? -zoomStep : zoomStep);
 
     // Clamp the scale between 0.5 and 2
     newContainerScale = Math.max(0.5, Math.min(2, newContainerScale));
@@ -430,16 +521,28 @@ export class ProjectsDashboardComponent {
   }
 
   drawPath() {
-    if (!this.activeProject || !this.selectedProjectPoint || !this.selectedPoint) return;
+    if (
+      !this.activeProject ||
+      !this.selectedProjectPoint ||
+      !this.selectedPoint
+    )
+      return;
 
-    const projectPoint = this.activeProject.points!.find(p => p.isProject);
+    const projectPoint = this.activeProject.points!.find((p) => p.isProject);
     if (!projectPoint || !projectPoint.paths) return;
 
-    const pathToPoint = projectPoint.paths.find(p => p.point.id === this.selectedPoint!.id);
+    const pathToPoint = projectPoint.paths.find(
+      (p) => p.point.id === this.selectedPoint!.id
+    );
     if (!pathToPoint) return;
 
     const pathData = pathToPoint.path
-      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
+      .map(
+        (p, index) =>
+          `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${
+            (p.y / 100) * this.imageHeight
+          }`
+      )
       .join(' ');
 
     this.selectedPath = [{ d: pathData }];
@@ -465,17 +568,22 @@ export class ProjectsDashboardComponent {
       return;
     }
 
-    this.filteredBorders = this.selectedBorderPoint.borders.filter(border => {
+    this.filteredBorders = this.selectedBorderPoint.borders.filter((border) => {
       const borderType = border.data?.type;
       const borderFloors = border.data?.floors;
       const borderAreaStr = border.data?.area;
-      const borderArea = borderAreaStr ? parseInt(borderAreaStr.replace(/\D/g, ''), 10) : 0;
+      const borderArea = borderAreaStr
+        ? parseInt(borderAreaStr.replace(/\D/g, ''), 10)
+        : 0;
       const borderOccupancyStr = border.data?.occupancy;
-      const borderOccupancy = borderOccupancyStr ? parseInt(borderOccupancyStr.replace(/%/g, ''), 10) : 0;
+      const borderOccupancy = borderOccupancyStr
+        ? parseInt(borderOccupancyStr.replace(/%/g, ''), 10)
+        : 0;
 
       return (
         (!borderType || this.activeBorderFilters.types[borderType]) &&
-        (!borderFloors || this.activeBorderFilters.floors.includes(borderFloors)) &&
+        (!borderFloors ||
+          this.activeBorderFilters.floors.includes(borderFloors)) &&
         borderArea >= this.activeBorderFilters.area.min &&
         borderArea <= this.activeBorderFilters.area.max &&
         borderOccupancy >= this.activeBorderFilters.occupancy.min &&
@@ -491,7 +599,7 @@ export class ProjectsDashboardComponent {
       return;
     }
 
-    this.borderTypes.forEach(type => {
+    this.borderTypes.forEach((type) => {
       this.activeBorderFilters.types[type] = true;
     });
 
@@ -519,7 +627,8 @@ export class ProjectsDashboardComponent {
     } else if (this.addStage === 5) {
       this.handleAddStage5ContainerClick(xPercent, yPercent, event);
     } else if (this.addStage === 7) {
-      if (this.addBuildingBorder) this.handleAddStage7ContainerClick(xPercent, yPercent, event);
+      if (this.addBuildingBorder)
+        this.handleAddStage7ContainerClick(xPercent, yPercent, event);
     }
   }
 
@@ -534,7 +643,7 @@ export class ProjectsDashboardComponent {
       position: { x: xPercent, y: yPercent },
       visible: true,
       borders: [],
-      paths: []
+      paths: [],
     };
 
     if (this.addStage === 2) {
@@ -572,7 +681,11 @@ export class ProjectsDashboardComponent {
       } else {
         this.initializePath(this.selectedProjectPoint, this.selectedPoint);
       }
-    } else if (point === this.selectedProjectPoint && this.selectedPoint && this.pathDrawn) {
+    } else if (
+      point === this.selectedProjectPoint &&
+      this.selectedPoint &&
+      this.pathDrawn
+    ) {
       this.resetPath(this.selectedProjectPoint, this.selectedPoint);
     } else if (point === this.selectedPoint && this.pathDrawn) {
       this.finalizePath();
@@ -594,7 +707,11 @@ export class ProjectsDashboardComponent {
     }
   }
 
-  private handleAddStage4ContainerClick(xPercent: number, yPercent: number, event: MouseEvent) {
+  private handleAddStage4ContainerClick(
+    xPercent: number,
+    yPercent: number,
+    event: MouseEvent
+  ) {
     if (this.selectedProjectPoint && this.selectedPoint) {
       if (!this.newPath) {
         this.checkOrCreatePathForStage4();
@@ -603,29 +720,45 @@ export class ProjectsDashboardComponent {
       }
 
       const pathData = this.newPath
-        ?.map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
+        ?.map(
+          (p, index) =>
+            `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${
+              (p.y / 100) * this.imageHeight
+            }`
+        )
         .join(' ');
       this.selectedPath = pathData ? [{ d: pathData }] : [];
       this.pathDrawn = true;
     }
   }
 
-  private handleAddStage5ContainerClick(xPercent: number, yPercent: number, event: MouseEvent) {
+  private handleAddStage5ContainerClick(
+    xPercent: number,
+    yPercent: number,
+    event: MouseEvent
+  ) {
     if (this.selectedProjectPoint) {
       if (!this.selectedProjectPoint.borders?.length) {
-        this.selectedProjectPoint.borders = [{
-          Cordinates: [],
-          visible: true,
-          color: 'blue',
-          data: { name: 'اسم الحد' }
-        }];
+        this.selectedProjectPoint.borders = [
+          {
+            Cordinates: [],
+            visible: true,
+            color: 'blue',
+            data: { name: 'اسم الحد' },
+          },
+        ];
       }
-      this.selectedProjectPoint.borders[this.selectedProjectPoint.borders.length - 1]
-        .Cordinates.push({ x: xPercent, y: yPercent });
+      this.selectedProjectPoint.borders[
+        this.selectedProjectPoint.borders.length - 1
+      ].Cordinates.push({ x: xPercent, y: yPercent });
     }
   }
 
-  private handleAddStage7ContainerClick(xPercent: number, yPercent: number, event: MouseEvent) {
+  private handleAddStage7ContainerClick(
+    xPercent: number,
+    yPercent: number,
+    event: MouseEvent
+  ) {
     if (!this.projectsMap) return;
     if (!this.projectsMap.data || this.projectsMap.data.length === 0) {
       this.projectsMap.data = [{ borders: [] }];
@@ -636,7 +769,7 @@ export class ProjectsDashboardComponent {
         Cordinates: [],
         visible: true,
         color: 'blue',
-        data: { name: 'اسم الحد' }
+        data: { name: 'اسم الحد' },
       };
       this.projectsMap.data[0].borders.push(this.currentBorder);
     }
@@ -648,9 +781,14 @@ export class ProjectsDashboardComponent {
   }
 
   private useExistingPath(existing: Path[]) {
-    this.newPath = existing.map(coord => ({ x: coord.x, y: coord.y }));
+    this.newPath = existing.map((coord) => ({ x: coord.x, y: coord.y }));
     const pathData = this.newPath
-      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
+      .map(
+        (p, index) =>
+          `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${
+            (p.y / 100) * this.imageHeight
+          }`
+      )
       .join(' ');
     this.selectedPath = [{ d: pathData }];
     this.pathDrawn = true;
@@ -659,7 +797,12 @@ export class ProjectsDashboardComponent {
   private initializePath(projectPoint: Point, targetPoint: Point) {
     this.newPath = [projectPoint.position, targetPoint.position];
     const pathData = this.newPath
-      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
+      .map(
+        (p, index) =>
+          `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${
+            (p.y / 100) * this.imageHeight
+          }`
+      )
       .join(' ');
     this.selectedPath = [{ d: pathData }];
     this.pathDrawn = true;
@@ -668,25 +811,34 @@ export class ProjectsDashboardComponent {
   private resetPath(projectPoint: Point, targetPoint: Point) {
     this.newPath = [projectPoint.position, targetPoint.position];
     const pathData = this.newPath
-      .map((p, index) => `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${(p.y / 100) * this.imageHeight}`)
+      .map(
+        (p, index) =>
+          `${index === 0 ? 'M' : 'L'} ${(p.x / 100) * this.imageWidth},${
+            (p.y / 100) * this.imageHeight
+          }`
+      )
       .join(' ');
     this.selectedPath = [{ d: pathData }];
   }
 
   private finalizePath() {
     if (!this.newPath) return;
-    const projectPoint = this.newProject?.points?.find(p => p.id === this.selectedProjectPoint!.id);
+    const projectPoint = this.newProject?.points?.find(
+      (p) => p.id === this.selectedProjectPoint!.id
+    );
     if (projectPoint) {
       if (!projectPoint.paths) projectPoint.paths = [];
       const existingPathIndex = projectPoint.paths.findIndex(
-        p => p.point.id === this.selectedPoint!.id
+        (p) => p.point.id === this.selectedPoint!.id
       );
       if (existingPathIndex !== -1) {
-        projectPoint.paths[existingPathIndex].path = this.newPath.map((coord, index) => ({
-          id: index + 1,
-          x: coord.x,
-          y: coord.y,
-        }));
+        projectPoint.paths[existingPathIndex].path = this.newPath.map(
+          (coord, index) => ({
+            id: index + 1,
+            x: coord.x,
+            y: coord.y,
+          })
+        );
       } else {
         projectPoint.paths.push({
           point: this.selectedPoint!,
@@ -705,10 +857,10 @@ export class ProjectsDashboardComponent {
   }
 
   private checkOrCreatePathForStage4() {
-    const projectPoint = this.currentProject?.points.find(p => p.isProject);
+    const projectPoint = this.currentProject?.points.find((p) => p.isProject);
     if (projectPoint && projectPoint.paths) {
       const existingPath = projectPoint.paths.find(
-        p => p.point.id === this.selectedPoint!.id
+        (p) => p.point.id === this.selectedPoint!.id
       );
       if (existingPath) {
         this.useExistingPath(existingPath.path);
@@ -773,14 +925,19 @@ export class ProjectsDashboardComponent {
       const yPercent = (offsetY / rect.height) * 100;
 
       if (!this.selectedBorderPoint.borders?.length) {
-        this.selectedBorderPoint.borders = [{
-          Cordinates: [],
-          visible: true,
-          color: 'blue',
-          data: { name: 'اسم الحد' }
-        }];
+        this.selectedBorderPoint.borders = [
+          {
+            Cordinates: [],
+            visible: true,
+            color: 'blue',
+            data: { name: 'اسم الحد' },
+          },
+        ];
       }
-      this.selectedBorderPoint.borders[0].Cordinates.push({ x: xPercent, y: yPercent });
+      this.selectedBorderPoint.borders[0].Cordinates.push({
+        x: xPercent,
+        y: yPercent,
+      });
 
       console.log('Added new border point:', { x: xPercent, y: yPercent });
     } else {
@@ -797,16 +954,24 @@ export class ProjectsDashboardComponent {
       const yPercent = (offsetY / rect.height) * 100;
 
       if (!this.selectedProjectPoint.borders?.length) {
-        this.selectedProjectPoint.borders = [{
-          Cordinates: [],
-          visible: true,
-          color: 'blue',
-          data: { name: 'اسم الحد' }
-        }];
+        this.selectedProjectPoint.borders = [
+          {
+            Cordinates: [],
+            visible: true,
+            color: 'blue',
+            data: { name: 'اسم الحد' },
+          },
+        ];
       }
-      this.selectedProjectPoint.borders[0].Cordinates.push({ x: xPercent, y: yPercent });
+      this.selectedProjectPoint.borders[0].Cordinates.push({
+        x: xPercent,
+        y: yPercent,
+      });
 
-      console.log('Updated borders for selected point:', this.selectedProjectPoint.borders);
+      console.log(
+        'Updated borders for selected point:',
+        this.selectedProjectPoint.borders
+      );
     }
   }
 
@@ -831,8 +996,12 @@ export class ProjectsDashboardComponent {
 
   finishCurrentBorder() {
     if (this.currentBorder) {
-      console.log('Finishing current border with coords:', this.currentBorder.Cordinates);
-      if (this.projectsMap.data) console.log('Borders:', this.projectsMap.data[0].borders);
+      console.log(
+        'Finishing current border with coords:',
+        this.currentBorder.Cordinates
+      );
+      if (this.projectsMap.data)
+        console.log('Borders:', this.projectsMap.data[0].borders);
       this.currentBorder = null;
     } else {
       console.warn('No border is currently in progress to finish!');
@@ -862,7 +1031,9 @@ export class ProjectsDashboardComponent {
     if (isChecked) {
       this.activeBorderFilters.floors.push(floor);
     } else {
-      this.activeBorderFilters.floors = this.activeBorderFilters.floors.filter(f => f !== floor);
+      this.activeBorderFilters.floors = this.activeBorderFilters.floors.filter(
+        (f) => f !== floor
+      );
     }
     this.applyAdvancedFilters();
   }
@@ -881,8 +1052,12 @@ export class ProjectsDashboardComponent {
    * Handles changes in the occupancy range sliders.
    */
   onOccupancyFilterChange() {
-    if (this.activeBorderFilters.occupancy.min > this.activeBorderFilters.occupancy.max) {
-      this.activeBorderFilters.occupancy.min = this.activeBorderFilters.occupancy.max;
+    if (
+      this.activeBorderFilters.occupancy.min >
+      this.activeBorderFilters.occupancy.max
+    ) {
+      this.activeBorderFilters.occupancy.min =
+        this.activeBorderFilters.occupancy.max;
     }
     this.applyAdvancedFilters();
   }
@@ -894,11 +1069,56 @@ export class ProjectsDashboardComponent {
    */
   getTypeLabel(type: string): string {
     const labels: { [key: string]: string } = {
-      'سكني': 'سكني',
-      'تجاري': 'تجاري',
-      'عيادات': 'عيادات',
-      'تسوق': 'تسوق'
+      سكني: 'سكني',
+      تجاري: 'تجاري',
+      عيادات: 'عيادات',
+      تسوق: 'تسوق',
     };
     return labels[type] || type;
+  }
+
+  // ======================
+  // * Dropdown Menu
+  // ======================
+  showDropdown: boolean = false;
+  onShowDropdown() {
+    this.showDropdown = !this.showDropdown;
+  }
+  dropdownList = [
+    { name: 'غير اللغة', img: '/assets/image/icons/lang.svg' },
+    { name: 'اخفي التصنفات', img: '/assets/image/icons/eye.svg' },
+    { name: 'إخفاء الغيوم', img: '/assets/image/icons/cloud.svg' },
+    { name: 'شاشة كاملة', img: '/assets/image/icons/full-screen.svg' },
+    { name: 'واتس اب', img: '/assets/image/icons/whatsapp.svg' },
+  ];
+  dropdownMedia = [
+    { name: 'x', img: '/assets/image/icons/x.svg' },
+    { name: 'انستقرام', img: '/assets/image/icons/instagram.svg' },
+    { name: 'يوتيوب', img: '/assets/image/icons/youtube.svg' },
+    { name: 'لينكدان', img: '/assets/image/icons/linkedin.svg' },
+  ];
+
+  // ======================
+  // * Contact Popup
+  // ======================
+  showContactPopup: boolean = false;
+  onShowContactPopup() {
+    this.showContactPopup = !this.showContactPopup;
+  }
+  // ======================
+  // * Filter buttons
+  // ======================
+  buttonStates: { [key: string]: boolean } = {
+    landmarks: false,
+    mainRoads: false,
+    retail: false,
+    education: false,
+    health: false,
+    garden: false,
+    HalfDiameter: false,
+  };
+
+  onButton(buttonName: string) {
+    this.buttonStates[buttonName] = !this.buttonStates[buttonName];
   }
 }

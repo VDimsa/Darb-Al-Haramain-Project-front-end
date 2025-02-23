@@ -1,62 +1,116 @@
 <div class="image-container" *ngIf="currentMapImage">
-  <div #scrollContainer class="scroll-container" (wheel)="onMouseWheel($event)"
-    (click)="addStage === 5 ? onDrawBorder($event) : onContainerClick($event)">
+  <div
+    #scrollContainer
+    class="scroll-container"
+    (wheel)="onMouseWheel($event)"
+    (click)="addStage === 5 ? onDrawBorder($event) : onContainerClick($event)"
+  >
     <div #mapContainer class="map-container">
       <!-- Map Image -->
-      <img #projectMap [src]="currentMapImage" [alt]="activeProject?.name" (load)="onImageLoad()"
+      <img
+        #projectMap
+        [src]="currentMapImage"
+        [alt]="activeProject?.name"
+        (load)="onImageLoad()"
         (error)="onImageError()"
-        [ngClass]="{'pointer': addStage === 1 || addStage === 2 || addStage === 5, 'map-image': true}" />
+        [ngClass]="{
+          pointer: addStage === 1 || addStage === 2 || addStage === 5,
+          'map-image': true
+        }"
+      />
 
       <!-- Points overlay -->
-      <div style="
+      <div
+        style="
           position: absolute;
           top: 0;
           right: 0;
           width: 100%;
           height: 100%;
-          overflow: hidden;" [style.z-index]="!isAddingMode ? '2 !important' : 'auto'" *ngIf="!showPartProjectMap">
+          overflow: hidden;
+        "
+        [style.z-index]="!isAddingMode ? '2 !important' : 'auto'"
+        *ngIf="!showPartProjectMap"
+      >
         <div class="points-dashboard">
-          <div #mapPoint *ngFor="let point of activeProject?.points" [style.left.%]="point.position.x"
-            [style.top.%]="point.position.y" class="point" [ngClass]="{
-              'isMega': point.importance === 1,
-              'nonVisible': !point.visible,
-              'isProject': point.isProject,
+          <div
+            #mapPoint
+            *ngFor="let point of activeProject?.points"
+            [style.left.%]="point.position.x"
+            [style.top.%]="point.position.y"
+            class="point"
+            [ngClass]="{
+              isMega: point.importance === 1,
+              nonVisible: !point.visible,
+              isProject: point.isProject,
               'light-effect': point.importance === 1,
-              'selected-effect': selectedPoint === point || selectedProjectPoint === point
-            }" (click)="onPointClick(point, $event)">
-            <i *ngIf="!point.isProject && point.importance === 0" [class]="getPointClass(point.type)"
-              [id]="point.id"></i>
-            <img *ngIf="point.isProject || point.importance === 1" [src]="getMapImageSource(point.logo)"
-              alt="Project Logo" [ngClass]="{
-                   'logo': point.isProject
-                 }" />
+              'selected-effect':
+                selectedPoint === point || selectedProjectPoint === point
+            }"
+            (click)="onPointClick(point, $event)"
+          >
+            <i
+              *ngIf="!point.isProject && point.importance === 0"
+              [class]="getPointClass(point.type)"
+              [id]="point.id"
+            ></i>
+            <img
+              *ngIf="point.isProject || point.importance === 1"
+              [src]="getMapImageSource(point.logo)"
+              alt="Project Logo"
+              [ngClass]="{
+                logo: point.isProject
+              }"
+            />
           </div>
         </div>
       </div>
 
       <!-- SVG for paths -->
-      <svg *ngIf="selectedPath && !showPartProjectMap" [attr.viewBox]="'0 0 ' + imageWidth + ' ' + imageHeight"
-        [style.z-index]="!isAddingMode ? '1 !important' : 'auto'" class="path-svg">
-        <path *ngFor="let path of selectedPath" [attr.d]="path.d" fill="none" stroke="white" stroke-width="0.1%"
-          class="animated-path" />
+      <svg
+        *ngIf="selectedPath && !showPartProjectMap"
+        [attr.viewBox]="'0 0 ' + imageWidth + ' ' + imageHeight"
+        [style.z-index]="!isAddingMode ? '1 !important' : 'auto'"
+        class="path-svg"
+      >
+        <path
+          *ngFor="let path of selectedPath"
+          [attr.d]="path.d"
+          fill="none"
+          stroke="white"
+          stroke-width="0.1%"
+          class="animated-path"
+        />
       </svg>
 
       <!-- SVG for borders -->
-      <svg class="borders-svg" [attr.viewBox]="'0 0 ' + imageWidth + ' ' + imageHeight"
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-        [style.z-index]="isAddingMode && addStage === 5 ? '-1 !important' : 'auto'" 
+      <svg
+        class="borders-svg"
+        [attr.viewBox]="'0 0 ' + imageWidth + ' ' + imageHeight"
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%"
+        [style.z-index]="
+          isAddingMode && addStage === 5 ? '-1 !important' : 'auto'
+        "
         [ngClass]="{
-          'nonVisible': isAddingMode && ![5, 6, 7].includes(addStage)
-        }">
+          nonVisible: isAddingMode && ![5, 6, 7].includes(addStage)
+        }"
+      >
         <!-- 1) Point-based borders: hide in stage 7 by adding `addStage !== 7` -->
         <ng-container *ngIf="!showPartProjectMap && addStage !== 7">
           <ng-container *ngFor="let point of activeProject?.points">
             <!-- Only render if point is a project (remove `point.isProject` to show borders for all) -->
             <ng-container *ngIf="point.borders && point.isProject">
               <ng-container *ngFor="let border of point.borders">
-                <polygon *ngIf="border.Cordinates?.length" [attr.points]="getBorderPoints(border.Cordinates)"
-                  fill="rgba(0, 0, 255, 0.2)" stroke="blue" stroke-width="2" [style.stroke]="border.color || 'blue'"
-                  [style.fill]="border.color || 'blue'" (click)="onBorderClick(point, $event)"></polygon>
+                <polygon
+                  *ngIf="border.Cordinates?.length"
+                  [attr.points]="getBorderPoints(border.Cordinates)"
+                  fill="rgba(0, 0, 255, 0.2)"
+                  stroke="blue"
+                  stroke-width="2"
+                  [style.stroke]="border.color || 'blue'"
+                  [style.fill]="border.color || 'blue'"
+                  (click)="onBorderClick(point, $event)"
+                ></polygon>
               </ng-container>
             </ng-container>
           </ng-container>
@@ -64,31 +118,61 @@
 
         <!-- 2) If showPartProjectMap is active, show the selected point's borders -->
         <ng-container
-          *ngIf="showPartProjectMap && selectedBorderPoint && selectedBorderPoint.borders && addStage !== 7">
+          *ngIf="
+            showPartProjectMap &&
+            selectedBorderPoint &&
+            selectedBorderPoint.borders &&
+            addStage !== 7
+          "
+        >
           <ng-container *ngFor="let border of selectedBorderPoint.borders">
-            <polygon *ngIf="border.Cordinates?.length && border.visible && filteredBorders.includes(border)"
-              [attr.points]="getBorderPoints(border.Cordinates)" fill="rgba(0, 0, 255, 0.2)" stroke="blue"
-              stroke-width="2" (click)="onPointBorderClick(border, $event)" [style.stroke]="border.color || 'blue'"
-              [style.fill]="border.color || 'blue'"></polygon>
+            <polygon
+              *ngIf="
+                border.Cordinates?.length &&
+                border.visible &&
+                filteredBorders.includes(border)
+              "
+              [attr.points]="getBorderPoints(border.Cordinates)"
+              fill="rgba(0, 0, 255, 0.2)"
+              stroke="blue"
+              stroke-width="2"
+              (click)="onPointBorderClick(border, $event)"
+              [style.stroke]="border.color || 'blue'"
+              [style.fill]="border.color || 'blue'"
+            ></polygon>
           </ng-container>
         </ng-container>
 
         <!-- 3) In Stage 7, show the “inside” borders from `projectsMap.data` -->
-        <ng-container *ngIf="isAddingMode && (addStage === 7 || addStage === 8) && projectsMap && projectsMap.data">
+        <ng-container
+          *ngIf="
+            isAddingMode &&
+            (addStage === 7 || addStage === 8) &&
+            projectsMap &&
+            projectsMap.data
+          "
+        >
           <ng-container *ngFor="let data of projectsMap.data">
             <ng-container *ngFor="let border of data.borders">
-              <polygon *ngIf="border.Cordinates?.length" [attr.points]="getBorderPoints(border.Cordinates)"
+              <polygon
+                *ngIf="border.Cordinates?.length"
+                [attr.points]="getBorderPoints(border.Cordinates)"
                 [ngClass]="{
                   'click-through': addStage === 7 && addBuildingBorder,
                 }"
-                (click)="addStage === 8 ? onPointBorderClick(border, $event) : null"
-                fill="rgba(0, 0, 255, 0.2)" stroke="blue" stroke-width="2" [style.stroke]="border.color || 'blue'"
-                [style.fill]="border.color || 'blue'"></polygon>
+                (click)="
+                  addStage === 8 ? onPointBorderClick(border, $event) : null
+                "
+                fill="rgba(0, 0, 255, 0.2)"
+                stroke="blue"
+                stroke-width="2"
+                [style.stroke]="border.color || 'blue'"
+                [style.fill]="border.color || 'blue'"
+              ></polygon>
             </ng-container>
           </ng-container>
         </ng-container>
       </svg>
-
     </div>
   </div>
 
@@ -109,7 +193,11 @@
     <!-- Display the Project Map -->
     <div *ngIf="selectedBorderPoint.pointMap" class="project-map">
       <h4>خريطة المشروع:</h4>
-      <img [src]="getMapImageSource(projectsMap.mapImage)" alt="Project Map Preview" class="preview-img" />
+      <img
+        [src]="getMapImageSource(projectsMap.mapImage)"
+        alt="Project Map Preview"
+        class="preview-img"
+      />
     </div>
 
     <!-- Show Selected Border Point ID -->
@@ -135,13 +223,25 @@
             <ul>
               <li *ngFor="let border of data.borders; index as i">
                 <strong>الحدود {{ i + 1 }}: </strong>
-                <span *ngIf="border.data && border.data.name"> {{ border.data.name || 'Name' }} </span>
+                <span *ngIf="border.data && border.data.name">
+                  {{ border.data.name || "Name" }}
+                </span>
 
                 <!-- Input to edit border color -->
-                <input type="text" class="form-control ng-pristine ng-valid ng-touched" [value]="border.color" (input)="onBorderColorChange(border, $event)" />
+                <input
+                  type="text"
+                  class="form-control ng-pristine ng-valid ng-touched"
+                  [value]="border.color"
+                  (input)="onBorderColorChange(border, $event)"
+                />
 
                 <!-- Button to remove the border -->
-                <button class="btn btn-sm btn-primary" (click)="removeBorder(data, i)">حذف</button>
+                <button
+                  class="btn btn-sm btn-primary"
+                  (click)="removeBorder(data, i)"
+                >
+                  حذف
+                </button>
               </li>
             </ul>
           </div>
@@ -150,7 +250,10 @@
     </div>
 
     <!-- UI to show the user the in-progress border and a 'Finish' button -->
-    <button class="btn btn-sm btn-primary" (click)="toggleDrawingBuildingBorder()">
+    <button
+      class="btn btn-sm btn-primary"
+      (click)="toggleDrawingBuildingBorder()"
+    >
       تفعيل وضع التحديد
     </button>
 
@@ -161,12 +264,21 @@
   </div>
 
   <!-- Filters -->
-  <div class="filters" *ngIf="!isAddingMode && !showPartProjectMap && showFilters && !showPartProjectMap">
+  <div
+    class="filters"
+    *ngIf="
+      !isAddingMode && !showPartProjectMap && showFilters && !showPartProjectMap
+    "
+  >
     <h4>فلاتر</h4>
     <ul class="list-group">
       <li class="list-group-item" *ngFor="let filter of filterOptions">
         <label>
-          <input type="checkbox" checked="true" (change)="onFilterChange(filter.type, $event)" />
+          <input
+            type="checkbox"
+            checked="true"
+            (change)="onFilterChange(filter.type, $event)"
+          />
           {{ filter.label }}
         </label>
       </li>
@@ -174,19 +286,22 @@
   </div>
 
   <!-- Filters for Point map -->
-  <div class="filters" *ngIf="!isAddingMode && showPartProjectMap && showFilters" style="
-    max-height: 500px;
-    overflow-y: auto;
-    overflow-x: hidden;
-  ">
+  <div
+    class="filters"
+    *ngIf="!isAddingMode && showPartProjectMap && showFilters"
+    style="max-height: 500px; overflow-y: auto; overflow-x: hidden"
+  >
     <!-- Type Filters -->
     <div class="filter-section">
       <h5>النوع</h5>
       <ul class="list-group">
         <li class="list-group-item" *ngFor="let type of borderTypes">
           <label>
-            <input type="checkbox" [checked]="activeBorderFilters.types[type]"
-              (change)="onTypeFilterChange(type, $event)" />
+            <input
+              type="checkbox"
+              [checked]="activeBorderFilters.types[type]"
+              (change)="onTypeFilterChange(type, $event)"
+            />
             {{ getTypeLabel(type) }}
           </label>
         </li>
@@ -199,8 +314,11 @@
       <ul class="list-group">
         <li class="list-group-item" *ngFor="let floor of uniqueFloors">
           <label>
-            <input type="checkbox" [checked]="activeBorderFilters.floors.includes(floor)"
-              (change)="onFloorFilterChange(floor, $event)" />
+            <input
+              type="checkbox"
+              [checked]="activeBorderFilters.floors.includes(floor)"
+              (change)="onFloorFilterChange(floor, $event)"
+            />
             {{ floor }}
           </label>
         </li>
@@ -213,13 +331,23 @@
       <div class="slider-container">
         <label>
           الحد الأدنى: {{ activeBorderFilters.area.min }} م²
-          <input type="range" min="{{ areaRange.min }}" max="{{ areaRange.max }}"
-            [(ngModel)]="activeBorderFilters.area.min" (input)="onAreaFilterChange()" />
+          <input
+            type="range"
+            min="{{ areaRange.min }}"
+            max="{{ areaRange.max }}"
+            [(ngModel)]="activeBorderFilters.area.min"
+            (input)="onAreaFilterChange()"
+          />
         </label>
         <label>
           الحد الأقصى: {{ activeBorderFilters.area.max }} م²
-          <input type="range" min="{{ areaRange.min }}" max="{{ areaRange.max }}"
-            [(ngModel)]="activeBorderFilters.area.max" (input)="onAreaFilterChange()" />
+          <input
+            type="range"
+            min="{{ areaRange.min }}"
+            max="{{ areaRange.max }}"
+            [(ngModel)]="activeBorderFilters.area.max"
+            (input)="onAreaFilterChange()"
+          />
         </label>
       </div>
     </div>
@@ -230,13 +358,23 @@
       <div class="slider-container">
         <label>
           الحد الأدنى: {{ activeBorderFilters.occupancy.min }}%
-          <input type="range" min="{{ occupancyRange.min }}" max="{{ occupancyRange.max }}"
-            [(ngModel)]="activeBorderFilters.occupancy.min" (input)="onOccupancyFilterChange()" />
+          <input
+            type="range"
+            min="{{ occupancyRange.min }}"
+            max="{{ occupancyRange.max }}"
+            [(ngModel)]="activeBorderFilters.occupancy.min"
+            (input)="onOccupancyFilterChange()"
+          />
         </label>
         <label>
           الحد الأقصى: {{ activeBorderFilters.occupancy.max }}%
-          <input type="range" min="{{ occupancyRange.min }}" max="{{ occupancyRange.max }}"
-            [(ngModel)]="activeBorderFilters.occupancy.max" (input)="onOccupancyFilterChange()" />
+          <input
+            type="range"
+            min="{{ occupancyRange.min }}"
+            max="{{ occupancyRange.max }}"
+            [(ngModel)]="activeBorderFilters.occupancy.max"
+            (input)="onOccupancyFilterChange()"
+          />
         </label>
       </div>
     </div>
@@ -255,10 +393,150 @@
     <div class="filtered-borders mt-4">
       <h5>الحدود المتوافقة:</h5>
       <ul class="list-group">
-        <li class="list-group-item" *ngFor="let border of filteredBorders; index as i">
-          <strong>الحد {{ i + 1 }}:</strong> {{ border.data?.name || 'منطقة ' + (i + 1) }}
+        <li
+          class="list-group-item"
+          *ngFor="let border of filteredBorders; index as i"
+        >
+          <strong>الحد {{ i + 1 }}:</strong>
+          {{ border.data?.name || "منطقة " + (i + 1) }}
         </li>
       </ul>
+    </div>
+  </div>
+</div>
+
+<!-- =================================== -->
+<!--* Menu *-->
+<!-- =================================== -->
+<!--* Button -->
+<div class="menu" (click)="onShowDropdown()">
+  <p [ngClass]="showDropdown ? 'active' : ''">
+    <img
+      [src]="
+        showDropdown
+          ? '/assets/image/icons/arrow-down.svg'
+          : '/assets/image/icons/menu.svg'
+      "
+    />
+
+    القائمة
+  </p>
+</div>
+<!--* Dropdown -->
+<div class="dropdown" *ngIf="showDropdown">
+  <div class="items">
+    <div class="item" *ngFor="let item of dropdownList">
+      <img [src]="item.img" />
+      <p>{{ item.name }}</p>
+    </div>
+  </div>
+  <div class="media">
+    <div class="box" *ngFor="let item of dropdownMedia">
+      <img [src]="item.img" />
+      <!-- <span>{{ item.name }}</span> -->
+    </div>
+  </div>
+</div>
+<!-- =================================== -->
+<!--* Contact us *-->
+<!-- =================================== -->
+<button class="contact-btn" (click)="onShowContactPopup()">
+  <img src="/assets/image/icons/incoming-phone.svg" />
+</button>
+<!-- * Pupup -->
+<div class="contact-overlay" *ngIf="showContactPopup">
+  <div class="contact-popup">
+    <div class="header">
+      <p>إستفسار</p>
+      <img src="/assets/image/icons/close.svg" (click)="onShowContactPopup()" />
+    </div>
+    <form>
+      <div class="two-inputs-field">
+        <div class="input-filed">
+          <label>الاسم الاول</label>
+          <input type="text" />
+        </div>
+        <div class="input-filed">
+          <label>اسم العائلة</label>
+          <input type="text" />
+        </div>
+      </div>
+      <div class="two-inputs-field">
+        <div class="input-filed">
+          <label>رقم الهاتف </label>
+          <input type="text" />
+        </div>
+        <div class="input-filed">
+          <label>البريد الالكتروني</label>
+          <input type="email" />
+        </div>
+      </div>
+      <div class="popup-btn">
+        <button>ارسال</button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- =================================== -->
+<!--* Filters *-->
+<!-- =================================== -->
+<div class="filter-btns">
+  <div class="box">
+    <div
+      [ngClass]="buttonStates['landmarks'] ? 'active' : ''"
+      class="item"
+      (click)="onButton('landmarks')"
+    >
+      <img src="/assets/image/icons/landmarks.svg" />
+      <p>معالم</p>
+    </div>
+    <div
+      [ngClass]="buttonStates['mainRoads'] ? 'active' : ''"
+      class="item"
+      (click)="onButton('mainRoads')"
+    >
+      <img src="/assets/image/icons/roads.svg" />
+      <p>الطرق الرئسية</p>
+    </div>
+    <div
+      [ngClass]="buttonStates['retail'] ? 'active' : ''"
+      class="item"
+      (click)="onButton('retail')"
+    >
+      <img src="/assets/image/icons/retail.svg" />
+      <p>التجزئة</p>
+    </div>
+    <div
+      [ngClass]="buttonStates['education'] ? 'active' : ''"
+      class="item"
+      (click)="onButton('education')"
+    >
+      <img src="/assets/image/icons/educations.svg" />
+      <p>التعليم</p>
+    </div>
+    <div
+      [ngClass]="buttonStates['health'] ? 'active' : ''"
+      class="item"
+      (click)="onButton('health')"
+    >
+      <img src="/assets/image/icons/health.svg" />
+      <p>الصحة</p>
+    </div>
+    <div
+      [ngClass]="buttonStates['garden'] ? 'active' : ''"
+      class="item"
+      (click)="onButton('garden')"
+    >
+      <img src="/assets/image/icons/garden.svg" />
+      <p>حديقة</p>
+    </div>
+    <div
+      [ngClass]="buttonStates['HalfDiameter'] ? 'active' : ''"
+      class="item"
+      (click)="onButton('HalfDiameter')"
+    >
+      <img src="/assets/image/icons/HalfDiameter.svg" />
+      <p>نصف القطر</p>
     </div>
   </div>
 </div>
